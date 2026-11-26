@@ -1,20 +1,66 @@
-# ⚡ Solvrik HQ — One Hub, All Smart Tools
+&lt;div align=&quot;center&quot;&gt;
 
-> **Solve + Quick:** Free student utilities, media studio, All-India notes library, and AI automation systems — 0 MB install.
+# ⚡ SOLVRIK HQ
 
-🌐 **Official Web Hub:** [https://solvrikhq.github.io](https://solvrikhq.github.io)
+### **One Unified Hub. Zero Bloat. Pure Speed.**
 
-## 🛠️ Live Public Ecosystem
-- **Solvrik ToolBox** ([@SolvrikToolsBot](https://t.me/SolvrikToolsBot)) — 165+ utility tools including PDF Ink Saver, 20 KB Exam Photo Compressor, and A4 Passport Photo Sheet.
-- **Solvrik Media** ([@SolvrikMediaBot](https://t.me/SolvrikMediaBot)) — All-in-One video/audio downloader and 12 local FFmpeg studio tools.
-- **Solvrik Notes** ([@SolvrikNotesBot](https://t.me/SolvrikNotesBot)) — Structured study notes for CBSE, 6 State Boards, JEE, NEET, CUET, NDA & SSC.
+*Faceless tech & automation ecosystem built for students, creators, and power users — 165+ utility tools, media studio, All-India notes library, and AI automation systems.*
 
-## 🤖 Private AI & Automation Showcase
-- **AI Laptop Controller** — PIN-locked multi-AI (Groq + Gemini) remote workstation controller with voice hotkeys and privacy auto-clean.
-- **Laptop Unlock Alert** — Real-time Telegram security alerts on system login/unlock.
+<br>
 
-## 🔗 Connect & Support
-- 📢 **Telegram Channel:** [@SolvrikHQ](https://t.me/SolvrikHQ)
-- 📸 **Instagram:** [@solvrik.hq](https://www.instagram.com/solvrik.hq/)
-- ▶️ **YouTube Shorts:** [@SolvrikHQ](https://www.youtube.com/@SolvrikHQ)
-- 💬 **Support & Custom Bots:** [@SolvrikSupportBot](https://t.me/SolvrikSupportBot)
+[](https://solvrikhq.github.io)
+[](https://t.me/SolvrikHQ)
+[](https://www.instagram.com/solvrik.hq/)
+[](https://www.youtube.com/@SolvrikHQ)
+
+
+
+
+
+&lt;/div&gt;
+
+---
+
+## 🚀 Public Solvrik Ecosystem (`3 Live Bots · 1 Hub`)
+
+| System | Handle | Core Capabilities | Access |
+| :--- | :--- | :--- | :---: |
+| 🛠️ **Solvrik ToolBox** | `@SolvrikToolsBot` | **165+ Tools:** PDF Ink Saver (Dark → White), Exact 20 KB Exam Form Photo, 6-Photo A4 Passport Sheet (300 DPI), Smart Auto-Crop | [Launch Bot ↗](https://t.me/SolvrikToolsBot) |
+| 🎬 **Solvrik Media** | `@SolvrikMediaBot` | **Downloader + Studio:** 1080p/720p MP4, 320k MP3, >48 MB Direct Links & **12 Local FFmpeg Tools** (Cut, Merge, Compress, Mute) | [Launch Bot ↗](https://t.me/SolvrikMediaBot) |
+| 📚 **Solvrik Notes** | `@SolvrikNotesBot` | **All-India Library:** CBSE (Class 10–12), 6 State Boards, JEE, NEET, CUET, NDA & SSC structured chapter-wise notes & PYQs | [Launch Bot ↗](https://t.me/SolvrikNotesBot) |
+
+---
+
+## 🔒 Private AI & Automation Showcase (`In-House Systems`)
+
+| System | Architecture | Highlights | Status |
+| :--- | :--- | :--- | :---: |
+| 🤖 **AI Laptop Controller** | Multi-AI (`Groq + Gemini`) | PIN-locked remote workstation control, hotkey voice assistant, RAM Doctor, auto-clean, screenshot/cam check, screen off & sleep | `Private` |
+| 🛡️ **Laptop Unlock Alert** | Background Security Hook | Instant real-time Telegram alerts on every system login or unlock with zero external server exposure | `Private` |
+
+---
+
+## 🧭 Architecture Overview
+
+```text
+  [ Instagram @solvrik.hq ]  ──┐
+  [ YouTube   @SolvrikHQ  ]  ──┼──▶  [ 🌐 solvrikhq.github.io ]  ──▶  [ 📢 @SolvrikHQ ]
+  [ Google Search / Direct]  ──┘                                             │
+                                              ┌──────────────────────────────┼──────────────────────────────┐
+                                              ▼                              ▼                              ▼
+                                   🛠️ @SolvrikToolsBot             🎬 @SolvrikMediaBot            📚 @SolvrikNotesBot
+                                     (165+ Utilities)               (FFmpeg & Media)              (All-India Syllabus)
+```
+
+---
+
+## 💼 Support & Custom Bot Development
+
+Need help with any tool, want to report a bug, or looking to build a **custom Telegram automation / AI bot** for your coaching institute, channel, or workflow?
+
+- 💬 **Direct Support Desk:** [@SolvrikSupportBot](https://t.me/SolvrikSupportBot)
+- 📢 **Updates & New Drops:** [@SolvrikHQ](https://t.me/SolvrikHQ)
+
+&lt;div align=&quot;center&quot;&gt;
+&lt;sub&gt;© 2026 Solvrik HQ · Faceless Digital Tools &amp;amp; Automation Lab&lt;/sub&gt;
+&lt;/div&gt;
