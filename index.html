@@ -502,14 +502,20 @@
   </div>
   <section id="social-grid" class="grid-4"></section>
 
-  <section id="custom" class="support-banner">
+  <div id="custom" class="sec-head">
+    <h2>Build With Solvrik · Custom Services</h2>
+    <span>BOTS · WEBSITES · AI TOOLS</span>
+  </div>
+  <section id="services-grid" class="grid-2"></section>
+
+  <section class="support-banner">
     <div>
-      <h3>💼 Need Help or a Custom Telegram Bot?</h3>
+      <h3>💼 Apna Custom Tool, Bot, Website ya App Banwana Hai?</h3>
       <p>
-        Bug report, feature request, ya apne coaching/channel ke liye custom AI ya utility bot banwana ho — seedha Solvrik Support par message karein.
+        Apni requirement (Coaching, YouTube Channel, Business ya Personal Tool) seedha <strong>@SolvrikSupportBot</strong> par bhejein — fast delivery &amp; student-friendly pricing.
       </p>
     </div>
-    <a href="https://t.me/SolvrikSupportBot" target="_blank" rel="noopener" class="btn-primary">💬 @SolvrikSupportBot</a>
+    <a href="https://t.me/SolvrikSupportBot" target="_blank" rel="noopener" class="btn-primary">💬 Order on @SolvrikSupportBot</a>
   </section>
 
   <footer>
@@ -582,6 +588,26 @@ const SITE_CONFIG = {
       foot: "🔒 Private personal system — custom builds on request"
     }
   ],
+  services: [
+    {
+      icon: "🤖",
+      tag: "FROM ₹799",
+      name: "Custom Telegram Bots",
+      desc: "Paid/VIP bots, Notes library, Force Join, Broadcast, Auto-Downloaders &amp; Admin Panels.",
+      bullets: ["• 24×7 Cloud Deployment Ready", "• Built-in UPI / VIP &amp; Key System", "• Complete Admin Control"],
+      url: "https://t.me/SolvrikSupportBot",
+      btn: "Order Bot →"
+    },
+    {
+      icon: "🌐",
+      tag: "FROM ₹999",
+      name: "Websites, Web Apps &amp; AI Tools",
+      desc: "Fast dark-tech websites, coaching portals, Telegram Mini Apps &amp; AI automation scripts.",
+      bullets: ["• Desktop + Mobile App-Style UI", "• Zero Bloat &amp; Fast Loading", "• Custom Calculators &amp; Dashboards"],
+      url: "https://t.me/SolvrikSupportBot",
+      btn: "Order Website / App →"
+    }
+  ],
   socials: [
     { name: "Telegram Hub", handle: "@SolvrikHQ", url: "https://t.me/SolvrikHQ" },
     { name: "Support Desk", handle: "@SolvrikSupportBot", url: "https://t.me/SolvrikSupportBot" },
@@ -619,6 +645,18 @@ const SITE_CONFIG = {
         <ul>${p.bullets.map(x => `<li>${x}</li>`).join("")}</ul>
       </div>
       <div class="priv-foot">${p.foot}</div>
+    </article>
+  `).join("");
+
+  document.getElementById("services-grid").innerHTML = SITE_CONFIG.services.map(sv => `
+    <article class="card">
+      <div>
+        <div class="card-top"><span class="card-ico">${sv.icon}</span><span class="pill">${sv.tag}</span></div>
+        <h3>${sv.name}</h3>
+        <p>${sv.desc}</p>
+        <ul>${sv.bullets.map(x => `<li>${x}</li>`).join("")}</ul>
+      </div>
+      <a href="${sv.url}" target="_blank" rel="noopener" class="card-btn">${sv.btn}</a>
     </article>
   `).join("");
 
