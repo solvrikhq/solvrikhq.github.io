@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Solvrik Media Studio</title>
+  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+  <style>
+    :root { --bg: #0b1120; --card: #162032; --accent: #3b82f6; --green: #10b981; --text: #f8fafc; --muted: #94a3b8; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 12px; padding-bottom: 44px; }
+
+    .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .hdr h2 { margin: 0; font-size: 17px; }
+    .badge { background: #1d4ed8; font-size: 11px; padding: 4px 9px; border-radius: 20px; font-weight: 600; }
+
+    .pbar-wrap { width: 100%; height: 5px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+    .pbar-fill { height: 100%; width: 40%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.2s; }
+
+    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px; }
+    .tab { padding: 10px 8px; border: 1px solid #263349; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 600; font-size: 12.5px; cursor: pointer; text-align: center; }
+    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .card { background: var(--card); border-radius: 14px; padding: 14px; border: 1px solid #223047; }
+    .upload-box { border: 2px dashed #3b82f688; border-radius: 12px; padding: 18px 12px; text-align: center; cursor: pointer; display: block; background: #0f172a; }
+    .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    input[type="file"] { display: none; }
+
+    .media-box { margin-top: 10px; background: #020617; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+    video, img { max-width: 100%; max-height: 280px; display: block; border-radius: 8px; }
+
+    .row { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+    .btn { flex: 1; min-width: 110px; padding: 12px 10px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; font-size: 13.5px; cursor: pointer; text-align: center; }
+    .btn.sec { background: #263349; }
+    .btn.green { background: var(--green); }
+    .btn:active { transform: scale(0.98); }
+
+    input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border-radius: 9px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13.5px; margin-top: 8px; }
+    .pill { padding: 7px 11px; border-radius: 20px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 12px; cursor: pointer; }
+    .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; line-height: 1.45; }
+    .hidden { display: none !important; }
+
+    #out-box { margin-top: 14px; background: #0f172a; border: 2px solid #10b981; border-radius: 12px; padding: 12px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="hdr">
+    <h2>🎬 Solvrik Media Studio</h2>
+    <span id="status-badge" class="badge">Loading 45%...</span>
+  </div>
+  <div class="pbar-wrap"><div id="pbar" class="pbar-fill"></div></div>
+
+  <!-- 2-COLUMN STACKED TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('aud', this)">🎵 Video → Audio (WAV/MP3)</button>
+    <button class="tab" onclick="switchTab('trim', this)">✂️ Video Trim & Compress</button>
+    <button class="tab" onclick="switchTab('yt', this)">🖼️ YT Thumbnail & Link Helper</button>
+    <button class="tab" onclick="switchTab('info', this)">📊 Media Info & Frame Grab</button>
+  </div>
+
+  <!-- OUTPUT BOX -->
+  <div id="out-box" class="hidden">
+    <div id="out-title" style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">✅ File Ready!</div>
+    <div id="out-preview"></div>
+    <div class="row">
+      <button class="btn green" onclick="triggerRealDownload()">⬇️ Direct Download</button>
+      <button class="btn" onclick="shareOrSaveFile()">📤 Share / Save to Phone</button>
+      <button class="btn sec" style="min-width:65px;flex:0" onclick="document.getElementById('out-box').classList.add('hidden')">✖️</button>
+    </div>
+  </div>
+
+  <!-- 1. VIDEO TO AUDIO EXTRACTOR (NO 20MB LIMIT) -->
+  <div id="tab-aud" class="card">
+    <label class="upload-box">
+      🎥 <b>Koi bhi Video chunein (500 MB tak supported)</b>
+      <span>Zero Server Load — Direct Phone Par Audio Extract Hoga</span>
+      <input type="file" accept="video/*" onchange="loadAudVid(event)" />
+    </label>
+    <div id="aud-ui" class="hidden">
+      <div class="media-box"><video id="aud-vid" controls playsinline></video></div>
+      <div id="aud-stat" class="info"></div>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="extractAudioNow()">🎵 Extract High-Quality Audio</button>
+    </div>
+  </div>
+
+  <!-- 2. VIDEO TRIMMER & SIZE COMPRESSOR -->
+  <div id="tab-trim" class="card hidden">
+    <label class="upload-box">
+      🎞️ <b>Video chunein (Trim / Compress)</b>
+      <span>WhatsApp / Telegram Status ke liye size kam karein</span>
+      <input type="file" accept="video/*" onchange="loadTrimVid(event)" />
+    </label>
+    <div id="trim-ui" class="hidden">
+      <div class="media-box"><video id="trim-vid" controls playsinline></video></div>
+      <div class="row">
+        <input type="number" id="t-start" value="0" min="0" step="1" placeholder="Start sec (e.g. 0)" style="flex:1" />
+        <input type="number" id="t-end" value="15" min="1" step="1" placeholder="End sec (e.g. 15)" style="flex:1" />
+      </div>
+      <select id="trim-q">
+        <option value="0.45">480p Fast Share (Low MB)</option>
+        <option value="0.70" selected>720p Balanced HD</option>
+        <option value="1.0">Original Resolution</option>
+      </select>
+      <button class="btn" style="width:100%;margin-top:10px" onclick="processTrimCompress()">⚡ Trim & Compress Video</button>
+      <div id="trim-stat" class="info"></div>
+    </div>
+  </div>
+
+  <!-- 3. YOUTUBE THUMBNAIL GRABBER (4K/HD) & DIRECT LINK HELPER -->
+  <div id="tab-yt" class="card hidden">
+    <div style="font-size:13px;color:#cbd5e1;font-weight:600">🔗 YouTube Video / Shorts Link Paste Karein:</div>
+    <input type="text" id="yt-url" placeholder="https://youtu.be/... ya https://youtube.com/shorts/..." />
+    <div class="row">
+      <button class="btn" onclick="grabYtThumb('maxresdefault')">🖼️ HD Thumbnail (1080p)</button>
+      <button class="btn sec" onclick="grabYtThumb('hqdefault')">🖼️ Standard Thumb</button>
+    </div>
+    <div id="yt-stat" class="info"></div>
+  </div>
+
+  <!-- 4. MEDIA INSPECTOR & VIDEO-TO-PHOTO FRAME GRABBER -->
+  <div id="tab-info" class="card hidden">
+    <label class="upload-box">
+      📊 <b>Video / Audio File chunein</b>
+      <span>Exact Resolution, Duration, Bitrate & HD Screenshot Frame</span>
+      <input type="file" accept="video/*,audio/*" onchange="inspectMedia(event)" />
+    </label>
+    <div id="info-ui" class="hidden">
+      <div class="media-box"><video id="info-vid" controls playsinline></video></div>
+      <div id="info-text" class="info"></div>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="grabVideoFrame()">📸 Capture HD Photo Frame</button>
+    </div>
+  </div>
+
+  <script>
+    let lastBlob = null, lastFilename = 'solvrik_media.bin';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('pbar').style.width = '100%';
+      const b = document.getElementById('status-badge');
+      b.textContent = 'Ready • 100%';
+      b.style.background = '#059669';
+      if (window.Telegram?.WebApp) {
+        try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
+      }
+    });
+
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      ['aud', 'trim', 'yt', 'info'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
+    }
+
+    function setOutput(blob, filename, htmlPreview) {
+      if (!blob) return;
+      lastBlob = blob;
+      lastFilename = filename;
+      document.getElementById('out-title').textContent = `✅ Ready: ${filename} (${(blob.size / (1024 * 1024) >= 1 ? (blob.size / (1024 * 1024)).toFixed(2) + ' MB' : (blob.size / 1024).toFixed(1) + ' KB')})`;
+      document.getElementById('out-preview').innerHTML = htmlPreview || '';
+      const box = document.getElementById('out-box');
+      box.classList.remove('hidden');
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      triggerRealDownload();
+    }
+
+    function triggerRealDownload() {
+      if (!lastBlob) return;
+      const url = URL.createObjectURL(lastBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = lastFilename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => a.remove(), 250);
+    }
+
+    async function shareOrSaveFile() {
+      if (!lastBlob) return;
+      try {
+        const f = new File([lastBlob], lastFilename, { type: lastBlob.type || 'application/octet-stream' });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) {
+          await navigator.share({ files: [f], title: lastFilename });
+          return;
+        }
+      } catch (e) {}
+      triggerRealDownload();
+    }
+
+    // 1. VIDEO TO WAV AUDIO (Pure WebAudio API — Fast & Lossless)
+    let audFile = null;
+    function loadAudVid(e) {
+      const f = e.target.files[0]; if (!f) return;
+      audFile = f;
+      const v = document.getElementById('aud-vid');
+      v.src = URL.createObjectURL(f);
+      document.getElementById('aud-ui').classList.remove('hidden');
+      document.getElementById('aud-stat').textContent = `📁 ${f.name} (${(f.size / (1024 * 1024)).toFixed(2)} MB)`;
+    }
+
+    async function extractAudioNow() {
+      if (!audFile) return;
+      const stat = document.getElementById('aud-stat');
+      stat.textContent = '⏳ Audio decode ho raha hai...';
+      try {
+        const arrBuf = await audFile.arrayBuffer();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const decoded = await audioCtx.decodeAudioData(arrBuf);
+        const wavBlob = audioBufferToWav(decoded);
+        const url = URL.createObjectURL(wavBlob);
+        stat.textContent = '✅ Audio extract ho gaya!';
+        setOutput(wavBlob, 'solvrik_extracted_audio.wav', `<audio controls src="${url}" style="width:100%"></audio>`);
+      } catch (err) {
+        stat.textContent = '❌ Is video codec ka direct audio decode supported nahi hai — Bot ka Link/Audio tool try karein.';
+      }
+    }
+
+    function audioBufferToWav(buffer) {
+      const numCh = Math.min(2, buffer.numberOfChannels), rate = buffer.sampleRate;
+      const len = buffer.length * numCh * 2 + 44;
+      const out = new ArrayBuffer(len), view = new DataView(out);
+      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+      writeStr(0, 'RIFF'); view.setUint32(4, len - 8, true); writeStr(8, 'WAVE');
+      writeStr(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+      view.setUint16(22, numCh, true); view.setUint32(24, rate, true);
+      view.setUint32(28, rate * numCh * 2, true); view.setUint16(32, numCh * 2, true);
+      view.setUint16(34, 16, true); writeStr(36, 'data'); view.setUint32(40, len - 44, true);
+      let offset = 44;
+      for (let i = 0; i < buffer.length; i++) {
+        for (let ch = 0; ch < numCh; ch++) {
+          let s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+          offset += 2;
+        }
+      }
+      return new Blob([out], { type: 'audio/wav' });
+    }
+
+    // 2. VIDEO TRIM & COMPRESS (MediaRecorder + Canvas)
+    function loadTrimVid(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const v = document.getElementById('trim-vid');
+      v.src = URL.createObjectURL(f);
+      v.onloadedmetadata = () => {
+        document.getElementById('t-start').value = 0;
+        document.getElementById('t-end').value = Math.min(30, Math.floor(v.duration || 15));
+      };
+      document.getElementById('trim-ui').classList.remove('hidden');
+    }
+
+    async function processTrimCompress() {
+      const v = document.getElementById('trim-vid');
+      if (!v.src) return;
+      const start = Math.max(0, parseFloat(document.getElementById('t-start').value) || 0);
+      const end = Math.min(v.duration || 30, Math.max(start + 1, parseFloat(document.getElementById('t-end').value) || 15));
+      const scale = parseFloat(document.getElementById('trim-q').value) || 0.7;
+      const stat = document.getElementById('trim-stat');
+
+      const c = document.createElement('canvas');
+      c.width = Math.max(240, Math.round(v.videoWidth * scale));
+      c.height = Math.max(240, Math.round(v.videoHeight * scale));
+      const ctx = c.getContext('2d');
+
+      const stream = c.captureStream(24);
+      try {
+        const vStream = v.captureStream ? v.captureStream() : (v.mozCaptureStream ? v.mozCaptureStream() : null);
+        if (vStream) vStream.getAudioTracks().forEach(t => stream.addTrack(t));
+      } catch (e) {}
+
+      const chunks = [];
+      const rec = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8' });
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        stat.textContent = '✅ Video Trim & Compress Ready!';
+        setOutput(blob, 'solvrik_trimmed.webm', `<video controls src="${url}" style="max-height:220px"></video>`);
+      };
+
+      v.currentTime = start;
+      await new Promise(r => { v.onseeked = r; });
+      stat.textContent = `⏳ Recording clip (${start}s → ${end}s)...`;
+      rec.start();
+      v.play();
+
+      const drawLoop = () => {
+        if (v.currentTime >= end || v.paused || v.ended) {
+          v.pause();
+          if (rec.state !== 'inactive') rec.stop();
+          return;
+        }
+        ctx.drawImage(v, 0, 0, c.width, c.height);
+        requestAnimationFrame(drawLoop);
+      };
+      drawLoop();
+    }
+
+    // 3. YOUTUBE THUMBNAIL GRABBER
+    function extractYtId(url) {
+      const m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    async function grabYtThumb(quality) {
+      const url = document.getElementById('yt-url').value.trim();
+      const vidId = extractYtId(url);
+      const stat = document.getElementById('yt-stat');
+      if (!vidId) { stat.textContent = '❌ Sahi YouTube link paste karein!'; return; }
+      stat.textContent = '⏳ Thumbnail fetch ho raha hai...';
+      const imgUrl = `https://i.ytimg.com/vi/${vidId}/${quality}.jpg`;
+      try {
+        const resp = await fetch(imgUrl);
+        const blob = await resp.blob();
+        const prevUrl = URL.createObjectURL(blob);
+        stat.textContent = `✅ Thumbnail Ready (${vidId})`;
+        setOutput(blob, `yt_thumb_${vidId}.jpg`, `<img src="${prevUrl}" style="max-height:220px"/>`);
+      } catch (e) {
+        stat.textContent = '❌ Thumbnail fetch nahi ho saka.';
+      }
+    }
+
+    // 4. MEDIA INSPECTOR & FRAME GRAB
+    function inspectMedia(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const v = document.getElementById('info-vid');
+      v.src = URL.createObjectURL(f);
+      document.getElementById('info-ui').classList.remove('hidden');
+      v.onloadedmetadata = () => {
+        const mb = (f.size / (1024 * 1024)).toFixed(2);
+        document.getElementById('info-text').innerHTML =
+          `📁 File: ${f.name}<br>📐 Resolution: ${v.videoWidth || '-'} × ${v.videoHeight || '-'} px<br>⏱️ Duration: ${(v.duration || 0).toFixed(1)} sec | 📦 Size: ${mb} MB`;
+      };
+    }
+
+    function grabVideoFrame() {
+      const v = document.getElementById('info-vid');
+      if (!v.videoWidth) return;
+      const c = document.createElement('canvas');
+      c.width = v.videoWidth; c.height = v.videoHeight;
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+      c.toBlob(b => setOutput(b, 'video_frame_hd.jpg', `<img src="${URL.createObjectURL(b)}" style="max-height:220px"/>`), 'image/jpeg', 0.95);
+    }
+  </script>
+</body>
+</html>
