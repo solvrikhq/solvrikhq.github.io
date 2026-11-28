@@ -106,7 +106,7 @@
       border: none; border-radius: 11px;
       background: linear-gradient(135deg, #2563eb, #3b82f6);
       color: #fff; font-weight: 600; font-size: 13.5px;
-      cursor: pointer; text-align: center;
+      cursor: pointer; text-align: center; text-decoration: none; display: inline-block;
       box-shadow: 0 3px 10px rgba(37, 99, 235, 0.28);
     }
     .btn.sec { background: var(--surface-2); box-shadow: none; border: 1px solid var(--border); color: #e2e8f0; }
@@ -139,6 +139,10 @@
       padding: 13px;
       text-align: center;
     }
+    .yt-card {
+      margin-top: 12px; background: #0b1222; border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px;
+    }
   </style>
 </head>
 <body>
@@ -151,15 +155,17 @@
   </div>
   <div class="pbar-wrap"><div class="pbar-fill"></div></div>
 
+  <!-- YOUTUBE DOWNLOADER FIRST FOR INSTANT ACCESS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('aud', this)">🎵 Video → Audio ⚡</button>
+    <button class="tab active" onclick="switchTab('yt', this)">📥 YouTube Downloader ⚡</button>
+    <button class="tab" onclick="switchTab('aud', this)">🎵 Video → Audio ⚡</button>
     <button class="tab" onclick="switchTab('trim', this)">✂️ Trim & Compress ⚡</button>
     <button class="tab" onclick="switchTab('vcrop', this)">📐 Ratio Crop & Speed ⚡</button>
     <button class="tab" onclick="switchTab('afx', this)">🎧 Audio Speed & Boost ⚡</button>
-    <button class="tab" onclick="switchTab('yt', this)">🖼️ YT Thumb & Shortcut ⚡</button>
     <button class="tab" onclick="switchTab('info', this)">📸 HD Frame & Info ⚡</button>
   </div>
 
+  <!-- OUTPUT BOX -->
   <div id="out-box" class="hidden">
     <div id="out-title" style="font-size:13.5px;font-weight:700;color:#34d399;margin-bottom:8px">✅ File Ready!</div>
     <div id="out-preview"></div>
@@ -170,7 +176,27 @@
     </div>
   </div>
 
-  <div id="tab-aud" class="card">
+  <!-- 1. UPGRADED CLIENT-SIDE YOUTUBE DOWNLOADER (RUNS ON USER'S OWN IP) -->
+  <div id="tab-yt" class="card">
+    <div style="font-size:13.5px;color:#e2e8f0;font-weight:600">🔗 YouTube Video / Shorts / Live Link Paste Karein:</div>
+    <div class="row" style="margin-top:6px">
+      <input type="text" id="yt-url" style="flex:1;margin-top:0" placeholder="https://youtu.be/... ya https://youtube.com/shorts/..." oninput="onYtInput()" />
+      <button class="btn sec sm" onclick="pasteYtUrl()">📋 Paste</button>
+    </div>
+    <button class="btn" style="width:100%;margin-top:10px" onclick="fetchYtStreams()">⚡ Fetch Video & Audio Links</button>
+    <div id="yt-stat" class="info"></div>
+
+    <div id="yt-result" class="yt-card hidden">
+      <img id="yt-thumb-prev" style="width:100%;border-radius:9px;margin-bottom:8px" />
+      <div id="yt-meta-title" style="font-size:13.5px;font-weight:700;color:#f8fafc;margin-bottom:8px"></div>
+      <div id="yt-stream-btns" class="col-stack"></div>
+      <div style="font-size:11.5px;color:#94a3b8;margin-top:10px;text-align:center">👇 Instant Web Extractors (1-Click MP4 / MP3):</div>
+      <div id="yt-ext-btns" class="col-stack"></div>
+    </div>
+  </div>
+
+  <!-- 2. VIDEO TO AUDIO -->
+  <div id="tab-aud" class="card hidden">
     <label class="upload-box">
       🎥 <b>Video chunein (500 MB tak — No Bot Limit)</b>
       <span>High-Quality Stereo Audio Extraction directly on your device</span>
@@ -183,6 +209,7 @@
     </div>
   </div>
 
+  <!-- 3. TRIM & COMPRESS -->
   <div id="tab-trim" class="card hidden">
     <label class="upload-box">
       🎞️ <b>Video chunein (Trim / Compress / Mute)</b>
@@ -210,6 +237,7 @@
     </div>
   </div>
 
+  <!-- 4. RATIO CROP & SPEED -->
   <div id="tab-vcrop" class="card hidden">
     <label class="upload-box">
       📐 <b>Video chunein (Reels 9:16 • 1:1 • Speed)</b>
@@ -235,10 +263,11 @@
     </div>
   </div>
 
+  <!-- 5. AUDIO FX -->
   <div id="tab-afx" class="card hidden">
     <label class="upload-box">
       🎧 <b>Audio / MP3 / Song chunein</b>
-      <span>Slowed + Reverb Lo-Fi, Speed Changer & +200% Volume Booster</span>
+      <span>Slowed + Reverb Lo-Fi, Speed Changer & +250% Volume Booster</span>
       <input type="file" accept="audio/*,video/*" onchange="loadAudioFx(event)" />
     </label>
     <div id="afx-ui" class="hidden">
@@ -264,17 +293,7 @@
     </div>
   </div>
 
-  <div id="tab-yt" class="card hidden">
-    <div style="font-size:13.5px;color:#e2e8f0;font-weight:600">🔗 YouTube Video / Shorts Link Paste Karein:</div>
-    <input type="text" id="yt-url" placeholder="https://youtu.be/... ya https://youtube.com/shorts/..." />
-    <div class="col-stack">
-      <button class="btn" onclick="grabYtThumb('maxresdefault')">🖼️ Download HD Thumbnail (1080p)</button>
-      <button class="btn sec" onclick="grabYtThumb('hqdefault')">🖼️ Download Standard Thumbnail</button>
-      <button class="btn green" onclick="openDirectShortcut()">⚡ 1-Click Direct MP4 / MP3 Shortcut</button>
-    </div>
-    <div id="yt-stat" class="info"></div>
-  </div>
-
+  <!-- 6. HD FRAME & INFO -->
   <div id="tab-info" class="card hidden">
     <label class="upload-box">
       📸 <b>Video / Audio File chunein</b>
@@ -295,12 +314,18 @@
       if (window.Telegram?.WebApp) {
         try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
       }
+      // Auto-load link if passed via ?url=...
+      const qp = new URLSearchParams(window.location.search).get('url');
+      if (qp) {
+        document.getElementById('yt-url').value = qp;
+        fetchYtStreams();
+      }
     });
 
     function switchTab(id, btn) {
       document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
       btn.classList.add('active');
-      ['aud', 'trim', 'vcrop', 'afx', 'yt', 'info'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
+      ['yt', 'aud', 'trim', 'vcrop', 'afx', 'info'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
     }
 
     function setOutput(blob, filename, htmlPreview) {
@@ -343,6 +368,126 @@
       window.open(lastObjUrl || URL.createObjectURL(lastBlob), '_blank');
     }
 
+    // ================= 1. CLIENT-SIDE YOUTUBE STREAM FETCHER =================
+    function extractYtId(url) {
+      const m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    async function pasteYtUrl() {
+      try {
+        const txt = await navigator.clipboard.readText();
+        if (txt) { document.getElementById('yt-url').value = txt.trim(); fetchYtStreams(); }
+      } catch (e) {
+        document.getElementById('yt-stat').textContent = '📋 Box par tap karke Paste dabayein.';
+      }
+    }
+
+    function onYtInput() {
+      const val = document.getElementById('yt-url').value.trim();
+      if (extractYtId(val)) fetchYtStreams();
+    }
+
+    async function fetchYtStreams() {
+      const rawUrl = document.getElementById('yt-url').value.trim();
+      const vid = extractYtId(rawUrl);
+      const stat = document.getElementById('yt-stat');
+      const resCard = document.getElementById('yt-result');
+      if (!vid) {
+        stat.textContent = '❌ Sahi YouTube Video ya Shorts link paste karein!';
+        resCard.classList.add('hidden');
+        return;
+      }
+
+      const cleanYt = `https://www.youtube.com/watch?v=${vid}`;
+      stat.textContent = '⏳ Video streams aur HD formats fetch ho rahe hain...';
+      resCard.classList.remove('hidden');
+      document.getElementById('yt-thumb-prev').src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+      document.getElementById('yt-meta-title').textContent = `YouTube Video (${vid})`;
+
+      // Fetch title via oEmbed
+      fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(cleanYt)}&format=json`)
+        .then(r => r.json())
+        .then(d => { if (d.title) document.getElementById('yt-meta-title').textContent = d.title; })
+        .catch(() => {});
+
+      const streamBox = document.getElementById('yt-stream-btns');
+      const extBox = document.getElementById('yt-ext-btns');
+      streamBox.innerHTML = '';
+
+      // Always render instant Thumbnail + Multi-Mirror Extractors
+      extBox.innerHTML = `
+        <button class="btn sec" onclick="grabYtThumb('${vid}')">🖼️ Download 1080p HD Thumbnail</button>
+        <a class="btn green" href="https://y2mate.nu/en-01/?url=${encodeURIComponent(cleanYt)}" target="_blank" rel="noopener">⚡ Fast MP4 / MP3 (Mirror 1)</a>
+        <a class="btn" href="https://en.savefrom.net/1-youtube-video-downloader-394/?url=${encodeURIComponent(cleanYt)}" target="_blank" rel="noopener">⬇️ Direct MP4 Downloader (Mirror 2)</a>
+        <a class="btn sec" href="https://cnvmp3.com/v23?url=${encodeURIComponent(cleanYt)}" target="_blank" rel="noopener">🎵 Direct MP3 Audio Converter</a>
+      `;
+
+      // Try client-side Piped & Invidious APIs from user's own IP
+      const apis = [
+        'https://pipedapi.kavin.rocks',
+        'https://pipedapi.adminforge.de',
+        'https://api.piped.yt',
+        'https://pipedapi.drgns.space'
+      ];
+      let foundDirect = false;
+      for (const api of apis) {
+        try {
+          const ctrl = new AbortController();
+          const tid = setTimeout(() => ctrl.abort(), 4500);
+          const resp = await fetch(`${api}/streams/${vid}`, { signal: ctrl.signal });
+          clearTimeout(tid);
+          if (!resp.ok) continue;
+          const data = await resp.json();
+          if (data.title) document.getElementById('yt-meta-title').textContent = data.title;
+
+          const muxed = (data.videoStreams || []).filter(s => !s.videoOnly && s.url);
+          const audios = (data.audioStreams || []).filter(s => s.url);
+
+          muxed.slice(0, 3).forEach(s => {
+            const btn = document.createElement('a');
+            btn.className = 'btn green';
+            btn.href = s.url;
+            btn.target = '_blank';
+            btn.rel = 'noopener';
+            btn.textContent = `🎬 Direct ${s.quality || 'MP4'} (${s.format || 'Video'})`;
+            streamBox.appendChild(btn);
+            foundDirect = true;
+          });
+
+          if (audios.length) {
+            audios.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+            const abtn = document.createElement('a');
+            abtn.className = 'btn';
+            abtn.href = audios[0].url;
+            abtn.target = '_blank';
+            abtn.rel = 'noopener';
+            abtn.textContent = `🎵 Direct Audio (${Math.round((audios[0].bitrate || 128000) / 1000)} kbps)`;
+            streamBox.appendChild(abtn);
+            foundDirect = true;
+          }
+          if (foundDirect) break;
+        } catch (e) {}
+      }
+
+      stat.textContent = foundDirect
+        ? '✅ Direct Video & Audio Streams Ready! Niche green button dabayein:'
+        : '✅ Ready! Niche Mirror 1 ya Mirror 2 dabakar 1-click mein MP4/MP3 save karein:';
+    }
+
+    async function grabYtThumb(vidId) {
+      const stat = document.getElementById('yt-stat');
+      stat.textContent = '⏳ 1080p Thumbnail fetch ho raha hai...';
+      try {
+        let resp = await fetch(`https://i.ytimg.com/vi/${vidId}/maxresdefault.jpg`);
+        if (!resp.ok) resp = await fetch(`https://i.ytimg.com/vi/${vidId}/hqdefault.jpg`);
+        const blob = await resp.blob();
+        stat.textContent = '✅ HD Thumbnail Ready!';
+        setOutput(blob, `yt_thumb_${vidId}.jpg`, `<img src="${URL.createObjectURL(blob)}" style="max-height:220px"/>`);
+      } catch (e) { stat.textContent = '❌ Thumbnail fetch error.'; }
+    }
+
+    // ================= 2. AUDIO BUFFER HELPER =================
     function audioBufferToWav(buffer) {
       const numCh = Math.min(2, buffer.numberOfChannels), rate = buffer.sampleRate;
       const len = buffer.length * numCh * 2 + 44;
@@ -350,9 +495,9 @@
       const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
       writeStr(0, 'RIFF'); view.setUint32(4, len - 8, true); writeStr(8, 'WAVE');
       writeStr(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-      writeStr(22, numCh, true); view.setUint32(24, rate, true);
-      writeStr(28, rate * numCh * 2, true); view.setUint16(32, numCh * 2, true);
-      writeStr(34, 16, true); writeStr(36, 'data'); view.setUint32(40, len - 44, true);
+      view.setUint16(22, numCh, true); view.setUint32(24, rate, true);
+      view.setUint32(28, rate * numCh * 2, true); view.setUint16(32, numCh * 2, true);
+      view.setUint16(34, 16, true); writeStr(36, 'data'); view.setUint32(40, len - 44, true);
       let offset = 44;
       for (let i = 0; i < buffer.length; i++) {
         for (let ch = 0; ch < numCh; ch++) {
@@ -364,6 +509,7 @@
       return new Blob([out], { type: 'audio/wav' });
     }
 
+    // ================= 3. VIDEO TO AUDIO =================
     let audFile = null;
     function loadAudVid(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -388,6 +534,7 @@
       }
     }
 
+    // ================= 4. TRIM & COMPRESS =================
     function loadTrimVid(e) {
       const f = e.target.files[0]; if (!f) return;
       const v = document.getElementById('trim-vid');
@@ -442,6 +589,7 @@
       loop();
     }
 
+    // ================= 5. RATIO CROP & SPEED =================
     let selectedVidRatio = 'orig';
     function loadCropVid(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -496,6 +644,7 @@
       loop();
     }
 
+    // ================= 6. AUDIO FX =================
     let afxFile = null;
     function loadAudioFx(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -540,30 +689,7 @@
       }
     }
 
-    function extractYtId(url) {
-      const m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
-      return m ? m[1] : null;
-    }
-    async function grabYtThumb(quality) {
-      const url = document.getElementById('yt-url').value.trim();
-      const vidId = extractYtId(url);
-      const stat = document.getElementById('yt-stat');
-      if (!vidId) { stat.textContent = '❌ Sahi YouTube link paste karein!'; return; }
-      stat.textContent = '⏳ Thumbnail fetch ho raha hai...';
-      try {
-        const resp = await fetch(`https://i.ytimg.com/vi/${vidId}/${quality}.jpg`);
-        const blob = await resp.blob();
-        stat.textContent = `✅ Thumbnail Ready (${vidId})`;
-        setOutput(blob, `yt_thumb_${vidId}.jpg`, `<img src="${URL.createObjectURL(blob)}" style="max-height:220px"/>`);
-      } catch (e) { stat.textContent = '❌ Thumbnail fetch nahi ho saka.'; }
-    }
-    function openDirectShortcut() {
-      const url = document.getElementById('yt-url').value.trim();
-      const vidId = extractYtId(url);
-      if (!vidId) { document.getElementById('yt-stat').textContent = '❌ Sahi YouTube link paste karein!'; return; }
-      window.open(`https://www.ssyoutube.com/watch?v=${vidId}`, '_blank');
-    }
-
+    // ================= 7. MEDIA INFO & FRAME GRAB =================
     function inspectMedia(e) {
       const f = e.target.files[0]; if (!f) return;
       const v = document.getElementById('info-vid');
