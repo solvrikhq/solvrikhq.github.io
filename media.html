@@ -148,7 +148,7 @@
 <body>
   <div class="hdr">
     <div class="hdr-title">
-      <div class="hdr-logo">M</div>
+      <div class="hdr-logo">S</div>
       <div>
         <h2>Solvrik Media Studio ⚡</h2>
         <div style="font-size:11px;color:#34d399;font-weight:600">Upgraded Version • Device Engine</div>
@@ -196,9 +196,9 @@
       </div>
       <div id="yt-stream-btns" class="col-stack"></div>
       <div class="col-stack">
-        <button class="btn green" onclick="openInYouTube()">▶️ Open Video in YouTube</button>
+        <button class="btn green" onclick="openInYouTube()">▶️ Watch in YouTube App</button>
         <button class="btn sec" onclick="grabYtThumb(currentYtId)">🖼️ Download 1080p HD Thumbnail</button>
-        <button class="btn sec" onclick="copyCleanYtLink()">📋 Copy Clean Link (For Seal / NewPipe App)</button>
+        <a class="btn sec" href="https://solvrikhq.github.io" target="_blank" rel="noopener">📱 Get Solvrik App (Direct Download Engine)</a>
       </div>
     </div>
   </div>
@@ -399,17 +399,6 @@
       window.open(`https://www.youtube.com/watch?v=${currentYtId}`, '_blank');
     }
 
-    async function copyCleanYtLink() {
-      if (!currentYtId) return;
-      const clean = `https://www.youtube.com/watch?v=${currentYtId}`;
-      try {
-        await navigator.clipboard.writeText(clean);
-        document.getElementById('yt-stat').textContent = '✅ Clean YouTube link copy ho gaya!';
-      } catch (e) {
-        document.getElementById('yt-stat').textContent = clean;
-      }
-    }
-
     async function fetchYtStreams() {
       const rawUrl = document.getElementById('yt-url').value.trim();
       const vid = extractYtId(rawUrl);
@@ -484,7 +473,7 @@
         });
         stat.textContent = '✅ Direct Streams Ready! Niche button se save karein:';
       } else {
-        stat.textContent = '✅ Video Loaded! Niche se YouTube mein open karein ya 1080p Thumbnail save karein:';
+        stat.textContent = '✅ Video Loaded! Direct MP4/MP3 download ke liye Solvrik App use karein ya 1080p Thumbnail save karein:';
       }
     }
 
