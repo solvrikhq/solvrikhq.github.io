@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Solvrik Studio — Pro Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <style>
+    :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f8fafc; --muted: #94a3b8; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 14px; }
+    h2 { margin: 0 0 12px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tab { flex: 1; padding: 10px 6px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px; cursor: pointer; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .card { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .upload-box { border: 2px dashed #475569; border-radius: 12px; padding: 22px; text-align: center; cursor: pointer; display: block; }
+    input[type="file"] { display: none; }
+    .img-wrap { max-height: 340px; overflow: hidden; border-radius: 10px; background: #020617; margin-top: 10px; }
+    img { max-width: 100%; display: block; }
+    .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .btn { flex: 1; min-width: 90px; padding: 11px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; }
+    .btn.sec { background: #334155; }
+    .btn.green { background: #10b981; }
+    input[type="number"], input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 14px; margin-top: 6px; }
+    .pill { padding: 7px 12px; border-radius: 20px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 12px; cursor: pointer; }
+    .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>⚡ Solvrik Pro Studio</h2>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('crop', this)">✂️ Smart Crop</button>
+    <button class="tab" onclick="switchTab('kb', this)">📦 Exact KB</button>
+    <button class="tab" onclick="switchTab('pass', this)">🪪 Passport</button>
+  </div>
+
+  <!-- TAB 1: INTERACTIVE CROPPER -->
+  <div id="tab-crop" class="card">
+    <label class="upload-box">
+      📸 <b>Tap karke Card / Document / Photo chunein</b>
+      <input type="file" accept="image/*" onchange="loadCropImg(event)" />
+    </label>
+    <div id="crop-area" class="hidden">
+      <div class="img-wrap"><img id="crop-target" /></div>
+      <div class="row">
+        <button class="btn sec" onclick="cropper.rotate(-90)">↺ Left</button>
+        <button class="btn sec" onclick="cropper.rotate(90)">↻ Right</button>
+        <button class="btn sec" onclick="cropper.reset()">Reset</button>
+      </div>
+      <div class="row">
+        <button class="btn" onclick="exportCrop(false)">✂️ Crop Color</button>
+        <button class="btn green" onclick="exportCrop(true)">📄 B&W Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: EXACT KB COMPRESSOR -->
+  <div id="tab-kb" class="card hidden">
+    <label class="upload-box">
+      🖼️ <b>Photo chunein (10 KB / 20 KB / Custom)</b>
+      <input type="file" accept="image/*" onchange="loadKbImg(event)" />
+    </label>
+    <div id="kb-area" class="hidden">
+      <div class="row">
+        <button class="pill" onclick="setTargetKb(10)">10 KB</button>
+        <button class="pill" onclick="setTargetKb(20)">20 KB</button>
+        <button class="pill" onclick="setTargetKb(50)">50 KB</button>
+        <button class="pill" onclick="setTargetKb(100)">100 KB</button>
+      </div>
+      <input type="number" id="kb-input" value="20" min="3" max="5000" placeholder="Target KB likhein (jaise 20)" />
+      <button class="btn" style="width:100%;margin-top:10px" onclick="runKbCompress()">⚡ Compress Now</button>
+      <div id="kb-info" class="info"></div>
+      <div class="img-wrap"><img id="kb-preview" /></div>
+      <button id="kb-dl" class="btn green hidden" style="width:100%;margin-top:10px" onclick="downloadBlob(kbBlob, 'solvrik_compressed.jpg')">⬇️ Download Photo</button>
+    </div>
+  </div>
+
+  <!-- TAB 3: PASSPORT MAKER -->
+  <div id="tab-pass" class="card hidden">
+    <label class="upload-box">
+      🪪 <b>Selfie / Portrait Photo chunein</b>
+      <input type="file" accept="image/*" onchange="loadPassImg(event)" />
+    </label>
+    <div id="pass-area" class="hidden">
+      <div class="img-wrap"><img id="pass-target" /></div>
+      <input type="text" id="pass-name" placeholder="Optional: Naam | Date (e.g. Rahul Kumar | 28/11/2026)" />
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="exportPassport()">🪪 Generate Passport Photo</button>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    let cropper = null, passCropper = null, kbImg = null, kbBlob = null;
+
+    function switchTab(name, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      ['crop', 'kb', 'pass'].forEach(id => document.getElementById('tab-' + id).classList.toggle('hidden', id !== name));
+    }
+
+    function downloadBlob(blob, filename) {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    // 1. CROPPER
+    function loadCropImg(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const img = document.getElementById('crop-target');
+      img.src = URL.createObjectURL(f);
+      document.getElementById('crop-area').classList.remove('hidden');
+      if (cropper) cropper.destroy();
+      cropper = new Cropper(img, { viewMode: 1, autoCropArea: 0.78, responsive: true });
+    }
+
+    function exportCrop(bw) {
+      if (!cropper) return;
+      const canvas = cropper.getCroppedCanvas({ maxWidth: 2200, maxHeight: 2200, imageSmoothingQuality: 'high' });
+      if (bw) {
+        const ctx = canvas.getContext('2d');
+        const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = id.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const g = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+          const v = g > 145 ? 255 : Math.max(0, (g - 40) * 1.35);
+          d[i] = d[i+1] = d[i+2] = v;
+        }
+        ctx.putImageData(id, 0, 0);
+      }
+      canvas.toBlob(b => downloadBlob(b, bw ? 'solvrik_scan_bw.jpg' : 'solvrik_crop.jpg'), 'image/jpeg', 0.94);
+    }
+
+    // 2. EXACT KB
+    function setTargetKb(v) { document.getElementById('kb-input').value = v; runKbCompress(); }
+
+    function loadKbImg(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const img = new Image();
+      img.onload = () => {
+        kbImg = img;
+        document.getElementById('kb-area').classList.remove('hidden');
+        runKbCompress();
+      };
+      img.src = URL.createObjectURL(f);
+    }
+
+    async function runKbCompress() {
+      if (!kbImg) return;
+      const targetBytes = Math.max(3, parseFloat(document.getElementById('kb-input').value || 20)) * 1024;
+      let w = kbImg.width, h = kbImg.height;
+      if (Math.max(w, h) > 1200) { const s = 1200 / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      let best = null, bestQ = 0.8;
+
+      for (let step = 0; step < 8; step++) {
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(kbImg, 0, 0, w, h);
+        let lo = 0.22, hi = 0.94;
+        for (let i = 0; i < 6; i++) {
+          const mid = (lo + hi) / 2;
+          const b = await new Promise(r => canvas.toBlob(r, 'image/jpeg', mid));
+          if (b.size <= targetBytes) { best = b; bestQ = mid; lo = mid; }
+          else { hi = mid; }
+        }
+        if (best) break;
+        w = Math.max(240, Math.round(w * 0.78));
+        h = Math.max(240, Math.round(h * 0.78));
+      }
+      if (!best) best = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.20));
+      kbBlob = best;
+      document.getElementById('kb-preview').src = URL.createObjectURL(best);
+      document.getElementById('kb-info').textContent = `✅ Ready: ${(best.size / 1024).toFixed(1)} KB | ${w}×${h} px | Quality ${Math.round(bestQ * 100)}%`;
+      document.getElementById('kb-dl').classList.remove('hidden');
+    }
+
+    // 3. PASSPORT
+    function loadPassImg(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const img = document.getElementById('pass-target');
+      img.src = URL.createObjectURL(f);
+      document.getElementById('pass-area').classList.remove('hidden');
+      if (passCropper) passCropper.destroy();
+      passCropper = new Cropper(img, { aspectRatio: 35 / 45, viewMode: 1, autoCropArea: 0.85 });
+    }
+
+    function exportPassport() {
+      if (!passCropper) return;
+      const crop = passCropper.getCroppedCanvas({ width: 413, height: 531 });
+      const label = document.getElementById('pass-name').value.trim();
+      const out = document.createElement('canvas');
+      out.width = 413; out.height = label ? 610 : 531;
+      const ctx = out.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, out.width, out.height);
+      ctx.drawImage(crop, 0, 0);
+      if (label) {
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 531, 413, 2);
+        const parts = label.split('|').map(s => s.trim());
+        ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(parts[0].slice(0, 26), 206, 562);
+        if (parts[1]) { ctx.font = '18px sans-serif'; ctx.fillText(parts[1].slice(0, 26), 206, 592); }
+      }
+      out.toBlob(b => downloadBlob(b, 'solvrik_passport.jpg'), 'image/jpeg', 0.95);
+    }
+  </script>
+</body>
+</html>
