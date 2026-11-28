@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Solvrik Pro Studio</title>
+  <title>Solvrik Pro Studio ⚡</title>
   <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" async></script>
   <style>
     :root {
       --bg: #070d19;
@@ -27,7 +29,6 @@
       min-height: 100vh;
     }
 
-    /* Header */
     .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .hdr-title { display: flex; align-items: center; gap: 8px; }
     .hdr-logo {
@@ -36,7 +37,7 @@
       display: grid; place-items: center; font-weight: 800; font-size: 15px; color: #fff;
       box-shadow: 0 4px 12px var(--accent-glow);
     }
-    .hdr h2 { margin: 0; font-size: 17px; letter-spacing: -0.2px; }
+    .hdr h2 { margin: 0; font-size: 16.5px; letter-spacing: -0.2px; }
     .badge {
       background: rgba(16, 185, 129, 0.15);
       color: #34d399;
@@ -45,18 +46,18 @@
     }
 
     .pbar-wrap { width: 100%; height: 4px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
-    .pbar-fill { height: 100%; width: 45%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.25s ease; }
+    .pbar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); }
 
     /* Clean 2-Column Stacked Navigation Grid */
     .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
     .tab {
-      padding: 11px 10px;
+      padding: 11px 8px;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: var(--surface);
       color: var(--muted);
       font-weight: 600;
-      font-size: 12.5px;
+      font-size: 12px;
       cursor: pointer;
       text-align: center;
       transition: all 0.18s ease;
@@ -68,7 +69,6 @@
       box-shadow: 0 4px 14px var(--accent-glow);
     }
 
-    /* Main Card */
     .card {
       background: var(--surface);
       border-radius: 16px;
@@ -84,14 +84,12 @@
       cursor: pointer;
       display: block;
       background: rgba(15, 23, 42, 0.7);
-      transition: border-color 0.2s, background 0.2s;
     }
     .upload-box:active { background: rgba(59, 130, 246, 0.12); border-color: #60a5fa; }
     .upload-box b { font-size: 14px; color: #f1f5f9; }
     .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; }
     input[type="file"] { display: none; }
 
-    /* Canvas Preview Area */
     .canvas-box {
       position: relative;
       margin-top: 12px;
@@ -106,7 +104,6 @@
     }
     canvas, img { max-width: 100%; max-height: 370px; display: block; }
 
-    /* Controls & Buttons */
     .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
     .btn {
       flex: 1; min-width: 110px; padding: 12px 12px;
@@ -115,14 +112,12 @@
       color: #fff; font-weight: 600; font-size: 13.5px;
       cursor: pointer; text-align: center;
       box-shadow: 0 3px 10px rgba(37, 99, 235, 0.28);
-      transition: transform 0.12s;
     }
     .btn.sec { background: var(--surface-2); box-shadow: none; border: 1px solid var(--border); color: #e2e8f0; }
     .btn.green { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28); }
     .btn.sm { flex: 0 0 auto; min-width: 44px; padding: 8px 12px; font-size: 14px; font-weight: 700; }
     .btn:active { transform: scale(0.97); }
 
-    /* Fine Rotate Bar */
     .rot-bar {
       display: flex; align-items: center; gap: 8px;
       background: #0b1222; padding: 8px 10px; border-radius: 12px;
@@ -136,7 +131,6 @@
       border: 1px solid var(--border); background: #0b1222;
       color: #fff; font-size: 13.5px; margin-top: 8px; outline: none;
     }
-    input:focus, select:focus { border-color: #3b82f6; }
 
     .pill {
       padding: 7px 12px; border-radius: 20px;
@@ -146,10 +140,9 @@
     .pill.on { background: var(--accent); border-color: #60a5fa; color: #fff; }
 
     .hint { font-size: 11.5px; color: #94a3b8; margin-top: 7px; text-align: center; }
-    .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; }
+    .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; line-height: 1.45; }
     .hidden { display: none !important; }
 
-    /* Output Card */
     #out-box {
       margin-bottom: 14px;
       background: linear-gradient(180deg, rgba(16, 185, 129, 0.12), var(--surface));
@@ -165,23 +158,23 @@
   <div class="hdr">
     <div class="hdr-title">
       <div class="hdr-logo">S</div>
-      <h2>Solvrik Pro Studio</h2>
+      <h2>Solvrik Pro Studio ⚡</h2>
     </div>
-    <span id="status-badge" class="badge">Ready • 100%</span>
+    <span class="badge">Upgraded Engine</span>
   </div>
-  <div class="pbar-wrap"><div id="pbar" class="pbar-fill" style="width:100%"></div></div>
+  <div class="pbar-wrap"><div class="pbar-fill"></div></div>
 
   <!-- STACKED 2-COLUMN TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('crop', this)">✂️ Movable Crop & Rotate</button>
-    <button class="tab" onclick="switchTab('kb', this)">📦 Exact KB / MB Size</button>
-    <button class="tab" onclick="switchTab('pass', this)">🪪 Passport & Exam</button>
-    <button class="tab" onclick="switchTab('fx', this)">🎨 Filters & DP Maker</button>
-    <button class="tab" onclick="switchTab('doc', this)">📄 Ink Saver • Sign • Resize</button>
-    <button class="tab" onclick="switchTab('soc', this)">📱 ID Join • Collage • Grid</button>
+    <button class="tab active" onclick="switchTab('crop', this)">✂️ Auto-Crop + Manual ⚡</button>
+    <button class="tab" onclick="switchTab('pdf', this)">📑 PDF Ink Saver & PDF ⚡</button>
+    <button class="tab" onclick="switchTab('kb', this)">📦 Exact KB / MB Size ⚡</button>
+    <button class="tab" onclick="switchTab('pass', this)">🪪 Passport & Exam ⚡</button>
+    <button class="tab" onclick="switchTab('fx', this)">🎨 Filters & DP Maker ⚡</button>
+    <button class="tab" onclick="switchTab('soc', this)">📱 ID Join • Collage • Sign ⚡</button>
   </div>
 
-  <!-- OUTPUT BOX WITH WORKING SAVE / SHARE -->
+  <!-- OUTPUT BOX -->
   <div id="out-box" class="hidden">
     <div id="out-title" style="font-size:13.5px;font-weight:700;color:#34d399;margin-bottom:8px">✅ File Ready!</div>
     <img id="out-img" />
@@ -190,34 +183,33 @@
     </div>
     <div class="row">
       <button class="btn green" onclick="smartSaveAction()">⬇️ Direct Save / Share</button>
-      <button class="btn" onclick="openImageTab()">🖼️ Open Full Image</button>
+      <button id="btn-open-full" class="btn" onclick="openImageTab()">🖼️ Open Full File</button>
       <button class="btn sec sm" onclick="document.getElementById('out-box').classList.add('hidden')">✖️</button>
     </div>
   </div>
 
-  <!-- 1. MOVABLE BOX + 4-CORNER STRETCH + -1°/+1° ROTATE -->
+  <!-- 1. SMART AUTO-CROP FIRST + MANUAL 4-CORNER & -1°/+1° ADJUST -->
   <div id="tab-crop" class="card">
     <label class="upload-box">
       📸 <b>Card / Document / Photo chunein</b>
-      <span>Box ke beech se pakad kar move karein + 4 corners stretch + 1° rotate</span>
+      <span>Pehle Auto-Crop chalega — pasand aaye toh Save, warna haath se adjust karein!</span>
       <input type="file" accept="image/*" onchange="loadCrop(event)" />
     </label>
     <div id="crop-ui" class="hidden">
+      <div id="auto-crop-status" class="info" style="text-align:center"></div>
       <div class="canvas-box"><canvas id="quad-canvas"></canvas></div>
-      <div class="hint">💡 Tip: Beech se drag karke poora box move karein, ya neele dots se kona set karein.</div>
+      <div class="hint">💡 Beech se drag karke box move karein, ya neele dots & −1°/+1° se adjust karein.</div>
 
-      <!-- Fixed Ratios + Free Stretch -->
       <div class="row">
-        <button class="pill on" onclick="setQuadRatio(null, this)">Free Stretch</button>
+        <button class="pill on" onclick="runAutoDetectQuad(this)">🤖 Auto-Detect</button>
+        <button class="pill" onclick="setQuadRatio(null, this)">Free</button>
         <button class="pill" onclick="setQuadRatio(85.6/54, this)">ID Card</button>
         <button class="pill" onclick="setQuadRatio(1, this)">1:1</button>
         <button class="pill" onclick="setQuadRatio(4/5, this)">4:5</button>
         <button class="pill" onclick="setQuadRatio(16/9, this)">16:9</button>
-        <button class="pill" onclick="setQuadRatio(3/4, this)">3:4</button>
         <button class="pill" onclick="setQuadRatio(210/297, this)">A4 Doc</button>
       </div>
 
-      <!-- -1° / +1° Fine Rotate Controls -->
       <div class="rot-bar">
         <button class="btn sec sm" onclick="nudgeRotate(-1)">−1°</button>
         <input type="range" id="rot-slider" min="-180" max="180" step="1" value="0" oninput="onRotateSlider(this.value)" />
@@ -228,16 +220,36 @@
       <div class="row">
         <button class="btn sec" onclick="nudgeRotate(-90)">↺ -90°</button>
         <button class="btn sec" onclick="nudgeRotate(90)">↻ +90°</button>
-        <button class="btn sec" onclick="setQuadRatio(null)">Reset</button>
+        <button class="btn sec" onclick="runAutoDetectQuad()">Re-Auto</button>
       </div>
       <div class="row">
-        <button class="btn" onclick="exportQuadCrop(false)">✂️ Crop Color</button>
-        <button class="btn green" onclick="exportQuadCrop(true)">📄 B&W Doc Scan</button>
+        <button class="btn" onclick="exportQuadCrop(false)">✂️ Save Color Crop</button>
+        <button class="btn green" onclick="exportQuadCrop(true)">📄 Save B&W Scan</button>
       </div>
     </div>
   </div>
 
-  <!-- 2. EXACT KB / MB COMPRESSOR -->
+  <!-- 2. PDF INK SAVER, DOC INK SAVER & IMAGES-TO-PDF -->
+  <div id="tab-pdf" class="card hidden">
+    <label class="upload-box">
+      📑 <b>PDF File ya Document Photo(s) chunein</b>
+      <span>PDF Ink Saver (Dark Background → White Print PDF) + Image to PDF</span>
+      <input type="file" accept="application/pdf,image/*" multiple onchange="loadPdfOrDoc(event)" />
+    </label>
+    <div id="pdf-ui" class="hidden">
+      <div id="pdf-stat" class="info"></div>
+      <div class="row">
+        <button class="btn" onclick="runPdfInkSaver(false)">🖨️ Ink Saver (Color)</button>
+        <button class="btn green" onclick="runPdfInkSaver(true)">🖤 Ink Saver (Crisp B&W)</button>
+      </div>
+      <div class="row">
+        <button class="btn sec" onclick="runMakeCleanPdf()">📄 Export Clean PDF</button>
+      </div>
+      <div id="pdf-progress" class="info" style="color:#34d399"></div>
+    </div>
+  </div>
+
+  <!-- 3. EXACT KB / MB COMPRESSOR -->
   <div id="tab-kb" class="card hidden">
     <label class="upload-box">
       🖼️ <b>Photo chunein (10 KB se 5 MB tak)</b>
@@ -261,7 +273,7 @@
     </div>
   </div>
 
-  <!-- 3. PASSPORT, A4 SHEET & EXAM PRESETS -->
+  <!-- 4. PASSPORT, A4 SHEET & EXAM PRESETS -->
   <div id="tab-pass" class="card hidden">
     <label class="upload-box">
       🪪 <b>Selfie / Portrait / Signature chunein</b>
@@ -282,11 +294,10 @@
       </select>
       <input type="text" id="pass-label" oninput="renderPassPreview()" placeholder="Optional Name | Date (e.g. Amit Kumar | 28/11/2026)" />
       <button class="btn green" style="width:100%;margin-top:10px" onclick="exportPassport()">🪪 Generate Passport / Preset</button>
-      <div id="pass-stat" class="info"></div>
     </div>
   </div>
 
-  <!-- 4. FILTERS, BORDERS & DP MAKER -->
+  <!-- 5. FILTERS, BORDERS & DP MAKER -->
   <div id="tab-fx" class="card hidden">
     <label class="upload-box">
       🎨 <b>Photo chunein (Enhance, Filters & DP)</b>
@@ -312,57 +323,37 @@
     </div>
   </div>
 
-  <!-- 5. PRO INK SAVER, TRANSPARENT SIGNATURE, RESIZE & WATERMARK -->
-  <div id="tab-doc" class="card hidden">
-    <label class="upload-box">
-      📄 <b>Document / Signature / Photo chunein</b>
-      <span>Pro Ink Saver (Shadow Removal), Transparent Sign PNG & Resize</span>
-      <input type="file" accept="image/*" onchange="loadDocTool(event)" />
-    </label>
-    <div id="doc-ui" class="hidden">
-      <div class="canvas-box"><img id="doc-img" /></div>
-      <div class="row">
-        <button class="btn" onclick="runInkSaver(false)">🖨️ Ink Saver (Color)</button>
-        <button class="btn green" onclick="runInkSaver(true)">🖤 Ink Saver (Crisp B&W)</button>
-      </div>
-      <div class="row">
-        <button class="btn sec" onclick="runTransSign()">✍️ Transparent Signature PNG</button>
-      </div>
-      <div class="row">
-        <input type="number" id="rs-w" placeholder="Width px (e.g. 1080)" style="flex:1;margin-top:0" />
-        <input type="number" id="rs-h" placeholder="Height px (e.g. 1080)" style="flex:1;margin-top:0" />
-        <button class="btn sec" style="min-width:85px" onclick="runCustomResize()">📐 Resize</button>
-      </div>
-      <div class="row">
-        <input type="text" id="wm-text" placeholder="Watermark text (e.g. @SolvrikHQ)" style="flex:2;margin-top:0" />
-        <button class="btn sec" style="min-width:85px" onclick="runWatermark()">💧 Stamp</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 6. ID CARD JOINER, COLLAGE, INSTA GRID & STICKER -->
+  <!-- 6. ID CARD JOIN, COLLAGE, TRANSPARENT SIGN, RESIZE & STICKER -->
   <div id="tab-soc" class="card hidden">
     <label class="upload-box">
       🪪 <b>1 ya 2–4 Photos chunein (Multi-Select)</b>
-      <span>Front+Back ID Join, 2/4 Photo Collage, Insta Grid & TG Sticker</span>
+      <span>ID Front+Back Join, Collage, Transparent Sign PNG, Resize & Sticker</span>
       <input type="file" accept="image/*" multiple onchange="loadMultiSoc(event)" />
     </label>
     <div id="soc-ui" class="hidden">
       <div id="soc-count" class="info"></div>
       <div class="row">
-        <button class="btn" onclick="runIdJoin()">🪪 Join ID Card (Front+Back)</button>
-        <button class="btn green" onclick="runCollage()">🖼️ Make Collage (2–4)</button>
+        <button class="btn" onclick="runIdJoin()">🪪 Join ID (Front+Back)</button>
+        <button class="btn green" onclick="runCollage()">🖼️ Collage (2–4)</button>
       </div>
       <div class="row">
+        <button class="btn sec" onclick="runTransSign()">✍️ Transparent Sign PNG</button>
         <button class="btn sec" onclick="runSticker()">🎭 TG Sticker (512px)</button>
-        <button class="btn sec" onclick="runInstaGrid()">🧩 Insta 3×3 Grid</button>
       </div>
-      <div id="grid-out" class="row"></div>
+      <div class="row">
+        <input type="number" id="rs-w" placeholder="Width px" style="flex:1;margin-top:0" />
+        <input type="number" id="rs-h" placeholder="Height px" style="flex:1;margin-top:0" />
+        <button class="btn sec" style="min-width:85px" onclick="runCustomResize()">📐 Resize</button>
+      </div>
+      <div class="row">
+        <input type="text" id="wm-text" placeholder="Watermark text (@SolvrikHQ)" style="flex:2;margin-top:0" />
+        <button class="btn sec" style="min-width:85px" onclick="runWatermark()">💧 Stamp</button>
+      </div>
     </div>
   </div>
 
   <script>
-    let lastBlob = null, lastDataUrl = '', lastFilename = 'solvrik_output.jpg';
+    let lastBlob = null, lastDataUrl = '', lastFilename = 'solvrik_output.jpg', lastIsPdf = false;
 
     window.addEventListener('DOMContentLoaded', () => {
       if (window.Telegram?.WebApp) {
@@ -373,62 +364,71 @@
     function switchTab(id, btn) {
       document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      ['crop', 'kb', 'pass', 'fx', 'doc', 'soc'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
+      ['crop', 'pdf', 'kb', 'pass', 'fx', 'soc'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
     }
 
-    function setOutput(blob, filename, titleText) {
+    function setOutput(blob, filename, titleText, previewDataUrl) {
       if (!blob) return;
       lastBlob = blob;
       lastFilename = filename || 'solvrik_output.jpg';
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        lastDataUrl = reader.result;
-        document.getElementById('out-img').src = lastDataUrl;
-        document.getElementById('out-title').textContent = titleText || `✅ Ready: ${lastFilename} (${(blob.size / 1024).toFixed(1)} KB)`;
-        const box = document.getElementById('out-box');
+      lastIsPdf = lastFilename.toLowerCase().endsWith('.pdf');
+      const box = document.getElementById('out-box');
+      const imgEl = document.getElementById('out-img');
+      document.getElementById('out-title').textContent = titleText || `✅ Ready: ${lastFilename} (${(blob.size / 1024).toFixed(1)} KB)`;
+
+      if (previewDataUrl) {
+        lastDataUrl = previewDataUrl;
+        imgEl.src = previewDataUrl;
+        imgEl.classList.remove('hidden');
         box.classList.remove('hidden');
         box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      };
-      reader.readAsDataURL(blob);
+      } else {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          lastDataUrl = reader.result;
+          if (lastIsPdf) {
+            imgEl.classList.add('hidden');
+          } else {
+            imgEl.src = lastDataUrl;
+            imgEl.classList.remove('hidden');
+          }
+          box.classList.remove('hidden');
+          box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+        reader.readAsDataURL(blob);
+      }
     }
 
-    // Works across Mobile Share Sheet, Desktop Browser, and Telegram WebView
     async function smartSaveAction() {
       if (!lastBlob) return;
-      // 1. Try native OS Share/Save sheet (best for Android/iOS Telegram)
       try {
-        const file = new File([lastBlob], lastFilename, { type: lastBlob.type || 'image/jpeg' });
+        const file = new File([lastBlob], lastFilename, { type: lastBlob.type || 'application/octet-stream' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: lastFilename });
           return;
         }
       } catch (e) {}
 
-      // 2. Try standard anchor download with DataURL
       try {
+        const url = lastIsPdf ? URL.createObjectURL(lastBlob) : (lastDataUrl || URL.createObjectURL(lastBlob));
         const a = document.createElement('a');
-        a.href = lastDataUrl || URL.createObjectURL(lastBlob);
+        a.href = url;
         a.download = lastFilename;
         document.body.appendChild(a);
         a.click();
-        setTimeout(() => a.remove(), 200);
+        setTimeout(() => a.remove(), 250);
       } catch (e) {}
 
-      // 3. Fallback: open image in new viewer tab if sandboxed iframe blocks download
-      openImageTab();
+      if (!lastIsPdf) openImageTab();
     }
 
     function openImageTab() {
-      if (!lastDataUrl && !lastBlob) return;
-      const url = lastDataUrl || URL.createObjectURL(lastBlob);
-      const w = window.open('', '_blank');
-      if (w) {
-        w.document.write(`<html><head><title>${lastFilename}</title><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;background:#070d19;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#fff;font-family:sans-serif"><p style="font-size:13px;padding:8px">Photo par <b>Long-Press (Hold)</b> ya <b>Right-Click → Save Image</b> karein:</p><img src="${url}" style="max-width:96%;max-height:85vh;border-radius:10px"/></body></html>`);
-        w.document.close();
-      }
+      if (!lastBlob) return;
+      const url = lastIsPdf ? URL.createObjectURL(lastBlob) : (lastDataUrl || URL.createObjectURL(lastBlob));
+      window.open(url, '_blank');
     }
 
-    // ================= 1. MOVABLE BOX + 4-CORNER STRETCH + -1°/+1° ROTATE =================
+    // ================= 1. AUTO-CROP FIRST + MANUAL 4-CORNER & -1°/+1° =================
     let rawCropImg = null, rotCanvas = document.createElement('canvas'), rotAngle = 0;
     let quadPts = [], activePt = -1, isDraggingBox = false, dragStart = { x: 0, y: 0 }, dragOrigPts = [];
 
@@ -461,6 +461,89 @@
       rebuildRotatedBase(Math.abs(delta) >= 90);
     }
 
+    // Fast Client-Side Saliency + Corner-Background Auto Detector
+    function autoDetectBoxOnCanvas(canvas) {
+      const sw = 180, sh = Math.max(80, Math.round(canvas.height * (sw / canvas.width)));
+      const tmp = document.createElement('canvas'); tmp.width = sw; tmp.height = sh;
+      const ctx = tmp.getContext('2d'); ctx.drawImage(canvas, 0, 0, sw, sh);
+      const px = ctx.getImageData(0, 0, sw, sh).data;
+
+      // Sample 4 corner colors as background reference
+      const corners = [];
+      const pad = 10;
+      for (let y = 0; y < pad; y++) {
+        for (let x = 0; x < pad; x++) {
+          [[x, y], [sw - 1 - x, y], [x, sh - 1 - y], [sw - 1 - x, sh - 1 - y]].forEach(([cx, cy]) => {
+            const idx = (cy * sw + cx) * 4;
+            corners.push([px[idx], px[idx + 1], px[idx + 2]]);
+          });
+        }
+      }
+
+      let minX = sw, minY = sh, maxX = 0, maxY = 0, hits = 0;
+      for (let y = 4; y < sh - 4; y++) {
+        for (let x = 4; x < sw - 4; x++) {
+          const i = (y * sw + x) * 4;
+          const r = px[i], g = px[i + 1], b = px[i + 2];
+          // Min color distance from sampled corner pixels
+          let minD = 999999;
+          for (let k = 0; k < corners.length; k += 4) {
+            const dr = r - corners[k][0], dg = g - corners[k][1], db = b - corners[k][2];
+            const d = dr * dr + dg * dg + db * db;
+            if (d < minD) minD = d;
+          }
+          // Boost blue/cyan ID card pixels or clean white paper
+          const isBlueCard = (b > r + 18 && b > 70);
+          const isWhitePaper = (r > 185 && g > 185 && b > 185 && Math.abs(r - b) < 25);
+          if (minD > 3200 || isBlueCard || isWhitePaper) {
+            hits++;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      const bw = maxX - minX, bh = maxY - minY;
+      const areaRatio = (bw * bh) / (sw * sh);
+      if (hits > 60 && areaRatio >= 0.08 && areaRatio <= 0.88) {
+        const sx = canvas.width / sw, sy = canvas.height / sh;
+        return {
+          x1: Math.max(8, minX * sx),
+          y1: Math.max(8, minY * sy),
+          x2: Math.min(canvas.width - 8, maxX * sx),
+          y2: Math.min(canvas.height - 8, maxY * sy),
+          detected: true
+        };
+      }
+      return {
+        x1: canvas.width * 0.14,
+        y1: canvas.height * 0.18,
+        x2: canvas.width * 0.86,
+        y2: canvas.height * 0.82,
+        detected: false
+      };
+    }
+
+    function runAutoDetectQuad(btnEl) {
+      if (btnEl) {
+        document.querySelectorAll('#tab-crop .pill').forEach(p => p.classList.remove('on'));
+        btnEl.classList.add('on');
+      }
+      const box = autoDetectBoxOnCanvas(rotCanvas);
+      quadPts = [
+        { x: box.x1, y: box.y1 },
+        { x: box.x2, y: box.y1 },
+        { x: box.x2, y: box.y2 },
+        { x: box.x1, y: box.y2 }
+      ];
+      document.getElementById('auto-crop-status').textContent = box.detected
+        ? '🤖 Auto-Crop Applied! Satisfied hon toh Save dabayein, warna corners se adjust karein:'
+        : '✂️ Manual Box Ready — 4 corners ko card/page ke konon par set karein:';
+      drawQuadOverlay();
+    }
+
     function setQuadRatio(ratio, btnEl) {
       if (btnEl) {
         document.querySelectorAll('#tab-crop .pill').forEach(p => p.classList.remove('on'));
@@ -488,7 +571,7 @@
       drawQuadOverlay();
     }
 
-    function rebuildRotatedBase(resetCorners) {
+    function rebuildRotatedBase(runAuto) {
       if (!rawCropImg) return;
       const maxDim = 1400;
       const s = Math.min(1, maxDim / Math.max(rawCropImg.width, rawCropImg.height));
@@ -504,7 +587,7 @@
       ctx.drawImage(rawCropImg, -sw / 2, -sh / 2, sw, sh);
       ctx.restore();
 
-      if (resetCorners || quadPts.length !== 4) setQuadRatio(null);
+      if (runAuto || quadPts.length !== 4) runAutoDetectQuad();
       else {
         quadPts.forEach(p => { p.x = Math.min(nw - 4, Math.max(4, p.x)); p.y = Math.min(nh - 4, Math.max(4, p.y)); });
         drawQuadOverlay();
@@ -527,7 +610,6 @@
       const ctx = qc.getContext('2d');
       ctx.drawImage(rotCanvas, 0, 0);
 
-      // Dark mask outside selection
       ctx.save();
       ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
       ctx.beginPath();
@@ -538,7 +620,6 @@
       ctx.fill('evenodd');
       ctx.restore();
 
-      // Selection border
       ctx.strokeStyle = isDraggingBox ? '#10b981' : '#38bdf8';
       ctx.lineWidth = Math.max(3, qc.width / 220);
       ctx.beginPath();
@@ -547,19 +628,16 @@
       ctx.closePath();
       ctx.stroke();
 
-      // Center move grip icon
       const cx = (quadPts[0].x + quadPts[1].x + quadPts[2].x + quadPts[3].x) / 4;
       const cy = (quadPts[0].y + quadPts[1].y + quadPts[2].y + quadPts[3].y) / 4;
       const gr = Math.max(18, qc.width / 32);
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
       ctx.beginPath(); ctx.arc(cx, cy, gr, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#fff';
-      ctx.font = `bold ${Math.round(gr * 1.1)}px sans-serif`;
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.round(gr * 1.1)}px sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('✥', cx, cy);
 
-      // 4 Corner handles
       const r = Math.max(16, qc.width / 34);
       quadPts.forEach((pt, idx) => {
         ctx.fillStyle = idx === activePt ? '#10b981' : '#3b82f6';
@@ -579,16 +657,11 @@
         const p = getPos(ev), hitR = Math.max(38, qc.width / 13);
         let best = -1, bestD = hitR;
         quadPts.forEach((pt, i) => { const d = Math.hypot(pt.x - p.x, pt.y - p.y); if (d < bestD) { bestD = d; best = i; } });
-        if (best !== -1) {
-          activePt = best; isDraggingBox = false; ev.preventDefault(); drawQuadOverlay(); return;
-        }
-        // Check if user touched inside the crop box to move entire box
+        if (best !== -1) { activePt = best; isDraggingBox = false; ev.preventDefault(); drawQuadOverlay(); return; }
         if (pointInQuad(p.x, p.y, quadPts)) {
-          isDraggingBox = true;
-          dragStart = p;
+          isDraggingBox = true; dragStart = p;
           dragOrigPts = quadPts.map(pt => ({ x: pt.x, y: pt.y }));
-          ev.preventDefault();
-          drawQuadOverlay();
+          ev.preventDefault(); drawQuadOverlay();
         }
       }
       function move(ev) {
@@ -597,26 +670,21 @@
           const p = getPos(ev);
           quadPts[activePt].x = Math.max(0, Math.min(qc.width, p.x));
           quadPts[activePt].y = Math.max(0, Math.min(qc.height, p.y));
-          drawQuadOverlay();
-          return;
+          drawQuadOverlay(); return;
         }
         if (isDraggingBox) {
           ev.preventDefault();
           const p = getPos(ev);
           let dx = p.x - dragStart.x, dy = p.y - dragStart.y;
-          const minX = Math.min(...dragOrigPts.map(pt => pt.x));
-          const maxX = Math.max(...dragOrigPts.map(pt => pt.x));
-          const minY = Math.min(...dragOrigPts.map(pt => pt.y));
-          const maxY = Math.max(...dragOrigPts.map(pt => pt.y));
+          const minX = Math.min(...dragOrigPts.map(pt => pt.x)), maxX = Math.max(...dragOrigPts.map(pt => pt.x));
+          const minY = Math.min(...dragOrigPts.map(pt => pt.y)), maxY = Math.max(...dragOrigPts.map(pt => pt.y));
           dx = Math.max(-minX, Math.min(qc.width - maxX, dx));
           dy = Math.max(-minY, Math.min(qc.height - maxY, dy));
           quadPts = dragOrigPts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
           drawQuadOverlay();
         }
       }
-      function up() {
-        if (activePt !== -1 || isDraggingBox) { activePt = -1; isDraggingBox = false; drawQuadOverlay(); }
-      }
+      function up() { if (activePt !== -1 || isDraggingBox) { activePt = -1; isDraggingBox = false; drawQuadOverlay(); } }
       qc.addEventListener('mousedown', down); window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
       qc.addEventListener('touchstart', down, { passive: false }); window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', up);
     })();
@@ -659,7 +727,159 @@
       outCanvas.toBlob(b => setOutput(b, bwMode ? 'solvrik_doc_scan.jpg' : 'solvrik_cropped.jpg'), 'image/jpeg', 0.94);
     }
 
-    // ================= 2. EXACT KB / MB COMPRESSOR =================
+    // ================= 2. PDF INK SAVER + IMAGE INK SAVER + PDF GENERATOR =================
+    let pdfSourceFiles = [];
+    function loadPdfOrDoc(e) {
+      pdfSourceFiles = Array.from(e.target.files || []);
+      if (!pdfSourceFiles.length) return;
+      document.getElementById('pdf-ui').classList.remove('hidden');
+      document.getElementById('pdf-stat').textContent = `📁 Selected: ${pdfSourceFiles.length} file(s) — ${pdfSourceFiles[0].name}`;
+      document.getElementById('pdf-progress').textContent = '';
+    }
+
+    function applyInkSaverToCanvas(srcCanvas, bwMode) {
+      const w = srcCanvas.width, h = srcCanvas.height;
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d'); ctx.drawImage(srcCanvas, 0, 0, w, h);
+      const srcData = ctx.getImageData(0, 0, w, h), px = srcData.data;
+
+      // Invert dark-mode notes automatically if average brightness is very dark
+      let lumSum = 0;
+      for (let i = 0; i < px.length; i += 16) lumSum += (px[i] + px[i + 1] + px[i + 2]) / 3;
+      const isDarkSlide = (lumSum / (px.length / 16)) < 95;
+      if (isDarkSlide) {
+        for (let i = 0; i < px.length; i += 4) {
+          px[i] = 255 - px[i]; px[i + 1] = 255 - px[i + 1]; px[i + 2] = 255 - px[i + 2];
+        }
+        ctx.putImageData(srcData, 0, 0);
+      }
+
+      const bgC = document.createElement('canvas');
+      const bw = Math.max(32, Math.round(w / 16)), bh = Math.max(32, Math.round(h / 16));
+      bgC.width = bw; bgC.height = bh;
+      const bgCtx = bgC.getContext('2d'); bgCtx.filter = 'blur(4px)'; bgCtx.drawImage(c, 0, 0, bw, bh);
+
+      const upBg = document.createElement('canvas'); upBg.width = w; upBg.height = h;
+      const upCtx = upBg.getContext('2d'); upCtx.filter = 'blur(12px)'; upCtx.drawImage(bgC, 0, 0, w, h);
+      const bgPx = upCtx.getImageData(0, 0, w, h).data;
+
+      for (let i = 0; i < px.length; i += 4) {
+        let r = Math.min(255, (px[i] / Math.max(40, bgPx[i])) * 245);
+        let g = Math.min(255, (px[i + 1] / Math.max(40, bgPx[i + 1])) * 245);
+        let b = Math.min(255, (px[i + 2] / Math.max(40, bgPx[i + 2])) * 245);
+
+        r = Math.max(0, Math.min(255, (r - 128) * 1.38 + 145));
+        g = Math.max(0, Math.min(255, (g - 128) * 1.38 + 145));
+        b = Math.max(0, Math.min(255, (b - 128) * 1.38 + 145));
+
+        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        if (lum > 205) {
+          px[i] = px[i + 1] = px[i + 2] = 255;
+        } else if (bwMode) {
+          const v = lum > 155 ? 255 : Math.max(0, lum * 0.72);
+          px[i] = px[i + 1] = px[i + 2] = v;
+        } else {
+          px[i] = Math.round(r * 0.85); px[i + 1] = Math.round(g * 0.85); px[i + 2] = Math.round(b * 0.85);
+        }
+      }
+      ctx.putImageData(srcData, 0, 0);
+      return c;
+    }
+
+    async function extractCanvasesFromFiles(files, progEl) {
+      const canvases = [];
+      for (const f of files) {
+        if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+          if (!window.pdfjsLib) throw new Error('PDF engine abhi load ho raha hai, 2 sec baad try karein.');
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          const arrBuf = await f.arrayBuffer();
+          const pdf = await window.pdfjsLib.getDocument({ data: arrBuf }).promise;
+          const total = Math.min(pdf.numPages, 25);
+          for (let p = 1; p <= total; p++) {
+            if (progEl) progEl.textContent = `⏳ Rendering PDF Page ${p} / ${total}...`;
+            const page = await pdf.getPage(p);
+            const vp = page.getViewport({ scale: 1.5 });
+            const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+            await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+            canvases.push(c);
+          }
+        } else {
+          const im = await new Promise((res, rej) => {
+            const img = new Image();
+            img.onload = () => res(img);
+            img.onerror = rej;
+            img.src = URL.createObjectURL(f);
+          });
+          const s = Math.min(1, 1800 / Math.max(im.width, im.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          canvases.push(c);
+        }
+      }
+      return canvases;
+    }
+
+    async function runPdfInkSaver(bwMode) {
+      if (!pdfSourceFiles.length) return;
+      const prog = document.getElementById('pdf-progress');
+      try {
+        const rawPages = await extractCanvasesFromFiles(pdfSourceFiles, prog);
+        const cleaned = [];
+        for (let i = 0; i < rawPages.length; i++) {
+          prog.textContent = `🖨️ Ink Saver cleaning page ${i + 1} / ${rawPages.length}...`;
+          cleaned.push(applyInkSaverToCanvas(rawPages[i], bwMode));
+        }
+
+        if (cleaned.length === 1 && !pdfSourceFiles[0].name.toLowerCase().endsWith('.pdf')) {
+          cleaned[0].toBlob(b => {
+            prog.textContent = '✅ Ink Saver Image Ready!';
+            setOutput(b, bwMode ? 'solvrik_ink_saver_bw.jpg' : 'solvrik_ink_saver_color.jpg');
+          }, 'image/jpeg', 0.94);
+          return;
+        }
+
+        if (!window.jspdf) throw new Error('PDF writer load ho raha hai, 2 sec baad try karein.');
+        const { jsPDF } = window.jspdf;
+        let doc = null;
+        cleaned.forEach((c, idx) => {
+          const orient = c.width > c.height ? 'l' : 'p';
+          if (idx === 0) doc = new jsPDF({ orientation: orient, unit: 'px', format: [c.width, c.height] });
+          else doc.addPage([c.width, c.height], orient);
+          doc.addImage(c.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, c.width, c.height);
+        });
+        const pdfBlob = doc.output('blob');
+        const prevUrl = cleaned[0].toDataURL('image/jpeg', 0.85);
+        prog.textContent = `✅ Ink Saver PDF Ready (${cleaned.length} pages)!`;
+        setOutput(pdfBlob, 'solvrik_ink_saver.pdf', `✅ Ink Saver PDF Ready (${cleaned.length} pages)`, prevUrl);
+      } catch (err) {
+        prog.textContent = '❌ ' + err.message;
+      }
+    }
+
+    async function runMakeCleanPdf() {
+      if (!pdfSourceFiles.length) return;
+      const prog = document.getElementById('pdf-progress');
+      try {
+        const pages = await extractCanvasesFromFiles(pdfSourceFiles, prog);
+        if (!window.jspdf) throw new Error('PDF writer load ho raha hai.');
+        const { jsPDF } = window.jspdf;
+        let doc = null;
+        pages.forEach((c, idx) => {
+          const orient = c.width > c.height ? 'l' : 'p';
+          if (idx === 0) doc = new jsPDF({ orientation: orient, unit: 'px', format: [c.width, c.height] });
+          else doc.addPage([c.width, c.height], orient);
+          doc.addImage(c.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, c.width, c.height);
+        });
+        const pdfBlob = doc.output('blob');
+        prog.textContent = `✅ Clean PDF Ready (${pages.length} pages)!`;
+        setOutput(pdfBlob, 'solvrik_document.pdf', `✅ PDF Ready (${pages.length} pages)`, pages[0].toDataURL('image/jpeg', 0.85));
+      } catch (err) {
+        prog.textContent = '❌ ' + err.message;
+      }
+    }
+
+    // ================= 3. EXACT KB / MB COMPRESSOR =================
     let kbImg = null;
     function setKb(v) { document.getElementById('kb-val').value = v; runKb(); }
     function loadKb(e) {
@@ -700,7 +920,7 @@
       setOutput(res.blob, `solvrik_${Math.round(targetKb)}kb.jpg`);
     }
 
-    // ================= 3. PASSPORT, A4 & EXAM PRESETS =================
+    // ================= 4. PASSPORT, A4 & EXAM PRESETS =================
     let passImg = null;
     function loadPass(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -759,7 +979,7 @@
       a4.toBlob(b => setOutput(b, `a4_${rows * cols}_photos.jpg`), 'image/jpeg', 0.95);
     }
 
-    // ================= 4. FILTERS & DP =================
+    // ================= 5. FILTERS & DP =================
     let fxImg = null, fxIsPng = false;
     function loadFx(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -807,112 +1027,7 @@
       c.toBlob(b => setOutput(b, fxIsPng ? 'solvrik_circle_dp.png' : 'solvrik_edited.jpg'), fxIsPng ? 'image/png' : 'image/jpeg', 0.94);
     }
 
-    // ================= 5. PRO INK SAVER (ILLUMINATION NORMALIZATION), SIGN & RESIZE =================
-    let docImg = null;
-    function loadDocTool(e) {
-      const f = e.target.files[0]; if (!f) return;
-      const im = new Image();
-      im.onload = () => {
-        docImg = im;
-        document.getElementById('doc-ui').classList.remove('hidden');
-        document.getElementById('doc-img').src = im.src;
-        document.getElementById('rs-w').value = im.width;
-        document.getElementById('rs-h').value = im.height;
-      };
-      im.src = URL.createObjectURL(f);
-    }
-
-    // Removes shadows & yellow paper background cleanly while preserving colored/black ink
-    function runInkSaver(bwMode) {
-      if (!docImg) return;
-      const maxDim = 1800;
-      const s = Math.min(1, maxDim / Math.max(docImg.width, docImg.height));
-      const w = Math.round(docImg.width * s), h = Math.round(docImg.height * s);
-
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      const ctx = c.getContext('2d'); ctx.drawImage(docImg, 0, 0, w, h);
-      const srcData = ctx.getImageData(0, 0, w, h);
-      const px = srcData.data;
-
-      // Estimate smooth local background illumination using downscaled blurred pass
-      const bgC = document.createElement('canvas');
-      const bw = Math.max(32, Math.round(w / 16)), bh = Math.max(32, Math.round(h / 16));
-      bgC.width = bw; bgC.height = bh;
-      const bgCtx = bgC.getContext('2d');
-      bgCtx.filter = 'blur(4px)';
-      bgCtx.drawImage(c, 0, 0, bw, bh);
-
-      const upBg = document.createElement('canvas'); upBg.width = w; upBg.height = h;
-      const upCtx = upBg.getContext('2d');
-      upCtx.filter = 'blur(12px)';
-      upCtx.drawImage(bgC, 0, 0, w, h);
-      const bgPx = upCtx.getImageData(0, 0, w, h).data;
-
-      for (let i = 0; i < px.length; i += 4) {
-        // Divide foreground by local background illumination
-        let r = Math.min(255, (px[i] / Math.max(40, bgPx[i])) * 245);
-        let g = Math.min(255, (px[i + 1] / Math.max(40, bgPx[i + 1])) * 245);
-        let b = Math.min(255, (px[i + 2] / Math.max(40, bgPx[i + 2])) * 245);
-
-        // Stretch contrast and whiten paper background
-        r = Math.max(0, Math.min(255, (r - 128) * 1.38 + 145));
-        g = Math.max(0, Math.min(255, (g - 128) * 1.38 + 145));
-        b = Math.max(0, Math.min(255, (b - 128) * 1.38 + 145));
-
-        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-        if (lum > 205) {
-          px[i] = px[i + 1] = px[i + 2] = 255;
-        } else if (bwMode) {
-          const v = lum > 155 ? 255 : Math.max(0, lum * 0.72);
-          px[i] = px[i + 1] = px[i + 2] = v;
-        } else {
-          px[i] = Math.round(r * 0.85);
-          px[i + 1] = Math.round(g * 0.85);
-          px[i + 2] = Math.round(b * 0.85);
-        }
-      }
-      ctx.putImageData(srcData, 0, 0);
-      c.toBlob(b => setOutput(b, bwMode ? 'solvrik_ink_saver_bw.jpg' : 'solvrik_ink_saver_color.jpg'), 'image/jpeg', 0.94);
-    }
-
-    function runTransSign() {
-      if (!docImg) return;
-      const c = document.createElement('canvas'); c.width = docImg.width; c.height = docImg.height;
-      const ctx = c.getContext('2d'); ctx.drawImage(docImg, 0, 0);
-      const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        if (g > 165) { d[i + 3] = 0; }
-        else { d[i] = Math.round(d[i] * 0.62); d[i + 1] = Math.round(d[i + 1] * 0.62); d[i + 2] = Math.round(d[i + 2] * 0.62); d[i + 3] = 255; }
-      }
-      ctx.putImageData(id, 0, 0);
-      c.toBlob(b => setOutput(b, 'signature_transparent.png'), 'image/png');
-    }
-
-    function runCustomResize() {
-      if (!docImg) return;
-      const nw = Math.max(16, Math.min(4500, parseInt(document.getElementById('rs-w').value, 10) || docImg.width));
-      const nh = Math.max(16, Math.min(4500, parseInt(document.getElementById('rs-h').value, 10) || docImg.height));
-      const c = document.createElement('canvas'); c.width = nw; c.height = nh;
-      c.getContext('2d').drawImage(docImg, 0, 0, nw, nh);
-      c.toBlob(b => setOutput(b, `resized_${nw}x${nh}.jpg`), 'image/jpeg', 0.94);
-    }
-
-    function runWatermark() {
-      if (!docImg) return;
-      const txt = document.getElementById('wm-text').value.trim() || '@SolvrikHQ';
-      const c = document.createElement('canvas'); c.width = docImg.width; c.height = docImg.height;
-      const ctx = c.getContext('2d'); ctx.drawImage(docImg, 0, 0);
-      const fs = Math.max(28, Math.round(c.width / 14));
-      ctx.font = `bold ${fs}px sans-serif`; ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 3;
-      ctx.save(); ctx.translate(c.width / 2, c.height / 2); ctx.rotate(-0.45);
-      for (let y = -c.height; y < c.height; y += fs * 3.5) for (let x = -c.width; x < c.width; x += fs * 7) { ctx.strokeText(txt, x, y); ctx.fillText(txt, x, y); }
-      ctx.restore();
-      c.toBlob(b => setOutput(b, 'watermarked.jpg'), 'image/jpeg', 0.93);
-    }
-
-    // ================= 6. MULTI-PHOTO: ID JOIN, COLLAGE, GRID & STICKER =================
+    // ================= 6. MULTI-PHOTO: ID JOIN, COLLAGE, TRANSPARENT SIGN, RESIZE & STICKER =================
     let multiImgs = [];
     function loadMultiSoc(e) {
       const files = Array.from(e.target.files || []).slice(0, 4);
@@ -925,6 +1040,8 @@
           if (loaded === files.length) {
             document.getElementById('soc-ui').classList.remove('hidden');
             document.getElementById('soc-count').textContent = `✅ ${multiImgs.length} photo(s) selected.`;
+            document.getElementById('rs-w').value = multiImgs[0].width;
+            document.getElementById('rs-h').value = multiImgs[0].height;
           }
         };
         im.src = URL.createObjectURL(f);
@@ -959,6 +1076,19 @@
       }
       c.toBlob(bl => setOutput(bl, 'solvrik_collage.jpg'), 'image/jpeg', 0.93);
     }
+    function runTransSign() {
+      if (!multiImgs.length) return;
+      const im = multiImgs[0], c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+      const ctx = c.getContext('2d'); ctx.drawImage(im, 0, 0);
+      const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        if (g > 165) { d[i + 3] = 0; }
+        else { d[i] = Math.round(d[i] * 0.62); d[i + 1] = Math.round(d[i + 1] * 0.62); d[i + 2] = Math.round(d[i + 2] * 0.62); d[i + 3] = 255; }
+      }
+      ctx.putImageData(id, 0, 0);
+      c.toBlob(bl => setOutput(bl, 'signature_transparent.png'), 'image/png');
+    }
     function runSticker() {
       if (!multiImgs.length) return;
       const im = multiImgs[0], s = 512 / Math.max(im.width, im.height);
@@ -966,21 +1096,27 @@
       c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
       c.toBlob(bl => setOutput(bl, 'telegram_sticker.webp'), 'image/webp', 0.92);
     }
-    function runInstaGrid() {
+    function runCustomResize() {
       if (!multiImgs.length) return;
-      const im = multiImgs[0], minS = Math.min(im.width, im.height);
-      const sx = Math.round((im.width - minS) / 2), sy = Math.round((im.height - minS) / 2);
-      const cw = Math.floor(minS / 3), box = document.getElementById('grid-out'); box.innerHTML = '';
-      const tile = document.createElement('canvas'); tile.width = cw; tile.height = cw;
-      const tctx = tile.getContext('2d');
-      let idx = 1;
-      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
-        tctx.drawImage(im, sx + c * cw, sy + r * cw, cw, cw, 0, 0, cw, cw);
-        const url = tile.toDataURL('image/jpeg', 0.94);
-        const wrap = document.createElement('div'); wrap.style.width = '30%';
-        wrap.innerHTML = `<img src="${url}" style="border-radius:6px;border:1px solid #334155"/><div style="font-size:11px;text-align:center;color:#94a3b8">#${idx}</div>`;
-        box.appendChild(wrap); idx++;
-      }
+      const im = multiImgs[0];
+      const nw = Math.max(16, Math.min(4500, parseInt(document.getElementById('rs-w').value, 10) || im.width));
+      const nh = Math.max(16, Math.min(4500, parseInt(document.getElementById('rs-h').value, 10) || im.height));
+      const c = document.createElement('canvas'); c.width = nw; c.height = nh;
+      c.getContext('2d').drawImage(im, 0, 0, nw, nh);
+      c.toBlob(bl => setOutput(bl, `resized_${nw}x${nh}.jpg`), 'image/jpeg', 0.94);
+    }
+    function runWatermark() {
+      if (!multiImgs.length) return;
+      const im = multiImgs[0], txt = document.getElementById('wm-text').value.trim() || '@SolvrikHQ';
+      const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+      const ctx = c.getContext('2d'); ctx.drawImage(im, 0, 0);
+      const fs = Math.max(28, Math.round(c.width / 14));
+      ctx.font = `bold ${fs}px sans-serif`; ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 3;
+      ctx.save(); ctx.translate(c.width / 2, c.height / 2); ctx.rotate(-0.45);
+      for (let y = -c.height; y < c.height; y += fs * 3.5) for (let x = -c.width; x < c.width; x += fs * 7) { ctx.strokeText(txt, x, y); ctx.fillText(txt, x, y); }
+      ctx.restore();
+      c.toBlob(bl => setOutput(bl, 'watermarked.jpg'), 'image/jpeg', 0.93);
     }
   </script>
 </body>
