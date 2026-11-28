@@ -6,61 +6,174 @@
   <title>Solvrik Pro Studio</title>
   <script src="https://telegram.org/js/telegram-web-app.js" async></script>
   <style>
-    :root { --bg: #0b1120; --card: #162032; --accent: #3b82f6; --green: #10b981; --text: #f8fafc; --muted: #94a3b8; }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding: 12px; padding-bottom: 44px; }
+    :root {
+      --bg: #070d19;
+      --surface: #11192c;
+      --surface-2: #18233c;
+      --border: rgba(148, 163, 184, 0.16);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --green: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #132240 0%, var(--bg) 55%);
+      color: var(--text);
+      padding: 14px;
+      padding-bottom: 48px;
+      min-height: 100vh;
+    }
 
-    /* Instant Top Status Bar */
-    .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .hdr h2 { margin: 0; font-size: 17px; }
-    .badge { background: #1d4ed8; font-size: 11px; padding: 4px 9px; border-radius: 20px; font-weight: 600; }
+    /* Header */
+    .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .hdr-title { display: flex; align-items: center; gap: 8px; }
+    .hdr-logo {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      display: grid; place-items: center; font-weight: 800; font-size: 15px; color: #fff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+    .hdr h2 { margin: 0; font-size: 17px; letter-spacing: -0.2px; }
+    .badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+    }
 
-    .pbar-wrap { width: 100%; height: 5px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
-    .pbar-fill { height: 100%; width: 35%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.2s; }
+    .pbar-wrap { width: 100%; height: 4px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .pbar-fill { height: 100%; width: 45%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.25s ease; }
 
-    /* Clean 2-Column Stacked Tabs */
-    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px; }
-    .tab { padding: 10px 8px; border: 1px solid #263349; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 600; font-size: 12.5px; cursor: pointer; text-align: center; }
-    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    /* Clean 2-Column Stacked Navigation Grid */
+    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+    .tab {
+      padding: 11px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff;
+      border-color: #60a5fa;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
 
-    .card { background: var(--card); border-radius: 14px; padding: 14px; border: 1px solid #223047; }
-    .upload-box { border: 2px dashed #3b82f688; border-radius: 12px; padding: 18px 12px; text-align: center; cursor: pointer; display: block; background: #0f172a; }
-    .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    /* Main Card */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+    .upload-box {
+      border: 2px dashed rgba(59, 130, 246, 0.55);
+      border-radius: 14px;
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      display: block;
+      background: rgba(15, 23, 42, 0.7);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-box:active { background: rgba(59, 130, 246, 0.12); border-color: #60a5fa; }
+    .upload-box b { font-size: 14px; color: #f1f5f9; }
+    .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; }
     input[type="file"] { display: none; }
 
-    .canvas-box { position: relative; margin-top: 10px; background: #020617; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; align-items: center; touch-action: none; }
-    canvas, img { max-width: 100%; max-height: 360px; display: block; }
+    /* Canvas Preview Area */
+    .canvas-box {
+      position: relative;
+      margin-top: 12px;
+      background: #040812;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: none;
+    }
+    canvas, img { max-width: 100%; max-height: 370px; display: block; }
 
-    .row { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
-    .btn { flex: 1; min-width: 110px; padding: 12px 10px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; font-size: 13.5px; cursor: pointer; text-align: center; }
-    .btn.sec { background: #263349; }
-    .btn.green { background: var(--green); }
-    .btn:active { transform: scale(0.98); }
+    /* Controls & Buttons */
+    .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      flex: 1; min-width: 110px; padding: 12px 12px;
+      border: none; border-radius: 11px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff; font-weight: 600; font-size: 13.5px;
+      cursor: pointer; text-align: center;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.28);
+      transition: transform 0.12s;
+    }
+    .btn.sec { background: var(--surface-2); box-shadow: none; border: 1px solid var(--border); color: #e2e8f0; }
+    .btn.green { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28); }
+    .btn.sm { flex: 0 0 auto; min-width: 44px; padding: 8px 12px; font-size: 14px; font-weight: 700; }
+    .btn:active { transform: scale(0.97); }
 
-    input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border-radius: 9px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13.5px; margin-top: 8px; }
-    input[type="range"] { width: 100%; margin-top: 6px; accent-color: #3b82f6; }
-    .slider-lbl { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+    /* Fine Rotate Bar */
+    .rot-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: #0b1222; padding: 8px 10px; border-radius: 12px;
+      border: 1px solid var(--border); margin-top: 10px;
+    }
+    .rot-bar input[type="range"] { flex: 1; margin: 0; accent-color: #3b82f6; }
+    .rot-badge { min-width: 44px; text-align: center; font-size: 13px; font-weight: 700; color: #38bdf8; }
 
-    .pill { padding: 7px 11px; border-radius: 20px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 12px; cursor: pointer; }
-    .pill.on { background: var(--accent); border-color: var(--accent); }
+    input[type="number"], input[type="text"], select {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #0b1222;
+      color: #fff; font-size: 13.5px; margin-top: 8px; outline: none;
+    }
+    input:focus, select:focus { border-color: #3b82f6; }
+
+    .pill {
+      padding: 7px 12px; border-radius: 20px;
+      border: 1px solid var(--border); background: #0b1222;
+      color: #cbd5e1; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .pill.on { background: var(--accent); border-color: #60a5fa; color: #fff; }
+
+    .hint { font-size: 11.5px; color: #94a3b8; margin-top: 7px; text-align: center; }
     .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; }
     .hidden { display: none !important; }
 
-    /* Output Preview + Direct Download Box */
-    #out-box { margin-top: 14px; background: #0f172a; border: 2px solid #10b981; border-radius: 12px; padding: 12px; text-align: center; }
-    #out-box img { margin: 0 auto; border-radius: 8px; max-height: 280px; }
+    /* Output Card */
+    #out-box {
+      margin-bottom: 14px;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.12), var(--surface));
+      border: 1.5px solid #10b981;
+      border-radius: 14px;
+      padding: 13px;
+      text-align: center;
+    }
+    #out-box img { margin: 0 auto; border-radius: 9px; max-height: 270px; border: 1px solid var(--border); }
   </style>
 </head>
 <body>
   <div class="hdr">
-    <h2>⚡ Solvrik Pro Studio</h2>
-    <span id="status-badge" class="badge">Loading 40%...</span>
+    <div class="hdr-title">
+      <div class="hdr-logo">S</div>
+      <h2>Solvrik Pro Studio</h2>
+    </div>
+    <span id="status-badge" class="badge">Ready • 100%</span>
   </div>
-  <div class="pbar-wrap"><div id="pbar" class="pbar-fill"></div></div>
+  <div class="pbar-wrap"><div id="pbar" class="pbar-fill" style="width:100%"></div></div>
 
-  <!-- LINE-BY-LINE STACKED TABS -->
+  <!-- STACKED 2-COLUMN TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('crop', this)">✂️ 4-Corner Crop & Rotate</button>
+    <button class="tab active" onclick="switchTab('crop', this)">✂️ Movable Crop & Rotate</button>
     <button class="tab" onclick="switchTab('kb', this)">📦 Exact KB / MB Size</button>
     <button class="tab" onclick="switchTab('pass', this)">🪪 Passport & Exam</button>
     <button class="tab" onclick="switchTab('fx', this)">🎨 Filters & DP Maker</button>
@@ -68,29 +181,32 @@
     <button class="tab" onclick="switchTab('soc', this)">📱 ID Join • Collage • Grid</button>
   </div>
 
-  <!-- INLINE OUTPUT PREVIEW & DIRECT SAVE -->
+  <!-- OUTPUT BOX WITH WORKING SAVE / SHARE -->
   <div id="out-box" class="hidden">
-    <div id="out-title" style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">✅ File Ready!</div>
+    <div id="out-title" style="font-size:13.5px;font-weight:700;color:#34d399;margin-bottom:8px">✅ File Ready!</div>
     <img id="out-img" />
-    <div style="font-size:11.5px;color:#94a3b8;margin-top:6px">👇 Niche <b>Direct Download</b> dabayein (ya photo par Hold karke Save karein):</div>
+    <div id="dl-msg" class="hint" style="color:#cbd5e1;margin-top:8px">
+      👇 <b>Save / Share</b> dabayein (ya mobile mein photo par <b>Hold → Save Image</b> karein):
+    </div>
     <div class="row">
-      <button class="btn green" onclick="triggerRealDownload()">⬇️ Direct Download</button>
-      <button class="btn" onclick="shareOrSaveFile()">📤 Share / Save to Phone</button>
-      <button class="btn sec" style="min-width:70px;flex:0" onclick="document.getElementById('out-box').classList.add('hidden')">✖️</button>
+      <button class="btn green" onclick="smartSaveAction()">⬇️ Direct Save / Share</button>
+      <button class="btn" onclick="openImageTab()">🖼️ Open Full Image</button>
+      <button class="btn sec sm" onclick="document.getElementById('out-box').classList.add('hidden')">✖️</button>
     </div>
   </div>
 
-  <!-- 1. 4-CORNER STRETCHABLE PERSPECTIVE CROP + FIXED RATIOS + 1° ROTATE -->
+  <!-- 1. MOVABLE BOX + 4-CORNER STRETCH + -1°/+1° ROTATE -->
   <div id="tab-crop" class="card">
     <label class="upload-box">
       📸 <b>Card / Document / Photo chunein</b>
-      <span>Fixed Ratios + 4-Corner Stretch + 1° Fine Rotate</span>
+      <span>Box ke beech se pakad kar move karein + 4 corners stretch + 1° rotate</span>
       <input type="file" accept="image/*" onchange="loadCrop(event)" />
     </label>
     <div id="crop-ui" class="hidden">
       <div class="canvas-box"><canvas id="quad-canvas"></canvas></div>
+      <div class="hint">💡 Tip: Beech se drag karke poora box move karein, ya neele dots se kona set karein.</div>
 
-      <!-- Fixed Ratio Presets + Free Stretch -->
+      <!-- Fixed Ratios + Free Stretch -->
       <div class="row">
         <button class="pill on" onclick="setQuadRatio(null, this)">Free Stretch</button>
         <button class="pill" onclick="setQuadRatio(85.6/54, this)">ID Card</button>
@@ -101,15 +217,17 @@
         <button class="pill" onclick="setQuadRatio(210/297, this)">A4 Doc</button>
       </div>
 
-      <div class="slider-lbl">
-        <span>🔄 Fine Rotate (1° step)</span>
-        <b id="rot-val" style="color:#38bdf8">0°</b>
+      <!-- -1° / +1° Fine Rotate Controls -->
+      <div class="rot-bar">
+        <button class="btn sec sm" onclick="nudgeRotate(-1)">−1°</button>
+        <input type="range" id="rot-slider" min="-180" max="180" step="1" value="0" oninput="onRotateSlider(this.value)" />
+        <button class="btn sec sm" onclick="nudgeRotate(1)">+1°</button>
+        <span id="rot-val" class="rot-badge">0°</span>
       </div>
-      <input type="range" id="rot-slider" min="-180" max="180" step="1" value="0" oninput="onRotateSlider(this.value)" />
 
       <div class="row">
-        <button class="btn sec" onclick="stepRotate(-90)">↺ -90°</button>
-        <button class="btn sec" onclick="stepRotate(90)">↻ +90°</button>
+        <button class="btn sec" onclick="nudgeRotate(-90)">↺ -90°</button>
+        <button class="btn sec" onclick="nudgeRotate(90)">↻ +90°</button>
         <button class="btn sec" onclick="setQuadRatio(null)">Reset</button>
       </div>
       <div class="row">
@@ -137,8 +255,8 @@
         <button class="pill" onclick="setKb(2048)">2 MB</button>
         <button class="pill" onclick="setKb(5120)">5 MB</button>
       </div>
-      <input type="number" id="kb-val" value="20" min="3" max="15000" placeholder="Custom KB (e.g. 20 ya 5120)" />
-      <button class="btn" style="width:100%;margin-top:8px" onclick="runKb()">⚡ Compress to Exact Size</button>
+      <input type="number" id="kb-val" value="20" min="3" max="15000" placeholder="Target KB likhein (e.g. 20 ya 5120)" />
+      <button class="btn" style="width:100%;margin-top:10px" onclick="runKb()">⚡ Compress to Exact Size</button>
       <div id="kb-stat" class="info"></div>
     </div>
   </div>
@@ -190,31 +308,34 @@
         <button class="pill" onclick="applyFx('nocrop')">🖼️ No-Crop DP</button>
         <button class="pill" onclick="applyFx('circle')">🔵 Circular DP</button>
       </div>
-      <button class="btn green" style="width:100%;margin-top:10px" onclick="saveFx()">✅ Ready to Download</button>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="saveFx()">✅ Apply & Save</button>
     </div>
   </div>
 
-  <!-- 5. INK SAVER, TRANSPARENT SIGNATURE, RESIZE & WATERMARK -->
+  <!-- 5. PRO INK SAVER, TRANSPARENT SIGNATURE, RESIZE & WATERMARK -->
   <div id="tab-doc" class="card hidden">
     <label class="upload-box">
       📄 <b>Document / Signature / Photo chunein</b>
-      <span>Ink Saver, Transparent Sign PNG, Custom Resize & Watermark</span>
+      <span>Pro Ink Saver (Shadow Removal), Transparent Sign PNG & Resize</span>
       <input type="file" accept="image/*" onchange="loadDocTool(event)" />
     </label>
     <div id="doc-ui" class="hidden">
       <div class="canvas-box"><img id="doc-img" /></div>
       <div class="row">
-        <button class="btn" onclick="runInkSaver()">🖨️ Ink Saver (Print)</button>
-        <button class="btn green" onclick="runTransSign()">✍️ Transparent Sign PNG</button>
+        <button class="btn" onclick="runInkSaver(false)">🖨️ Ink Saver (Color)</button>
+        <button class="btn green" onclick="runInkSaver(true)">🖤 Ink Saver (Crisp B&W)</button>
       </div>
       <div class="row">
-        <input type="number" id="rs-w" placeholder="Width px (e.g. 1080)" style="flex:1" />
-        <input type="number" id="rs-h" placeholder="Height px (e.g. 1080)" style="flex:1" />
-        <button class="btn sec" onclick="runCustomResize()">📐 Resize</button>
+        <button class="btn sec" onclick="runTransSign()">✍️ Transparent Signature PNG</button>
       </div>
       <div class="row">
-        <input type="text" id="wm-text" placeholder="Watermark text (e.g. @SolvrikHQ)" style="flex:2" />
-        <button class="btn sec" onclick="runWatermark()">💧 Stamp</button>
+        <input type="number" id="rs-w" placeholder="Width px (e.g. 1080)" style="flex:1;margin-top:0" />
+        <input type="number" id="rs-h" placeholder="Height px (e.g. 1080)" style="flex:1;margin-top:0" />
+        <button class="btn sec" style="min-width:85px" onclick="runCustomResize()">📐 Resize</button>
+      </div>
+      <div class="row">
+        <input type="text" id="wm-text" placeholder="Watermark text (e.g. @SolvrikHQ)" style="flex:2;margin-top:0" />
+        <button class="btn sec" style="min-width:85px" onclick="runWatermark()">💧 Stamp</button>
       </div>
     </div>
   </div>
@@ -241,14 +362,9 @@
   </div>
 
   <script>
-    let lastBlob = null, lastFilename = 'solvrik_output.jpg';
+    let lastBlob = null, lastDataUrl = '', lastFilename = 'solvrik_output.jpg';
 
-    // Fast non-blocking startup progress
     window.addEventListener('DOMContentLoaded', () => {
-      const bar = document.getElementById('pbar'), badge = document.getElementById('status-badge');
-      bar.style.width = '100%';
-      badge.textContent = 'Ready • 100%';
-      badge.style.background = '#059669';
       if (window.Telegram?.WebApp) {
         try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
       }
@@ -260,38 +376,26 @@
       ['crop', 'kb', 'pass', 'fx', 'doc', 'soc'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
     }
 
-    // Show output preview + trigger native download
     function setOutput(blob, filename, titleText) {
       if (!blob) return;
       lastBlob = blob;
       lastFilename = filename || 'solvrik_output.jpg';
-      const box = document.getElementById('out-box');
-      document.getElementById('out-title').textContent = titleText || `✅ Ready: ${lastFilename} (${(blob.size / 1024).toFixed(1)} KB)`;
-      document.getElementById('out-img').src = URL.createObjectURL(blob);
-      box.classList.remove('hidden');
-      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      triggerRealDownload();
-    }
-
-    // Multi-fallback real download for Telegram Web, Desktop & Mobile
-    function triggerRealDownload() {
-      if (!lastBlob) return;
       const reader = new FileReader();
-      reader.onloadend = function () {
-        const dataUrl = reader.result;
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = lastFilename;
-        a.rel = 'noopener';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => a.remove(), 200);
+      reader.onloadend = () => {
+        lastDataUrl = reader.result;
+        document.getElementById('out-img').src = lastDataUrl;
+        document.getElementById('out-title').textContent = titleText || `✅ Ready: ${lastFilename} (${(blob.size / 1024).toFixed(1)} KB)`;
+        const box = document.getElementById('out-box');
+        box.classList.remove('hidden');
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       };
-      reader.readAsDataURL(lastBlob);
+      reader.readAsDataURL(blob);
     }
 
-    async function shareOrSaveFile() {
+    // Works across Mobile Share Sheet, Desktop Browser, and Telegram WebView
+    async function smartSaveAction() {
       if (!lastBlob) return;
+      // 1. Try native OS Share/Save sheet (best for Android/iOS Telegram)
       try {
         const file = new File([lastBlob], lastFilename, { type: lastBlob.type || 'image/jpeg' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -299,12 +403,34 @@
           return;
         }
       } catch (e) {}
-      triggerRealDownload();
+
+      // 2. Try standard anchor download with DataURL
+      try {
+        const a = document.createElement('a');
+        a.href = lastDataUrl || URL.createObjectURL(lastBlob);
+        a.download = lastFilename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 200);
+      } catch (e) {}
+
+      // 3. Fallback: open image in new viewer tab if sandboxed iframe blocks download
+      openImageTab();
     }
 
-    // ================= 1. 4-CORNER STRETCHABLE CROP + FIXED RATIOS + 1° ROTATE =================
+    function openImageTab() {
+      if (!lastDataUrl && !lastBlob) return;
+      const url = lastDataUrl || URL.createObjectURL(lastBlob);
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.write(`<html><head><title>${lastFilename}</title><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;background:#070d19;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#fff;font-family:sans-serif"><p style="font-size:13px;padding:8px">Photo par <b>Long-Press (Hold)</b> ya <b>Right-Click → Save Image</b> karein:</p><img src="${url}" style="max-width:96%;max-height:85vh;border-radius:10px"/></body></html>`);
+        w.document.close();
+      }
+    }
+
+    // ================= 1. MOVABLE BOX + 4-CORNER STRETCH + -1°/+1° ROTATE =================
     let rawCropImg = null, rotCanvas = document.createElement('canvas'), rotAngle = 0;
-    let quadPts = [], activePt = -1;
+    let quadPts = [], activePt = -1, isDraggingBox = false, dragStart = { x: 0, y: 0 }, dragOrigPts = [];
 
     function loadCrop(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -320,16 +446,19 @@
     }
 
     function onRotateSlider(val) {
-      rotAngle = parseInt(val, 10) || 0;
+      rotAngle = Math.max(-180, Math.min(180, parseInt(val, 10) || 0));
       document.getElementById('rot-val').textContent = rotAngle + '°';
       rebuildRotatedBase(false);
     }
 
-    function stepRotate(delta) {
-      rotAngle = ((rotAngle + delta + 180) % 360) - 180;
+    function nudgeRotate(delta) {
+      let next = rotAngle + delta;
+      if (next > 180) next -= 360;
+      if (next < -180) next += 360;
+      rotAngle = next;
       document.getElementById('rot-slider').value = rotAngle;
       document.getElementById('rot-val').textContent = rotAngle + '°';
-      rebuildRotatedBase(true);
+      rebuildRotatedBase(Math.abs(delta) >= 90);
     }
 
     function setQuadRatio(ratio, btnEl) {
@@ -340,14 +469,14 @@
       const w = rotCanvas.width, h = rotCanvas.height;
       if (!ratio) {
         quadPts = [
-          { x: w * 0.12, y: h * 0.15 },
-          { x: w * 0.88, y: h * 0.15 },
-          { x: w * 0.88, y: h * 0.85 },
-          { x: w * 0.12, y: h * 0.85 }
+          { x: w * 0.14, y: h * 0.18 },
+          { x: w * 0.86, y: h * 0.18 },
+          { x: w * 0.86, y: h * 0.82 },
+          { x: w * 0.14, y: h * 0.82 }
         ];
       } else {
-        let rw = w * 0.80, rh = rw / ratio;
-        if (rh > h * 0.80) { rh = h * 0.80; rw = rh * ratio; }
+        let rw = w * 0.78, rh = rw / ratio;
+        if (rh > h * 0.78) { rh = h * 0.78; rw = rh * ratio; }
         const x1 = (w - rw) / 2, y1 = (h - rh) / 2;
         quadPts = [
           { x: x1, y: y1 },
@@ -370,7 +499,7 @@
 
       rotCanvas.width = nw; rotCanvas.height = nh;
       const ctx = rotCanvas.getContext('2d');
-      ctx.fillStyle = '#020617'; ctx.fillRect(0, 0, nw, nh);
+      ctx.fillStyle = '#040812'; ctx.fillRect(0, 0, nw, nh);
       ctx.save(); ctx.translate(nw / 2, nh / 2); ctx.rotate(rad);
       ctx.drawImage(rawCropImg, -sw / 2, -sh / 2, sw, sh);
       ctx.restore();
@@ -382,14 +511,25 @@
       }
     }
 
+    function pointInQuad(px, py, pts) {
+      let inside = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const xi = pts[i].x, yi = pts[i].y, xj = pts[j].x, yj = pts[j].y;
+        const intersect = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / ((yj - yi) || 1e-6) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
     function drawQuadOverlay() {
       const qc = document.getElementById('quad-canvas');
       qc.width = rotCanvas.width; qc.height = rotCanvas.height;
       const ctx = qc.getContext('2d');
       ctx.drawImage(rotCanvas, 0, 0);
 
+      // Dark mask outside selection
       ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
       ctx.beginPath();
       ctx.rect(0, 0, qc.width, qc.height);
       ctx.moveTo(quadPts[0].x, quadPts[0].y);
@@ -398,7 +538,8 @@
       ctx.fill('evenodd');
       ctx.restore();
 
-      ctx.strokeStyle = '#38bdf8';
+      // Selection border
+      ctx.strokeStyle = isDraggingBox ? '#10b981' : '#38bdf8';
       ctx.lineWidth = Math.max(3, qc.width / 220);
       ctx.beginPath();
       ctx.moveTo(quadPts[0].x, quadPts[0].y);
@@ -406,6 +547,19 @@
       ctx.closePath();
       ctx.stroke();
 
+      // Center move grip icon
+      const cx = (quadPts[0].x + quadPts[1].x + quadPts[2].x + quadPts[3].x) / 4;
+      const cy = (quadPts[0].y + quadPts[1].y + quadPts[2].y + quadPts[3].y) / 4;
+      const gr = Math.max(18, qc.width / 32);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+      ctx.beginPath(); ctx.arc(cx, cy, gr, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${Math.round(gr * 1.1)}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('✥', cx, cy);
+
+      // 4 Corner handles
       const r = Math.max(16, qc.width / 34);
       quadPts.forEach((pt, idx) => {
         ctx.fillStyle = idx === activePt ? '#10b981' : '#3b82f6';
@@ -425,17 +579,44 @@
         const p = getPos(ev), hitR = Math.max(38, qc.width / 13);
         let best = -1, bestD = hitR;
         quadPts.forEach((pt, i) => { const d = Math.hypot(pt.x - p.x, pt.y - p.y); if (d < bestD) { bestD = d; best = i; } });
-        if (best !== -1) { activePt = best; ev.preventDefault(); drawQuadOverlay(); }
+        if (best !== -1) {
+          activePt = best; isDraggingBox = false; ev.preventDefault(); drawQuadOverlay(); return;
+        }
+        // Check if user touched inside the crop box to move entire box
+        if (pointInQuad(p.x, p.y, quadPts)) {
+          isDraggingBox = true;
+          dragStart = p;
+          dragOrigPts = quadPts.map(pt => ({ x: pt.x, y: pt.y }));
+          ev.preventDefault();
+          drawQuadOverlay();
+        }
       }
       function move(ev) {
-        if (activePt === -1) return;
-        ev.preventDefault();
-        const p = getPos(ev);
-        quadPts[activePt].x = Math.max(0, Math.min(qc.width, p.x));
-        quadPts[activePt].y = Math.max(0, Math.min(qc.height, p.y));
-        drawQuadOverlay();
+        if (activePt !== -1) {
+          ev.preventDefault();
+          const p = getPos(ev);
+          quadPts[activePt].x = Math.max(0, Math.min(qc.width, p.x));
+          quadPts[activePt].y = Math.max(0, Math.min(qc.height, p.y));
+          drawQuadOverlay();
+          return;
+        }
+        if (isDraggingBox) {
+          ev.preventDefault();
+          const p = getPos(ev);
+          let dx = p.x - dragStart.x, dy = p.y - dragStart.y;
+          const minX = Math.min(...dragOrigPts.map(pt => pt.x));
+          const maxX = Math.max(...dragOrigPts.map(pt => pt.x));
+          const minY = Math.min(...dragOrigPts.map(pt => pt.y));
+          const maxY = Math.max(...dragOrigPts.map(pt => pt.y));
+          dx = Math.max(-minX, Math.min(qc.width - maxX, dx));
+          dy = Math.max(-minY, Math.min(qc.height - maxY, dy));
+          quadPts = dragOrigPts.map(pt => ({ x: pt.x + dx, y: pt.y + dy }));
+          drawQuadOverlay();
+        }
       }
-      function up() { if (activePt !== -1) { activePt = -1; drawQuadOverlay(); } }
+      function up() {
+        if (activePt !== -1 || isDraggingBox) { activePt = -1; isDraggingBox = false; drawQuadOverlay(); }
+      }
       qc.addEventListener('mousedown', down); window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
       qc.addEventListener('touchstart', down, { passive: false }); window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', up);
     })();
@@ -626,7 +807,7 @@
       c.toBlob(b => setOutput(b, fxIsPng ? 'solvrik_circle_dp.png' : 'solvrik_edited.jpg'), fxIsPng ? 'image/png' : 'image/jpeg', 0.94);
     }
 
-    // ================= 5. INK SAVER, TRANSPARENT SIGN, RESIZE & WATERMARK =================
+    // ================= 5. PRO INK SAVER (ILLUMINATION NORMALIZATION), SIGN & RESIZE =================
     let docImg = null;
     function loadDocTool(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -640,19 +821,60 @@
       };
       im.src = URL.createObjectURL(f);
     }
-    function runInkSaver() {
+
+    // Removes shadows & yellow paper background cleanly while preserving colored/black ink
+    function runInkSaver(bwMode) {
       if (!docImg) return;
-      const c = document.createElement('canvas'); c.width = docImg.width; c.height = docImg.height;
-      const ctx = c.getContext('2d'); ctx.drawImage(docImg, 0, 0);
-      const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        if (g > 155) { d[i] = d[i + 1] = d[i + 2] = 255; }
-        else { d[i] = Math.max(0, d[i] * 0.75); d[i + 1] = Math.max(0, d[i + 1] * 0.75); d[i + 2] = Math.max(0, d[i + 2] * 0.75); }
+      const maxDim = 1800;
+      const s = Math.min(1, maxDim / Math.max(docImg.width, docImg.height));
+      const w = Math.round(docImg.width * s), h = Math.round(docImg.height * s);
+
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d'); ctx.drawImage(docImg, 0, 0, w, h);
+      const srcData = ctx.getImageData(0, 0, w, h);
+      const px = srcData.data;
+
+      // Estimate smooth local background illumination using downscaled blurred pass
+      const bgC = document.createElement('canvas');
+      const bw = Math.max(32, Math.round(w / 16)), bh = Math.max(32, Math.round(h / 16));
+      bgC.width = bw; bgC.height = bh;
+      const bgCtx = bgC.getContext('2d');
+      bgCtx.filter = 'blur(4px)';
+      bgCtx.drawImage(c, 0, 0, bw, bh);
+
+      const upBg = document.createElement('canvas'); upBg.width = w; upBg.height = h;
+      const upCtx = upBg.getContext('2d');
+      upCtx.filter = 'blur(12px)';
+      upCtx.drawImage(bgC, 0, 0, w, h);
+      const bgPx = upCtx.getImageData(0, 0, w, h).data;
+
+      for (let i = 0; i < px.length; i += 4) {
+        // Divide foreground by local background illumination
+        let r = Math.min(255, (px[i] / Math.max(40, bgPx[i])) * 245);
+        let g = Math.min(255, (px[i + 1] / Math.max(40, bgPx[i + 1])) * 245);
+        let b = Math.min(255, (px[i + 2] / Math.max(40, bgPx[i + 2])) * 245);
+
+        // Stretch contrast and whiten paper background
+        r = Math.max(0, Math.min(255, (r - 128) * 1.38 + 145));
+        g = Math.max(0, Math.min(255, (g - 128) * 1.38 + 145));
+        b = Math.max(0, Math.min(255, (b - 128) * 1.38 + 145));
+
+        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        if (lum > 205) {
+          px[i] = px[i + 1] = px[i + 2] = 255;
+        } else if (bwMode) {
+          const v = lum > 155 ? 255 : Math.max(0, lum * 0.72);
+          px[i] = px[i + 1] = px[i + 2] = v;
+        } else {
+          px[i] = Math.round(r * 0.85);
+          px[i + 1] = Math.round(g * 0.85);
+          px[i + 2] = Math.round(b * 0.85);
+        }
       }
-      ctx.putImageData(id, 0, 0);
-      c.toBlob(b => setOutput(b, 'solvrik_ink_saver.jpg'), 'image/jpeg', 0.93);
+      ctx.putImageData(srcData, 0, 0);
+      c.toBlob(b => setOutput(b, bwMode ? 'solvrik_ink_saver_bw.jpg' : 'solvrik_ink_saver_color.jpg'), 'image/jpeg', 0.94);
     }
+
     function runTransSign() {
       if (!docImg) return;
       const c = document.createElement('canvas'); c.width = docImg.width; c.height = docImg.height;
@@ -661,11 +883,12 @@
       for (let i = 0; i < d.length; i += 4) {
         const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
         if (g > 165) { d[i + 3] = 0; }
-        else { d[i] = Math.round(d[i] * 0.65); d[i + 1] = Math.round(d[i + 1] * 0.65); d[i + 2] = Math.round(d[i + 2] * 0.65); d[i + 3] = 255; }
+        else { d[i] = Math.round(d[i] * 0.62); d[i + 1] = Math.round(d[i + 1] * 0.62); d[i + 2] = Math.round(d[i + 2] * 0.62); d[i + 3] = 255; }
       }
       ctx.putImageData(id, 0, 0);
       c.toBlob(b => setOutput(b, 'signature_transparent.png'), 'image/png');
     }
+
     function runCustomResize() {
       if (!docImg) return;
       const nw = Math.max(16, Math.min(4500, parseInt(document.getElementById('rs-w').value, 10) || docImg.width));
@@ -674,6 +897,7 @@
       c.getContext('2d').drawImage(docImg, 0, 0, nw, nh);
       c.toBlob(b => setOutput(b, `resized_${nw}x${nh}.jpg`), 'image/jpeg', 0.94);
     }
+
     function runWatermark() {
       if (!docImg) return;
       const txt = document.getElementById('wm-text').value.trim() || '@SolvrikHQ';
@@ -693,8 +917,7 @@
     function loadMultiSoc(e) {
       const files = Array.from(e.target.files || []).slice(0, 4);
       if (!files.length) return;
-      multiImgs = [];
-      let loaded = 0;
+      multiImgs = []; let loaded = 0;
       files.forEach(f => {
         const im = new Image();
         im.onload = () => {
@@ -718,8 +941,7 @@
     }
     function runCollage() {
       if (multiImgs.length < 2) { alert('Kam se kam 2 photos chunein!'); return; }
-      const gap = 20, sz = 750;
-      const c = document.createElement('canvas');
+      const gap = 20, sz = 750, c = document.createElement('canvas');
       if (multiImgs.length === 2) {
         c.width = sz * 2 + gap * 3; c.height = sz + gap * 2;
         const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
