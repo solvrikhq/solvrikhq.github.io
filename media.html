@@ -1,343 +1,369 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Solvrik Media Studio</title>
-  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
-  <style>
-    :root { --bg: #0b1120; --card: #162032; --accent: #3b82f6; --green: #10b981; --text: #f8fafc; --muted: #94a3b8; }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding: 12px; padding-bottom: 44px; }
+import base64
+import json
+import os
+import re
+import shutil
+import urllib.request
+import uuid
+import yt_dlp
+from config import TEMP_DIR, MAX_TG_MB
 
-    .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .hdr h2 { margin: 0; font-size: 17px; }
-    .badge { background: #1d4ed8; font-size: 11px; padding: 4px 9px; border-radius: 20px; font-weight: 600; }
+_DRM_DOMAINS = (
+    "netflix.com", "primevideo.com", "hotstar.com", "jiocinema.com",
+    "sonyliv.com", "zee5.com", "open.spotify.com", "music.apple.com",
+)
 
-    .pbar-wrap { width: 100%; height: 5px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
-    .pbar-fill { height: 100%; width: 40%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.2s; }
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
-    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px; }
-    .tab { padding: 10px 8px; border: 1px solid #263349; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 600; font-size: 12.5px; cursor: pointer; text-align: center; }
-    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+_YT_PROFILES = [
+    (["mweb"], False),
+    (["tv_embedded"], False),
+    (["web"], False),
+    (["mweb", "web"], True),
+    (["default"], True),
+]
 
-    .card { background: var(--card); border-radius: 14px; padding: 14px; border: 1px solid #223047; }
-    .upload-box { border: 2px dashed #3b82f688; border-radius: 12px; padding: 18px 12px; text-align: center; cursor: pointer; display: block; background: #0f172a; }
-    .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
-    input[type="file"] { display: none; }
+_COBALT_ENDPOINTS = [
+    "https://api.cobalt.tools",
+    "https://cobalt-api.kwiatekmiki.com",
+    "https://cobalt.api.timelessnesses.me",
+]
 
-    .media-box { margin-top: 10px; background: #020617; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-    video, img { max-width: 100%; max-height: 280px; display: block; border-radius: 8px; }
 
-    .row { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
-    .btn { flex: 1; min-width: 110px; padding: 12px 10px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; font-size: 13.5px; cursor: pointer; text-align: center; }
-    .btn.sec { background: #263349; }
-    .btn.green { background: var(--green); }
-    .btn:active { transform: scale(0.98); }
+class DownloadCancelled(Exception):
+    pass
 
-    input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border-radius: 9px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13.5px; margin-top: 8px; }
-    .pill { padding: 7px 11px; border-radius: 20px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 12px; cursor: pointer; }
-    .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; line-height: 1.45; }
-    .hidden { display: none !important; }
 
-    #out-box { margin-top: 14px; background: #0f172a; border: 2px solid #10b981; border-radius: 12px; padding: 12px; text-align: center; }
-  </style>
-</head>
-<body>
-  <div class="hdr">
-    <h2>🎬 Solvrik Media Studio</h2>
-    <span id="status-badge" class="badge">Loading 45%...</span>
-  </div>
-  <div class="pbar-wrap"><div id="pbar" class="pbar-fill"></div></div>
+def _clean_text(val):
+    return _ANSI_RE.sub("", str(val or ""))
 
-  <!-- 2-COLUMN STACKED TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('aud', this)">🎵 Video → Audio (WAV/MP3)</button>
-    <button class="tab" onclick="switchTab('trim', this)">✂️ Video Trim & Compress</button>
-    <button class="tab" onclick="switchTab('yt', this)">🖼️ YT Thumbnail & Link Helper</button>
-    <button class="tab" onclick="switchTab('info', this)">📊 Media Info & Frame Grab</button>
-  </div>
 
-  <!-- OUTPUT BOX -->
-  <div id="out-box" class="hidden">
-    <div id="out-title" style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">✅ File Ready!</div>
-    <div id="out-preview"></div>
-    <div class="row">
-      <button class="btn green" onclick="triggerRealDownload()">⬇️ Direct Download</button>
-      <button class="btn" onclick="shareOrSaveFile()">📤 Share / Save to Phone</button>
-      <button class="btn sec" style="min-width:65px;flex:0" onclick="document.getElementById('out-box').classList.add('hidden')">✖️</button>
-    </div>
-  </div>
+def _fmt_size(num_bytes):
+    if not num_bytes or num_bytes <= 0:
+        return "--"
+    gb = num_bytes / (1024 ** 3)
+    if gb >= 1:
+        return f"{gb:.2f} GB"
+    mb = num_bytes / (1024 ** 2)
+    if mb >= 1:
+        return f"{mb:.1f} MB"
+    return f"{num_bytes / 1024:.0f} KB"
 
-  <!-- 1. VIDEO TO AUDIO EXTRACTOR (NO 20MB LIMIT) -->
-  <div id="tab-aud" class="card">
-    <label class="upload-box">
-      🎥 <b>Koi bhi Video chunein (500 MB tak supported)</b>
-      <span>Zero Server Load — Direct Phone Par Audio Extract Hoga</span>
-      <input type="file" accept="video/*" onchange="loadAudVid(event)" />
-    </label>
-    <div id="aud-ui" class="hidden">
-      <div class="media-box"><video id="aud-vid" controls playsinline></video></div>
-      <div id="aud-stat" class="info"></div>
-      <button class="btn green" style="width:100%;margin-top:10px" onclick="extractAudioNow()">🎵 Extract High-Quality Audio</button>
-    </div>
-  </div>
 
-  <!-- 2. VIDEO TRIMMER & SIZE COMPRESSOR -->
-  <div id="tab-trim" class="card hidden">
-    <label class="upload-box">
-      🎞️ <b>Video chunein (Trim / Compress)</b>
-      <span>WhatsApp / Telegram Status ke liye size kam karein</span>
-      <input type="file" accept="video/*" onchange="loadTrimVid(event)" />
-    </label>
-    <div id="trim-ui" class="hidden">
-      <div class="media-box"><video id="trim-vid" controls playsinline></video></div>
-      <div class="row">
-        <input type="number" id="t-start" value="0" min="0" step="1" placeholder="Start sec (e.g. 0)" style="flex:1" />
-        <input type="number" id="t-end" value="15" min="1" step="1" placeholder="End sec (e.g. 15)" style="flex:1" />
-      </div>
-      <select id="trim-q">
-        <option value="0.45">480p Fast Share (Low MB)</option>
-        <option value="0.70" selected>720p Balanced HD</option>
-        <option value="1.0">Original Resolution</option>
-      </select>
-      <button class="btn" style="width:100%;margin-top:10px" onclick="processTrimCompress()">⚡ Trim & Compress Video</button>
-      <div id="trim-stat" class="info"></div>
-    </div>
-  </div>
+def _fmt_eta(sec):
+    if sec is None:
+        return "--:--"
+    sec = max(0, int(sec))
+    m, s = divmod(sec, 60)
+    h, m = divmod(m, 60)
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
 
-  <!-- 3. YOUTUBE THUMBNAIL GRABBER (4K/HD) & DIRECT LINK HELPER -->
-  <div id="tab-yt" class="card hidden">
-    <div style="font-size:13px;color:#cbd5e1;font-weight:600">🔗 YouTube Video / Shorts Link Paste Karein:</div>
-    <input type="text" id="yt-url" placeholder="https://youtu.be/... ya https://youtube.com/shorts/..." />
-    <div class="row">
-      <button class="btn" onclick="grabYtThumb('maxresdefault')">🖼️ HD Thumbnail (1080p)</button>
-      <button class="btn sec" onclick="grabYtThumb('hqdefault')">🖼️ Standard Thumb</button>
-    </div>
-    <div id="yt-stat" class="info"></div>
-  </div>
 
-  <!-- 4. MEDIA INSPECTOR & VIDEO-TO-PHOTO FRAME GRABBER -->
-  <div id="tab-info" class="card hidden">
-    <label class="upload-box">
-      📊 <b>Video / Audio File chunein</b>
-      <span>Exact Resolution, Duration, Bitrate & HD Screenshot Frame</span>
-      <input type="file" accept="video/*,audio/*" onchange="inspectMedia(event)" />
-    </label>
-    <div id="info-ui" class="hidden">
-      <div class="media-box"><video id="info-vid" controls playsinline></video></div>
-      <div id="info-text" class="info"></div>
-      <button class="btn green" style="width:100%;margin-top:10px" onclick="grabVideoFrame()">📸 Capture HD Photo Frame</button>
-    </div>
-  </div>
+def _fmt_speed(bps):
+    if not bps:
+        return "--"
+    mb_s = bps / (1024 * 1024)
+    if mb_s >= 1:
+        return f"{mb_s:.1f} MB/s"
+    return f"{bps / 1024:.0f} KB/s"
 
-  <script>
-    let lastBlob = null, lastFilename = 'solvrik_media.bin';
 
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('pbar').style.width = '100%';
-      const b = document.getElementById('status-badge');
-      b.textContent = 'Ready • 100%';
-      b.style.background = '#059669';
-      if (window.Telegram?.WebApp) {
-        try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
-      }
-    });
+def is_url(text):
+    return bool(re.match(r"^https?://\S+", (text or "").strip(), re.I))
 
-    function switchTab(id, btn) {
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-      btn.classList.add('active');
-      ['aud', 'trim', 'yt', 'info'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
+
+def is_drm_url(url):
+    low = (url or "").lower()
+    return any(d in low for d in _DRM_DOMAINS)
+
+
+def _is_youtube(url):
+    low = (url or "").lower()
+    return ("youtube.com" in low) or ("youtu.be" in low)
+
+
+def _extract_yt_id(url):
+    m = re.search(r"(?:youtu\.be/|youtube\.com/(?:watch\?v=|shorts/|embed/))([a-zA-Z0-9_-]{11})", url or "")
+    return m.group(1) if m else ""
+
+
+def _resolve_cookiefile():
+    b64 = os.getenv("YT_COOKIES_B64", "").strip()
+    if b64:
+        try:
+            ck_path = os.path.join(TEMP_DIR, "cookies.txt")
+            with open(ck_path, "wb") as f:
+                f.write(base64.b64decode(b64))
+            return ck_path
+        except Exception:
+            pass
+    ck = os.getenv("YT_COOKIES", "").strip()
+    if ck:
+        if os.path.isfile(ck):
+            return ck
+        ck_path = os.path.join(TEMP_DIR, "cookies.txt")
+        with open(ck_path, "w", encoding="utf-8") as f:
+            f.write(ck)
+        return ck_path
+    return None
+
+
+def _base_opts(yt_clients=None, use_cookies=True):
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "nocolor": True,
+        "noplaylist": True,
+        "geo_bypass": True,
+        "nocheckcertificate": True,
+        "socket_timeout": 22,
+        "retries": 2,
+        "fragment_retries": 2,
+        "http_headers": {
+            "User-Agent": (
+                "Mozilla/5.0 (Linux; Android 13; Pixel 7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/131.0.0.0 Mobile Safari/537.36"
+            ),
+            "Accept-Language": "en-US,en;q=0.9",
+        },
     }
+    if yt_clients:
+        opts["extractor_args"] = {"youtube": {"player_client": yt_clients}}
+    if use_cookies:
+        ck_file = _resolve_cookiefile()
+        if ck_file:
+            opts["cookiefile"] = ck_file
+    proxy = os.getenv("PROXY_URL", "").strip()
+    if proxy:
+        opts["proxy"] = proxy
+    return opts
 
-    function setOutput(blob, filename, htmlPreview) {
-      if (!blob) return;
-      lastBlob = blob;
-      lastFilename = filename;
-      document.getElementById('out-title').textContent = `✅ Ready: ${filename} (${(blob.size / (1024 * 1024) >= 1 ? (blob.size / (1024 * 1024)).toFixed(2) + ' MB' : (blob.size / 1024).toFixed(1) + ' KB')})`;
-      document.getElementById('out-preview').innerHTML = htmlPreview || '';
-      const box = document.getElementById('out-box');
-      box.classList.remove('hidden');
-      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      triggerRealDownload();
-    }
 
-    function triggerRealDownload() {
-      if (!lastBlob) return;
-      const url = URL.createObjectURL(lastBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = lastFilename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => a.remove(), 250);
-    }
+def _multi_cobalt_fallback(url, audio_only=False, quality="720"):
+    custom = os.getenv("COBALT_API_URL", "").strip().rstrip("/")
+    endpoints = ([custom] if custom else []) + _COBALT_ENDPOINTS
+    payload = json.dumps({
+        "url": url,
+        "downloadMode": "audio" if audio_only else "auto",
+        "videoQuality": str(quality),
+    }).encode("utf-8")
 
-    async function shareOrSaveFile() {
-      if (!lastBlob) return;
-      try {
-        const f = new File([lastBlob], lastFilename, { type: lastBlob.type || 'application/octet-stream' });
-        if (navigator.canShare && navigator.canShare({ files: [f] })) {
-          await navigator.share({ files: [f], title: lastFilename });
-          return;
+    for base in endpoints:
+        try:
+            req = urllib.request.Request(
+                f"{base}/",
+                data=payload,
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "User-Agent": "Mozilla/5.0",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                data = json.loads(resp.read().decode("utf-8", errors="ignore"))
+                if data.get("url"):
+                    return data["url"]
+        except Exception:
+            continue
+    return ""
+
+
+def _extract_with_fallback(url, base_modifier, download=False):
+    profiles = _YT_PROFILES if _is_youtube(url) else [(None, True)]
+    last_err = None
+    for clients, use_ck in profiles:
+        opts = _base_opts(yt_clients=clients, use_cookies=use_ck)
+        base_modifier(opts)
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                return ydl.extract_info(url, download=download)
+        except DownloadCancelled:
+            raise
+        except Exception as exc:
+            last_err = exc
+            msg = _clean_text(exc).lower()
+            if _is_youtube(url) and any(
+                k in msg for k in (
+                    "sign in", "bot", "unavailable", "format", "403",
+                    "forbidden", "player response", "unable to extract", "requested format",
+                )
+            ):
+                continue
+            break
+    raise RuntimeError(_clean_text(last_err)) from last_err
+
+
+def probe_link(url):
+    try:
+        info = _extract_with_fallback(url, lambda o: o.update({"skip_download": True}), download=False)
+        if not info:
+            raise ValueError("Link se media info nahi mili.")
+        if "entries" in info and info["entries"]:
+            info = info["entries"][0]
+        dur = int(info.get("duration") or 0)
+        m, s = divmod(dur, 60)
+        h, m = divmod(m, 60)
+        dur_str = f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+        return {
+            "title": _clean_text(info.get("title") or "Media")[:90],
+            "uploader": _clean_text(info.get("uploader") or info.get("channel") or "-")[:40],
+            "duration": dur_str,
+            "thumbnail": info.get("thumbnail") or "",
+            "direct_url": info.get("url") or "",
+            "webpage_url": info.get("webpage_url") or url,
         }
-      } catch (e) {}
-      triggerRealDownload();
-    }
+    except Exception:
+        if _is_youtube(url):
+            vid = _extract_yt_id(url)
+            if vid:
+                title = f"YouTube Video ({vid})"
+                uploader = "YouTube"
+                try:
+                    oembed = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={vid}&format=json"
+                    with urllib.request.urlopen(oembed, timeout=8) as r:
+                        meta = json.loads(r.read().decode("utf-8", errors="ignore"))
+                        title = meta.get("title") or title
+                        uploader = meta.get("author_name") or uploader
+                except Exception:
+                    pass
+                return {
+                    "title": title[:90],
+                    "uploader": uploader[:40],
+                    "duration": "Ready",
+                    "thumbnail": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
+                    "direct_url": "",
+                    "webpage_url": url,
+                }
+        raise
 
-    // 1. VIDEO TO WAV AUDIO (Pure WebAudio API — Fast & Lossless)
-    let audFile = null;
-    function loadAudVid(e) {
-      const f = e.target.files[0]; if (!f) return;
-      audFile = f;
-      const v = document.getElementById('aud-vid');
-      v.src = URL.createObjectURL(f);
-      document.getElementById('aud-ui').classList.remove('hidden');
-      document.getElementById('aud-stat').textContent = `📁 ${f.name} (${(f.size / (1024 * 1024)).toFixed(2)} MB)`;
-    }
 
-    async function extractAudioNow() {
-      if (!audFile) return;
-      const stat = document.getElementById('aud-stat');
-      stat.textContent = '⏳ Audio decode ho raha hai...';
-      try {
-        const arrBuf = await audFile.arrayBuffer();
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const decoded = await audioCtx.decodeAudioData(arrBuf);
-        const wavBlob = audioBufferToWav(decoded);
-        const url = URL.createObjectURL(wavBlob);
-        stat.textContent = '✅ Audio extract ho gaya!';
-        setOutput(wavBlob, 'solvrik_extracted_audio.wav', `<audio controls src="${url}" style="width:100%"></audio>`);
-      } catch (err) {
-        stat.textContent = '❌ Is video codec ka direct audio decode supported nahi hai — Bot ka Link/Audio tool try karein.';
-      }
-    }
+def download_media(url, mode="v_auto", progress_cb=None, cancel_event=None):
+    job_dir = os.path.join(TEMP_DIR, uuid.uuid4().hex[:10])
+    os.makedirs(job_dir, exist_ok=True)
 
-    function audioBufferToWav(buffer) {
-      const numCh = Math.min(2, buffer.numberOfChannels), rate = buffer.sampleRate;
-      const len = buffer.length * numCh * 2 + 44;
-      const out = new ArrayBuffer(len), view = new DataView(out);
-      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
-      writeStr(0, 'RIFF'); view.setUint32(4, len - 8, true); writeStr(8, 'WAVE');
-      writeStr(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-      view.setUint16(22, numCh, true); view.setUint32(24, rate, true);
-      view.setUint32(28, rate * numCh * 2, true); view.setUint16(32, numCh * 2, true);
-      view.setUint16(34, 16, true); writeStr(36, 'data'); view.setUint32(40, len - 44, true);
-      let offset = 44;
-      for (let i = 0; i < buffer.length; i++) {
-        for (let ch = 0; ch < numCh; ch++) {
-          let s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
-          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-          offset += 2;
-        }
-      }
-      return new Blob([out], { type: 'audio/wav' });
-    }
+    def _hook(d):
+        if cancel_event and cancel_event.is_set():
+            raise DownloadCancelled("Download cancel kar diya gaya.")
+        if not progress_cb:
+            return
+        st = d.get("status")
+        if st == "downloading":
+            total = d.get("total_bytes") or d.get("total_bytes_estimate") or 0
+            done = d.get("downloaded_bytes") or 0
+            pct = (
+                f"{(done * 100 / total):.1f}%"
+                if total
+                else (_clean_text(d.get("_percent_str", "")).strip() or "...")
+            )
+            progress_cb(
+                f"⏳ <b>Downloading...</b> {pct}\n"
+                f"📦 Size: <code>{_fmt_size(done)} / {_fmt_size(total)}</code>\n"
+                f"🚀 Speed: <code>{_fmt_speed(d.get('speed'))}</code> | ⏱️ ETA: <code>{_fmt_eta(d.get('eta'))}</code>"
+            )
+        elif st == "finished":
+            total = d.get("total_bytes") or d.get("downloaded_bytes") or 0
+            tot_txt = f" ({_fmt_size(total)})" if total else ""
+            progress_cb(f"⚙️ <b>Download poora{tot_txt}, file process/merge ho rahi hai...</b>")
 
-    // 2. VIDEO TRIM & COMPRESS (MediaRecorder + Canvas)
-    function loadTrimVid(e) {
-      const f = e.target.files[0]; if (!f) return;
-      const v = document.getElementById('trim-vid');
-      v.src = URL.createObjectURL(f);
-      v.onloadedmetadata = () => {
-        document.getElementById('t-start').value = 0;
-        document.getElementById('t-end').value = Math.min(30, Math.floor(v.duration || 15));
-      };
-      document.getElementById('trim-ui').classList.remove('hidden');
-    }
+    kind = "video"
 
-    async function processTrimCompress() {
-      const v = document.getElementById('trim-vid');
-      if (!v.src) return;
-      const start = Math.max(0, parseFloat(document.getElementById('t-start').value) || 0);
-      const end = Math.min(v.duration || 30, Math.max(start + 1, parseFloat(document.getElementById('t-end').value) || 15));
-      const scale = parseFloat(document.getElementById('trim-q').value) || 0.7;
-      const stat = document.getElementById('trim-stat');
+    def _apply_opts(opts):
+        opts["outtmpl"] = os.path.join(job_dir, "%(title).60s.%(ext)s")
+        opts["max_filesize"] = 250 * 1024 * 1024
+        if progress_cb or cancel_event:
+            opts["progress_hooks"] = [_hook]
 
-      const c = document.createElement('canvas');
-      c.width = Math.max(240, Math.round(v.videoWidth * scale));
-      c.height = Math.max(240, Math.round(v.videoHeight * scale));
-      const ctx = c.getContext('2d');
+        if mode == "subs":
+            opts.update({
+                "skip_download": True,
+                "writesubtitles": True,
+                "writeautomaticsub": True,
+                "subtitleslangs": ["en", "hi"],
+                "subtitlesformat": "srt/vtt/best",
+            })
+        elif mode.startswith("a_"):
+            if mode == "a_m4a":
+                opts["format"] = "bestaudio[ext=m4a]/bestaudio/best"
+            else:
+                br = mode.split("_")[1]
+                opts["format"] = "bestaudio/best"
+                opts["postprocessors"] = [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": br,
+                }]
+        else:
+            if mode == "v_auto":
+                opts["format"] = (
+                    f"bestvideo[ext=mp4][filesize<{MAX_TG_MB}M]+bestaudio[ext=m4a]/"
+                    f"best[ext=mp4][filesize<{MAX_TG_MB}M]/best[height<=480]/best"
+                )
+            else:
+                h = mode.split("_")[1]
+                opts["format"] = (
+                    f"bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/"
+                    f"bestvideo[height<={h}]+bestaudio/"
+                    f"best[height<={h}]/best"
+                )
+            opts["merge_output_format"] = "mp4"
 
-      const stream = c.captureStream(24);
-      try {
-        const vStream = v.captureStream ? v.captureStream() : (v.mozCaptureStream ? v.mozCaptureStream() : null);
-        if (vStream) vStream.getAudioTracks().forEach(t => stream.addTrack(t));
-      } catch (e) {}
+    if mode == "subs":
+        kind = "document"
+    elif mode.startswith("a_"):
+        kind = "audio"
 
-      const chunks = [];
-      const rec = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8' });
-      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-      rec.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        stat.textContent = '✅ Video Trim & Compress Ready!';
-        setOutput(blob, 'solvrik_trimmed.webm', `<video controls src="${url}" style="max-height:220px"></video>`);
-      };
+    try:
+        info = _extract_with_fallback(url, _apply_opts, download=True)
+    except DownloadCancelled:
+        cleanup(job_dir)
+        raise
+    except Exception:
+        if _is_youtube(url) and mode != "subs":
+            q = mode.split("_")[1] if (mode.startswith("v_") and mode != "v_auto") else "720"
+            fb_url = _multi_cobalt_fallback(url, audio_only=mode.startswith("a_"), quality=q)
+            cleanup(job_dir)
+            if fb_url:
+                return {
+                    "status": "too_big",
+                    "direct_url": fb_url,
+                    "size_mb": 0,
+                    "title": "YouTube Direct Stream",
+                }
+            # Ultimate browser fallback link so user is never stuck on error
+            return {
+                "status": "too_big",
+                "direct_url": f"https://cobalt.tools/?u={url}",
+                "size_mb": 0,
+                "title": "Open in Direct Downloader",
+            }
+        cleanup(job_dir)
+        raise
 
-      v.currentTime = start;
-      await new Promise(r => { v.onseeked = r; });
-      stat.textContent = `⏳ Recording clip (${start}s → ${end}s)...`;
-      rec.start();
-      v.play();
+    if "entries" in info and info["entries"]:
+        info = info["entries"][0]
+    title = _clean_text(info.get("title") or "Media")[:80]
+    direct_url = info.get("url") or ""
+    if not direct_url and info.get("requested_formats"):
+        direct_url = info["requested_formats"][0].get("url", "")
 
-      const drawLoop = () => {
-        if (v.currentTime >= end || v.paused || v.ended) {
-          v.pause();
-          if (rec.state !== 'inactive') rec.stop();
-          return;
-        }
-        ctx.drawImage(v, 0, 0, c.width, c.height);
-        requestAnimationFrame(drawLoop);
-      };
-      drawLoop();
-    }
+    files = [os.path.join(job_dir, f) for f in os.listdir(job_dir) if not f.endswith(".part")]
+    if not files:
+        cleanup(job_dir)
+        if mode == "subs":
+            raise ValueError("Is video ke liye koi subtitles available nahi hain.")
+        raise ValueError("Download complete nahi ho paya.")
 
-    // 3. YOUTUBE THUMBNAIL GRABBER
-    function extractYtId(url) {
-      const m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([a-zA-Z0-9_-]{11})/);
-      return m ? m[1] : null;
-    }
+    fpath = max(files, key=os.path.getsize)
+    size_mb = os.path.getsize(fpath) / (1024 * 1024)
+    if mode != "subs" and size_mb > MAX_TG_MB:
+        cleanup(job_dir)
+        return {"status": "too_big", "direct_url": direct_url, "size_mb": size_mb, "title": title}
 
-    async function grabYtThumb(quality) {
-      const url = document.getElementById('yt-url').value.trim();
-      const vidId = extractYtId(url);
-      const stat = document.getElementById('yt-stat');
-      if (!vidId) { stat.textContent = '❌ Sahi YouTube link paste karein!'; return; }
-      stat.textContent = '⏳ Thumbnail fetch ho raha hai...';
-      const imgUrl = `https://i.ytimg.com/vi/${vidId}/${quality}.jpg`;
-      try {
-        const resp = await fetch(imgUrl);
-        const blob = await resp.blob();
-        const prevUrl = URL.createObjectURL(blob);
-        stat.textContent = `✅ Thumbnail Ready (${vidId})`;
-        setOutput(blob, `yt_thumb_${vidId}.jpg`, `<img src="${prevUrl}" style="max-height:220px"/>`);
-      } catch (e) {
-        stat.textContent = '❌ Thumbnail fetch nahi ho saka.';
-      }
-    }
+    return {"status": "ok", "path": fpath, "kind": kind, "title": title, "size_mb": size_mb, "job_dir": job_dir}
 
-    // 4. MEDIA INSPECTOR & FRAME GRAB
-    function inspectMedia(e) {
-      const f = e.target.files[0]; if (!f) return;
-      const v = document.getElementById('info-vid');
-      v.src = URL.createObjectURL(f);
-      document.getElementById('info-ui').classList.remove('hidden');
-      v.onloadedmetadata = () => {
-        const mb = (f.size / (1024 * 1024)).toFixed(2);
-        document.getElementById('info-text').innerHTML =
-          `📁 File: ${f.name}<br>📐 Resolution: ${v.videoWidth || '-'} × ${v.videoHeight || '-'} px<br>⏱️ Duration: ${(v.duration || 0).toFixed(1)} sec | 📦 Size: ${mb} MB`;
-      };
-    }
 
-    function grabVideoFrame() {
-      const v = document.getElementById('info-vid');
-      if (!v.videoWidth) return;
-      const c = document.createElement('canvas');
-      c.width = v.videoWidth; c.height = v.videoHeight;
-      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-      c.toBlob(b => setOutput(b, 'video_frame_hd.jpg', `<img src="${URL.createObjectURL(b)}" style="max-height:220px"/>`), 'image/jpeg', 0.95);
-    }
-  </script>
-</body>
-</html>
+def cleanup(job_dir):
+    if job_dir and os.path.isdir(job_dir):
+        shutil.rmtree(job_dir, ignore_errors=True)
