@@ -3,79 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Solvrik Pro Studio — All-in-One Visual Suite</title>
+  <title>Solvrik Pro Studio</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     :root { --bg: #0b1120; --card: #162032; --accent: #3b82f6; --green: #10b981; --text: #f8fafc; --muted: #94a3b8; }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding: 12px; padding-bottom: 30px; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 12px; padding-bottom: 40px; }
+
+    /* Loading Overlay */
+    #loader { position: fixed; inset: 0; background: #0b1120; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
+    .pbar-wrap { width: 80%; max-width: 300px; height: 10px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 14px 0 8px; }
+    .pbar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.15s; }
+
     .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .hdr h2 { margin: 0; font-size: 17px; }
     .badge { background: #1d4ed8; font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
-    .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; scrollbar-width: none; }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab { flex: 0 0 auto; padding: 9px 12px; border: 1px solid #263349; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 600; font-size: 12.5px; cursor: pointer; }
+
+    /* Line-by-Line Grid Tabs (No hidden horizontal scroll) */
+    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px; }
+    .tab { padding: 10px 8px; border: 1px solid #263349; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; }
     .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tab.full { grid-column: span 2; }
+
     .card { background: var(--card); border-radius: 14px; padding: 14px; border: 1px solid #223047; }
-    .upload-box { border: 2px dashed #3b82f688; border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; display: block; background: #0f172a; }
+    .upload-box { border: 2px dashed #3b82f688; border-radius: 12px; padding: 18px 12px; text-align: center; cursor: pointer; display: block; background: #0f172a; }
     .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
     input[type="file"] { display: none; }
-    .img-wrap { max-height: 320px; overflow: hidden; border-radius: 10px; background: #020617; margin-top: 10px; display: flex; justify-content: center; align-items: center; }
-    img, canvas { max-width: 100%; max-height: 320px; display: block; }
+
+    .canvas-box { position: relative; margin-top: 10px; background: #020617; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; align-items: center; touch-action: none; }
+    canvas, img { max-width: 100%; max-height: 360px; display: block; }
+
     .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .btn { flex: 1; min-width: 85px; padding: 11px 8px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn { flex: 1; min-width: 110px; padding: 12px 10px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; font-size: 13.5px; cursor: pointer; }
     .btn.sec { background: #263349; }
     .btn.green { background: var(--green); }
+    .btn:active { transform: scale(0.98); }
+
     input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border-radius: 9px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13.5px; margin-top: 8px; }
+    input[type="range"] { width: 100%; margin-top: 6px; accent-color: #3b82f6; }
+    .slider-lbl { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+
     .pill { padding: 7px 11px; border-radius: 20px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 12px; cursor: pointer; }
-    .pill.on { background: var(--accent); border-color: var(--accent); }
     .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
+
+    /* Save Modal for Telegram Web/Mobile compatibility */
+    #save-modal { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.92); z-index: 9998; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px; }
+    #save-modal img { max-height: 62vh; border-radius: 10px; border: 2px solid #3b82f6; }
+    #save-modal p { font-size: 13px; color: #cbd5e1; text-align: center; margin: 10px 0; }
   </style>
 </head>
 <body>
+  <!-- LOADING SCREEN WITH % -->
+  <div id="loader">
+    <div style="font-size:20px;font-weight:700">⚡ Solvrik Pro Studio</div>
+    <div class="pbar-wrap"><div id="pbar" class="pbar-fill"></div></div>
+    <div id="ppct" style="font-size:13px;color:#38bdf8;font-weight:600">Loading Engine... 0%</div>
+  </div>
+
+  <!-- SAVE / DOWNLOAD MODAL -->
+  <div id="save-modal" class="hidden">
+    <img id="modal-img" />
+    <p id="modal-tip">✅ Photo Ready! Upar photo par <b>Long-Press (Hold)</b> ya <b>Right-Click → Save Image</b> karke gallery mein save karein:</p>
+    <div class="row" style="width:100%;max-width:360px">
+      <a id="modal-dl" class="btn green" style="text-align:center;text-decoration:none" download="solvrik_output.jpg">⬇️ Direct Save</a>
+      <button class="btn sec" onclick="closeModal()">✖️ Close</button>
+    </div>
+  </div>
+
   <div class="hdr">
     <h2>⚡ Solvrik Pro Studio</h2>
-    <span class="badge">Zero-Lag Device Engine</span>
+    <span class="badge">4-Corner Warp + Exact Size</span>
   </div>
 
+  <!-- LINE-BY-LINE STACKED TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('crop', this)">✂️ Crop & Scan</button>
-    <button class="tab" onclick="switchTab('kb', this)">📦 Exact KB</button>
+    <button class="tab active" onclick="switchTab('crop', this)">✂️ 4-Corner Crop & Rotate</button>
+    <button class="tab" onclick="switchTab('kb', this)">📦 Exact KB / MB Size</button>
     <button class="tab" onclick="switchTab('pass', this)">🪪 Passport & Exam</button>
-    <button class="tab" onclick="switchTab('fx', this)">🎨 Filters & DP</button>
-    <button class="tab" onclick="switchTab('soc', this)">📱 Social & QR</button>
+    <button class="tab" onclick="switchTab('fx', this)">🎨 Filters & DP Maker</button>
+    <button class="tab full" onclick="switchTab('soc', this)">📱 Insta Grid • Sticker • Watermark • QR Scan</button>
   </div>
 
-  <!-- 1. INTERACTIVE CROP & DOC SCAN -->
+  <!-- 1. 4-CORNER STRETCHABLE PERSPECTIVE CROP + 1-DEGREE ROTATE -->
   <div id="tab-crop" class="card">
     <label class="upload-box">
       📸 <b>Card / Document / Photo chunein</b>
-      <span>4-Corner Manual Adjust + Auto B&W Scan</span>
+      <span>4 Corners ko card ke konon par khinch kar rakhein (Zero Bedsheet!)</span>
       <input type="file" accept="image/*" onchange="loadCrop(event)" />
     </label>
     <div id="crop-ui" class="hidden">
-      <div class="img-wrap"><img id="crop-img" /></div>
+      <div class="canvas-box"><canvas id="quad-canvas"></canvas></div>
+
+      <div class="slider-lbl">
+        <span>🔄 Fine Rotate (1° step)</span>
+        <b id="rot-val" style="color:#38bdf8">0°</b>
+      </div>
+      <input type="range" id="rot-slider" min="-180" max="180" step="1" value="0" oninput="onRotateSlider(this.value)" />
+
       <div class="row">
-        <button class="pill" onclick="setCropRatio(NaN)">Free</button>
-        <button class="pill" onclick="setCropRatio(85.6/54)">ID Card</button>
-        <button class="pill" onclick="setCropRatio(1)">1:1</button>
-        <button class="pill" onclick="setCropRatio(4/5)">4:5</button>
-        <button class="pill" onclick="setCropRatio(16/9)">16:9</button>
+        <button class="btn sec" onclick="stepRotate(-90)">↺ -90°</button>
+        <button class="btn sec" onclick="stepRotate(90)">↻ +90°</button>
+        <button class="btn sec" onclick="resetQuad()">Reset Corners</button>
       </div>
       <div class="row">
-        <button class="btn sec" onclick="cropper.rotate(-90)">↺ 90°</button>
-        <button class="btn sec" onclick="cropper.rotate(90)">↻ 90°</button>
-        <button class="btn sec" onclick="flipCrop()">⇄ Flip</button>
-        <button class="btn sec" onclick="cropper.reset()">Reset</button>
-      </div>
-      <div class="row">
-        <button class="btn" onclick="exportCrop('color')">✂️ Save Color Crop</button>
-        <button class="btn green" onclick="exportCrop('bw')">📄 Save B&W Scan</button>
+        <button class="btn" onclick="exportQuadCrop(false)">✂️ Save Color Crop</button>
+        <button class="btn green" onclick="exportQuadCrop(true)">📄 Save B&W Scan</button>
       </div>
     </div>
   </div>
@@ -83,7 +116,7 @@
   <!-- 2. EXACT KB / MB COMPRESSOR -->
   <div id="tab-kb" class="card hidden">
     <label class="upload-box">
-      🖼️ <b>Photo chunein (Exact KB / MB Size)</b>
+      🖼️ <b>Photo chunein (10 KB se 5 MB tak)</b>
       <span>Live Quality & Resolution Preview</span>
       <input type="file" accept="image/*" onchange="loadKb(event)" />
     </label>
@@ -95,12 +128,14 @@
         <button class="pill" onclick="setKb(100)">100 KB</button>
         <button class="pill" onclick="setKb(200)">200 KB</button>
         <button class="pill" onclick="setKb(1024)">1 MB</button>
+        <button class="pill" onclick="setKb(2048)">2 MB</button>
+        <button class="pill" onclick="setKb(5120)">5 MB</button>
       </div>
-      <input type="number" id="kb-val" value="20" min="3" max="10000" placeholder="Custom KB (e.g. 35)" />
+      <input type="number" id="kb-val" value="20" min="3" max="15000" placeholder="Target KB likhein (e.g. 20 ya 5120)" />
       <button class="btn" style="width:100%;margin-top:8px" onclick="runKb()">⚡ Compress to Exact Size</button>
       <div id="kb-stat" class="info"></div>
-      <div class="img-wrap"><img id="kb-prev" /></div>
-      <button id="kb-dl" class="btn green hidden" style="width:100%;margin-top:10px" onclick="saveBlob(kbBlob, 'solvrik_exact_size.jpg')">⬇️ Download Photo</button>
+      <div class="canvas-box"><img id="kb-prev" /></div>
+      <button id="kb-dl" class="btn green hidden" style="width:100%;margin-top:10px" onclick="openSaveModal(kbBlob, 'solvrik_exact_size.jpg')">⬇️ Save / Download Photo</button>
     </div>
   </div>
 
@@ -108,12 +143,12 @@
   <div id="tab-pass" class="card hidden">
     <label class="upload-box">
       🪪 <b>Selfie / Portrait / Signature chunein</b>
-      <span>35×45mm Passport, A4 Sheet & SSC/UPSC/JEE Presets</span>
+      <span>35×45mm Passport, A4 Print Sheet & SSC/UPSC/JEE Presets</span>
       <input type="file" accept="image/*" onchange="loadPass(event)" />
     </label>
     <div id="pass-ui" class="hidden">
-      <div class="img-wrap"><img id="pass-img" /></div>
-      <select id="pass-mode" onchange="updatePassAspect()">
+      <div class="canvas-box"><canvas id="pass-canvas"></canvas></div>
+      <select id="pass-mode" onchange="renderPassPreview()">
         <option value="single">Single Passport (35×45mm, 300 DPI)</option>
         <option value="a4_6">A4 Print Sheet — 6 Photos (1 Row)</option>
         <option value="a4_12">A4 Print Sheet — 12 Photos (2 Rows)</option>
@@ -123,8 +158,8 @@
         <option value="jee">JEE / NEET Preset (35×45mm, ≤95 KB)</option>
         <option value="sign">Exam Signature Preset (280×120, ≤18 KB)</option>
       </select>
-      <input type="text" id="pass-label" placeholder="Optional Name | Date (e.g. Amit Kumar | 28/11/2026)" />
-      <button class="btn green" style="width:100%;margin-top:10px" onclick="runPassport()">🪪 Generate & Download</button>
+      <input type="text" id="pass-label" oninput="renderPassPreview()" placeholder="Optional Name | Date (e.g. Amit Kumar | 28/11/2026)" />
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="exportPassport()">🪪 Generate & Save Photo</button>
       <div id="pass-stat" class="info"></div>
     </div>
   </div>
@@ -137,7 +172,7 @@
       <input type="file" accept="image/*" onchange="loadFx(event)" />
     </label>
     <div id="fx-ui" class="hidden">
-      <div class="img-wrap"><canvas id="fx-canvas"></canvas></div>
+      <div class="canvas-box"><canvas id="fx-canvas"></canvas></div>
       <div class="row">
         <button class="pill" onclick="applyFx('orig')">Original</button>
         <button class="pill" onclick="applyFx('enhance')">✨ Auto HD</button>
@@ -151,7 +186,7 @@
         <button class="pill" onclick="applyFx('nocrop')">🖼️ No-Crop DP</button>
         <button class="pill" onclick="applyFx('circle')">🔵 Circular DP</button>
       </div>
-      <button class="btn green" style="width:100%;margin-top:10px" onclick="saveFx()">⬇️ Download Result</button>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="saveFx()">⬇️ Save Result</button>
     </div>
   </div>
 
@@ -159,22 +194,22 @@
   <div id="tab-soc" class="card hidden">
     <label class="upload-box">
       📱 <b>Photo ya QR Code chunein</b>
-      <span>Insta 3×3 Grid ZIP, TG 512px Sticker, Watermark & QR Scan</span>
+      <span>Insta Grid, TG Sticker, Watermark & QR Scanner</span>
       <input type="file" accept="image/*" onchange="loadSoc(event)" />
     </label>
     <div id="soc-ui" class="hidden">
-      <div class="img-wrap"><img id="soc-img" /></div>
+      <div class="canvas-box"><img id="soc-img" /></div>
       <input type="text" id="wm-text" placeholder="Watermark text (e.g. @SolvrikHQ)" />
       <div class="row">
-        <button class="btn" onclick="runWatermark()">💧 Watermark</button>
+        <button class="btn" onclick="runWatermark()">💧 Add Watermark</button>
         <button class="btn sec" onclick="runSticker()">🎭 TG Sticker (512px)</button>
       </div>
       <div class="row">
-        <button class="btn sec" onclick="runInstaGrid(3)"> 🧩 Insta 3×3 ZIP</button>
-        <button class="btn sec" onclick="runInstaGrid(1)">🎞️ Insta 3×1 ZIP</button>
-        <button class="btn green" onclick="runQrScan()">📷 Scan QR</button>
+        <button class="btn sec" onclick="runInstaGrid(3)">🧩 Insta 3×3 Grid</button>
+        <button class="btn green" onclick="runQrScan()">📷 Scan QR Code</button>
       </div>
       <div id="soc-stat" class="info"></div>
+      <div id="grid-out" class="row"></div>
     </div>
   </div>
 
@@ -182,8 +217,24 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); }
 
-    let cropper = null, flipX = 1, kbImg = null, kbBlob = null;
-    let passCropper = null, fxImg = null, fxIsPng = false, socImg = null;
+    // Smooth 0% -> 100% Loader
+    (function runLoader() {
+      let p = 0;
+      const bar = document.getElementById('pbar'), txt = document.getElementById('ppct'), box = document.getElementById('loader');
+      const iv = setInterval(() => {
+        p += Math.floor(Math.random() * 24) + 14;
+        if (p >= 100) {
+          p = 100;
+          bar.style.width = '100%';
+          txt.textContent = 'Ready! 100%';
+          clearInterval(iv);
+          setTimeout(() => box.classList.add('hidden'), 180);
+        } else {
+          bar.style.width = p + '%';
+          txt.textContent = `Loading Studio... ${p}%`;
+        }
+      }, 90);
+    })();
 
     function switchTab(id, btn) {
       document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
@@ -191,42 +242,205 @@
       ['crop', 'kb', 'pass', 'fx', 'soc'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
     }
 
-    function saveBlob(blob, name) {
+    // Reliable Save Modal + Direct Download trigger (works inside Telegram Web & Mobile)
+    function openSaveModal(blob, filename) {
       if (!blob) return;
-      const u = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = u; a.download = name;
-      document.body.appendChild(a); a.click(); a.remove();
+      const url = URL.createObjectURL(blob);
+      document.getElementById('modal-img').src = url;
+      const dl = document.getElementById('modal-dl');
+      dl.href = url;
+      dl.download = filename;
+      document.getElementById('save-modal').classList.remove('hidden');
+      try { dl.click(); } catch (e) {}
     }
+    function closeModal() { document.getElementById('save-modal').classList.add('hidden'); }
 
-    // ---- 1. CROP & SCAN ----
+    // ================= 1. 4-CORNER STRETCHABLE PERSPECTIVE CROP + 1° ROTATE =================
+    let rawCropImg = null, rotCanvas = document.createElement('canvas'), rotAngle = 0;
+    let quadPts = [], activePt = -1;
+
     function loadCrop(e) {
       const f = e.target.files[0]; if (!f) return;
-      const img = document.getElementById('crop-img');
-      img.src = URL.createObjectURL(f);
-      document.getElementById('crop-ui').classList.remove('hidden');
-      flipX = 1;
-      if (cropper) cropper.destroy();
-      cropper = new Cropper(img, { viewMode: 1, autoCropArea: 0.78, responsive: true });
-    }
-    function setCropRatio(r) { if (cropper) cropper.setAspectRatio(r); }
-    function flipCrop() { if (!cropper) return; flipX *= -1; cropper.scaleX(flipX); }
-    function exportCrop(mode) {
-      if (!cropper) return;
-      const c = cropper.getCroppedCanvas({ maxWidth: 2400, maxHeight: 2400, imageSmoothingQuality: 'high' });
-      if (mode === 'bw') {
-        const ctx = c.getContext('2d'), d = ctx.getImageData(0, 0, c.width, c.height);
-        for (let i = 0; i < d.data.length; i += 4) {
-          const g = 0.299 * d.data[i] + 0.587 * d.data[i+1] + 0.114 * d.data[i+2];
-          const v = g > 142 ? 255 : Math.max(0, (g - 35) * 1.4);
-          d.data[i] = d.data[i+1] = d.data[i+2] = v;
-        }
-        ctx.putImageData(d, 0, 0);
-      }
-      c.toBlob(b => saveBlob(b, mode === 'bw' ? 'solvrik_doc_scan.jpg' : 'solvrik_crop.jpg'), 'image/jpeg', 0.94);
+      const im = new Image();
+      im.onload = () => {
+        rawCropImg = im;
+        rotAngle = 0;
+        document.getElementById('rot-slider').value = 0;
+        document.getElementById('rot-val').textContent = '0°';
+        document.getElementById('crop-ui').classList.remove('hidden');
+        rebuildRotatedBase(true);
+      };
+      im.src = URL.createObjectURL(f);
     }
 
-    // ---- 2. EXACT KB ----
+    function onRotateSlider(val) {
+      rotAngle = parseInt(val, 10) || 0;
+      document.getElementById('rot-val').textContent = rotAngle + '°';
+      rebuildRotatedBase(false);
+    }
+
+    function stepRotate(delta) {
+      rotAngle = ((rotAngle + delta + 180) % 360) - 180;
+      document.getElementById('rot-slider').value = rotAngle;
+      document.getElementById('rot-val').textContent = rotAngle + '°';
+      rebuildRotatedBase(true);
+    }
+
+    function resetQuad() {
+      const w = rotCanvas.width, h = rotCanvas.height;
+      quadPts = [
+        { x: w * 0.12, y: h * 0.15 },
+        { x: w * 0.88, y: h * 0.15 },
+        { x: w * 0.88, y: h * 0.85 },
+        { x: w * 0.12, y: h * 0.85 }
+      ];
+      drawQuadOverlay();
+    }
+
+    function rebuildRotatedBase(resetCorners) {
+      if (!rawCropImg) return;
+      const maxDim = 1400;
+      const s = Math.min(1, maxDim / Math.max(rawCropImg.width, rawCropImg.height));
+      const sw = Math.round(rawCropImg.width * s), sh = Math.round(rawCropImg.height * s);
+      const rad = rotAngle * Math.PI / 180;
+      const cos = Math.abs(Math.cos(rad)), sin = Math.abs(Math.sin(rad));
+      const nw = Math.round(sw * cos + sh * sin), nh = Math.round(sw * sin + sh * cos);
+
+      rotCanvas.width = nw; rotCanvas.height = nh;
+      const ctx = rotCanvas.getContext('2d');
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, nw, nh);
+      ctx.save();
+      ctx.translate(nw / 2, nh / 2);
+      ctx.rotate(rad);
+      ctx.drawImage(rawCropImg, -sw / 2, -sh / 2, sw, sh);
+      ctx.restore();
+
+      if (resetCorners || quadPts.length !== 4) {
+        resetQuad();
+      } else {
+        quadPts.forEach(p => { p.x = Math.min(nw - 5, Math.max(5, p.x)); p.y = Math.min(nh - 5, Math.max(5, p.y)); });
+        drawQuadOverlay();
+      }
+    }
+
+    function drawQuadOverlay() {
+      const qc = document.getElementById('quad-canvas');
+      qc.width = rotCanvas.width; qc.height = rotCanvas.height;
+      const ctx = qc.getContext('2d');
+      ctx.drawImage(rotCanvas, 0, 0);
+
+      // Darken outside polygon
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
+      ctx.beginPath();
+      ctx.rect(0, 0, qc.width, qc.height);
+      ctx.moveTo(quadPts[0].x, quadPts[0].y);
+      for (let i = 3; i >= 0; i--) ctx.lineTo(quadPts[i].x, quadPts[i].y);
+      ctx.closePath();
+      ctx.fill('evenodd');
+      ctx.restore();
+
+      // Polygon border
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = Math.max(3, qc.width / 220);
+      ctx.beginPath();
+      ctx.moveTo(quadPts[0].x, quadPts[0].y);
+      for (let i = 1; i < 4; i++) ctx.lineTo(quadPts[i].x, quadPts[i].y);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Draggable corner handles
+      const r = Math.max(16, qc.width / 34);
+      quadPts.forEach((pt, idx) => {
+        ctx.fillStyle = idx === activePt ? '#10b981' : '#3b82f6';
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke();
+      });
+    }
+
+    (function bindQuadTouch() {
+      const qc = document.getElementById('quad-canvas');
+      function getPos(ev) {
+        const rect = qc.getBoundingClientRect();
+        const t = ev.touches ? ev.touches[0] : ev;
+        return {
+          x: (t.clientX - rect.left) * (qc.width / rect.width),
+          y: (t.clientY - rect.top) * (qc.height / rect.height)
+        };
+      }
+      function down(ev) {
+        if (quadPts.length !== 4) return;
+        const p = getPos(ev), hitR = Math.max(36, qc.width / 14);
+        let best = -1, bestD = hitR;
+        quadPts.forEach((pt, i) => {
+          const d = Math.hypot(pt.x - p.x, pt.y - p.y);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        if (best !== -1) { activePt = best; ev.preventDefault(); drawQuadOverlay(); }
+      }
+      function move(ev) {
+        if (activePt === -1) return;
+        ev.preventDefault();
+        const p = getPos(ev);
+        quadPts[activePt].x = Math.max(0, Math.min(qc.width, p.x));
+        quadPts[activePt].y = Math.max(0, Math.min(qc.height, p.y));
+        drawQuadOverlay();
+      }
+      function up() { if (activePt !== -1) { activePt = -1; drawQuadOverlay(); } }
+
+      qc.addEventListener('mousedown', down); window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+      qc.addEventListener('touchstart', down, { passive: false }); window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', up);
+    })();
+
+    // True Bilinear 4-Point Perspective Warp (stretches skewed card into straight rectangle)
+    function exportQuadCrop(bwMode) {
+      if (quadPts.length !== 4) return;
+      // Order points: TL, TR, BR, BL
+      const sortedY = [...quadPts].sort((a, b) => a.y - b.y);
+      const top = sortedY.slice(0, 2).sort((a, b) => a.x - b.x);
+      const bot = sortedY.slice(2, 4).sort((a, b) => a.x - b.x);
+      const tl = top[0], tr = top[1], br = bot[1], bl = bot[0];
+
+      const outW = Math.max(120, Math.round(Math.max(Math.hypot(tr.x - tl.x, tr.y - tl.y), Math.hypot(br.x - bl.x, br.y - bl.y))));
+      const outH = Math.max(120, Math.round(Math.max(Math.hypot(bl.x - tl.x, bl.y - tl.y), Math.hypot(br.x - tr.x, br.y - tr.y))));
+
+      const srcCtx = rotCanvas.getContext('2d');
+      const srcData = srcCtx.getImageData(0, 0, rotCanvas.width, rotCanvas.height);
+      const sPx = srcData.data, sw = rotCanvas.width, sh = rotCanvas.height;
+
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = outW; outCanvas.height = outH;
+      const outCtx = outCanvas.getContext('2d');
+      const outImg = outCtx.createImageData(outW, outH);
+      const dPx = outImg.data;
+
+      for (let y = 0; y < outH; y++) {
+        const v = y / (outH - 1);
+        const lx = tl.x + (bl.x - tl.x) * v, ly = tl.y + (bl.y - tl.y) * v;
+        const rx = tr.x + (br.x - tr.x) * v, ry = tr.y + (br.y - tr.y) * v;
+        for (let x = 0; x < outW; x++) {
+          const u = x / (outW - 1);
+          const sx = Math.min(sw - 1, Math.max(0, Math.round(lx + (rx - lx) * u)));
+          const sy = Math.min(sh - 1, Math.max(0, Math.round(ly + (ry - ly) * u)));
+          const si = (sy * sw + sx) * 4;
+          const di = (y * outW + x) * 4;
+          if (bwMode) {
+            const g = 0.299 * sPx[si] + 0.587 * sPx[si + 1] + 0.114 * sPx[si + 2];
+            const val = g > 142 ? 255 : Math.max(0, (g - 35) * 1.42);
+            dPx[di] = dPx[di + 1] = dPx[di + 2] = val;
+          } else {
+            dPx[di] = sPx[si]; dPx[di + 1] = sPx[si + 1]; dPx[di + 2] = sPx[si + 2];
+          }
+          dPx[di + 3] = 255;
+        }
+      }
+      outCtx.putImageData(outImg, 0, 0);
+      outCanvas.toBlob(b => openSaveModal(b, bwMode ? 'solvrik_doc_scan.jpg' : 'solvrik_cropped.jpg'), 'image/jpeg', 0.94);
+    }
+
+    // ================= 2. EXACT KB / MB COMPRESSOR =================
+    let kbImg = null, kbBlob = null;
     function setKb(v) { document.getElementById('kb-val').value = v; runKb(); }
     function loadKb(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -237,28 +451,31 @@
     async function compressCanvasToBytes(srcCanvas, targetBytes) {
       let w = srcCanvas.width, h = srcCanvas.height;
       const c = document.createElement('canvas'), ctx = c.getContext('2d');
-      let best = null, bq = 0.8;
+      let best = null, bq = 0.85;
       for (let s = 0; s < 9; s++) {
         c.width = w; c.height = h;
         ctx.drawImage(srcCanvas, 0, 0, w, h);
-        let lo = 0.20, hi = 0.94;
+        let lo = 0.22, hi = 0.95;
         for (let i = 0; i < 6; i++) {
           const mid = (lo + hi) / 2;
           const b = await new Promise(r => c.toBlob(r, 'image/jpeg', mid));
           if (b.size <= targetBytes) { best = b; bq = mid; lo = mid; } else { hi = mid; }
         }
         if (best) return { blob: best, w, h, q: bq };
-        w = Math.max(200, Math.round(w * 0.78));
-        h = Math.max(200, Math.round(h * 0.78));
+        w = Math.max(220, Math.round(w * 0.78));
+        h = Math.max(220, Math.round(h * 0.78));
       }
-      const fb = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.18));
-      return { blob: fb, w, h, q: 0.18 };
+      const fb = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.20));
+      return { blob: fb, w, h, q: 0.20 };
     }
     async function runKb() {
       if (!kbImg) return;
-      const targetBytes = Math.max(3, parseFloat(document.getElementById('kb-val').value || 20)) * 1024;
+      const targetKb = Math.max(3, parseFloat(document.getElementById('kb-val').value || 20));
+      const targetBytes = targetKb * 1024;
       let w = kbImg.width, h = kbImg.height;
-      if (Math.max(w, h) > 1200) { const s = 1200 / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
+      if (targetKb <= 300 && Math.max(w, h) > 1200) {
+        const s = 1200 / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s);
+      }
       const base = document.createElement('canvas'); base.width = w; base.height = h;
       base.getContext('2d').drawImage(kbImg, 0, 0, w, h);
       const res = await compressCanvasToBytes(base, targetBytes);
@@ -268,59 +485,63 @@
       document.getElementById('kb-dl').classList.remove('hidden');
     }
 
-    // ---- 3. PASSPORT, A4 & EXAM PRESETS ----
+    // ================= 3. PASSPORT, A4 & EXAM PRESETS =================
+    let passImg = null;
     function loadPass(e) {
       const f = e.target.files[0]; if (!f) return;
-      const img = document.getElementById('pass-img');
-      img.src = URL.createObjectURL(f);
-      document.getElementById('pass-ui').classList.remove('hidden');
-      if (passCropper) passCropper.destroy();
-      passCropper = new Cropper(img, { aspectRatio: 35 / 45, viewMode: 1, autoCropArea: 0.85 });
+      const im = new Image();
+      im.onload = () => { passImg = im; document.getElementById('pass-ui').classList.remove('hidden'); renderPassPreview(); };
+      im.src = URL.createObjectURL(f);
     }
-    function updatePassAspect() {
-      if (!passCropper) return;
-      const m = document.getElementById('pass-mode').value;
-      if (m === 'upsc') passCropper.setAspectRatio(1);
-      else if (m === 'sign') passCropper.setAspectRatio(280 / 120);
-      else passCropper.setAspectRatio(35 / 45);
-    }
-    async function runPassport() {
-      if (!passCropper) return;
+    function buildPassportTile() {
       const mode = document.getElementById('pass-mode').value;
       const label = document.getElementById('pass-label').value.trim();
+      const pw = mode === 'upsc' ? 500 : (mode === 'sign' ? 280 : 413);
+      const ph = mode === 'upsc' ? 500 : (mode === 'sign' ? 120 : 531);
 
-      if (mode === 'sign') {
-        const sc = passCropper.getCroppedCanvas({ width: 280, height: 120 });
-        const res = await compressCanvasToBytes(sc, 18 * 1024);
-        document.getElementById('pass-stat').textContent = `✅ Signature Ready (${(res.blob.size/1024).toFixed(1)} KB)`;
-        saveBlob(res.blob, 'exam_signature.jpg'); return;
-      }
-      if (mode === 'upsc' || mode === 'ssc' || mode === 'jee') {
-        const dims = mode === 'upsc' ? [500, 500, 180] : (mode === 'jee' ? [413, 531, 95] : [350, 450, 45]);
-        const c = passCropper.getCroppedCanvas({ width: dims[0], height: dims[1] });
-        const res = await compressCanvasToBytes(c, dims[2] * 1024);
-        document.getElementById('pass-stat').textContent = `✅ ${mode.toUpperCase()} Ready (${(res.blob.size/1024).toFixed(1)} KB)`;
-        saveBlob(res.blob, `${mode}_photo.jpg`); return;
-      }
-
-      const crop = passCropper.getCroppedCanvas({ width: 413, height: 531 });
       const tile = document.createElement('canvas');
-      tile.width = 419; tile.height = (label ? 610 : 531) + 6;
-      const tctx = tile.getContext('2d');
-      tctx.fillStyle = '#222'; tctx.fillRect(0, 0, tile.width, tile.height);
-      tctx.fillStyle = '#fff'; tctx.fillRect(3, 3, tile.width - 6, tile.height - 6);
-      tctx.drawImage(crop, 3, 3);
-      if (label) {
-        tctx.fillStyle = '#000'; tctx.fillRect(3, 534, 413, 2);
-        const parts = label.split('|').map(s => s.trim());
-        tctx.font = 'bold 22px sans-serif'; tctx.textAlign = 'center';
-        tctx.fillText(parts[0].slice(0, 24), 209, 565);
-        if (parts[1]) { tctx.font = '18px sans-serif'; tctx.fillText(parts[1].slice(0, 24), 209, 594); }
-      }
+      const hasLabel = label && mode !== 'sign' && mode !== 'upsc';
+      tile.width = pw + 6; tile.height = (hasLabel ? ph + 80 : ph) + 6;
+      const ctx = tile.getContext('2d');
+      ctx.fillStyle = '#222'; ctx.fillRect(0, 0, tile.width, tile.height);
+      ctx.fillStyle = '#fff'; ctx.fillRect(3, 3, tile.width - 6, tile.height - 6);
 
+      // Center-top fit
+      const targetRatio = pw / ph, imgRatio = passImg.width / passImg.height;
+      let sx = 0, sy = 0, sw = passImg.width, sh = passImg.height;
+      if (imgRatio > targetRatio) { sw = Math.round(sh * targetRatio); sx = Math.round((passImg.width - sw) / 2); }
+      else { sh = Math.round(sw / targetRatio); sy = Math.round((passImg.height - sh) * 0.25); }
+      ctx.drawImage(passImg, sx, sy, sw, sh, 3, 3, pw, ph);
+
+      if (hasLabel) {
+        ctx.fillStyle = '#000'; ctx.fillRect(3, ph + 3, pw, 2);
+        const parts = label.split('|').map(s => s.trim());
+        ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(parts[0].slice(0, 24), tile.width / 2, ph + 34);
+        if (parts[1]) { ctx.font = '18px sans-serif'; ctx.fillText(parts[1].slice(0, 24), tile.width / 2, ph + 64); }
+      }
+      return tile;
+    }
+    function renderPassPreview() {
+      if (!passImg) return;
+      const tile = buildPassportTile();
+      const pc = document.getElementById('pass-canvas');
+      pc.width = tile.width; pc.height = tile.height;
+      pc.getContext('2d').drawImage(tile, 0, 0);
+    }
+    async function exportPassport() {
+      if (!passImg) return;
+      const mode = document.getElementById('pass-mode').value;
+      const tile = buildPassportTile();
+
+      if (mode === 'sign' || mode === 'upsc' || mode === 'ssc' || mode === 'jee') {
+        const maxKb = mode === 'sign' ? 18 : (mode === 'upsc' ? 180 : (mode === 'jee' ? 95 : 45));
+        const res = await compressCanvasToBytes(tile, maxKb * 1024);
+        document.getElementById('pass-stat').textContent = `✅ ${mode.toUpperCase()} Ready (${(res.blob.size / 1024).toFixed(1)} KB)`;
+        openSaveModal(res.blob, `${mode}_ready.jpg`); return;
+      }
       if (mode === 'single') {
-        tile.toBlob(b => saveBlob(b, 'passport_single.jpg'), 'image/jpeg', 0.95);
-        return;
+        tile.toBlob(b => openSaveModal(b, 'passport_single.jpg'), 'image/jpeg', 0.95); return;
       }
       const rows = mode === 'a4_6' ? 1 : (mode === 'a4_12' ? 2 : 5);
       const cols = 6;
@@ -330,14 +551,13 @@
       const tw = 375, th = Math.round(tw * tile.height / tile.width), gap = 24;
       const sx = Math.round((2480 - (cols * tw + (cols - 1) * gap)) / 2);
       for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          actx.drawImage(tile, sx + c * (tw + gap), 70 + r * (th + 28), tw, th);
-        }
+        for (let c = 0; c < cols; c++) actx.drawImage(tile, sx + c * (tw + gap), 70 + r * (th + 28), tw, th);
       }
-      a4.toBlob(b => saveBlob(b, `a4_${rows*cols}_photos.jpg`), 'image/jpeg', 0.95);
+      a4.toBlob(b => openSaveModal(b, `a4_${rows * cols}_photos.jpg`), 'image/jpeg', 0.95);
     }
 
-    // ---- 4. FILTERS & DP ----
+    // ================= 4. FILTERS & DP =================
+    let fxImg = null, fxIsPng = false;
     function loadFx(e) {
       const f = e.target.files[0]; if (!f) return;
       const im = new Image();
@@ -371,7 +591,6 @@
         }
         return;
       }
-
       if (type === 'wborder' || type === 'bborder') {
         const bw = Math.max(24, Math.round(Math.min(w, h) / 18));
         c.width = w + bw * 2; c.height = h + bw * 2;
@@ -380,7 +599,6 @@
         ctx.drawImage(fxImg, bw, bw, w, h);
         return;
       }
-
       c.width = w; c.height = h;
       ctx.filter = type === 'enhance' ? 'contrast(1.18) saturate(1.15) brightness(1.04)'
                  : type === 'bw' ? 'grayscale(1) contrast(1.15)'
@@ -391,10 +609,11 @@
     }
     function saveFx() {
       const c = document.getElementById('fx-canvas');
-      c.toBlob(b => saveBlob(b, fxIsPng ? 'solvrik_circle_dp.png' : 'solvrik_edited.jpg'), fxIsPng ? 'image/png' : 'image/jpeg', 0.94);
+      c.toBlob(b => openSaveModal(b, fxIsPng ? 'solvrik_circle_dp.png' : 'solvrik_edited.jpg'), fxIsPng ? 'image/png' : 'image/jpeg', 0.94);
     }
 
-    // ---- 5. SOCIAL & QR ----
+    // ================= 5. SOCIAL & QR =================
+    let socImg = null;
     function loadSoc(e) {
       const f = e.target.files[0]; if (!f) return;
       const im = new Image();
@@ -414,7 +633,7 @@
         for (let x = -c.width; x < c.width; x += fs * 7) { ctx.strokeText(txt, x, y); ctx.fillText(txt, x, y); }
       }
       ctx.restore();
-      c.toBlob(b => saveBlob(b, 'watermarked.jpg'), 'image/jpeg', 0.93);
+      c.toBlob(b => openSaveModal(b, 'watermarked.jpg'), 'image/jpeg', 0.93);
     }
     function runSticker() {
       if (!socImg) return;
@@ -422,37 +641,37 @@
       const c = document.createElement('canvas');
       c.width = Math.round(socImg.width * s); c.height = Math.round(socImg.height * s);
       c.getContext('2d').drawImage(socImg, 0, 0, c.width, c.height);
-      c.toBlob(b => saveBlob(b, 'telegram_sticker.webp'), 'image/webp', 0.92);
+      c.toBlob(b => openSaveModal(b, 'telegram_sticker.webp'), 'image/webp', 0.92);
     }
-    async function runInstaGrid(rows) {
-      if (!socImg || typeof JSZip === 'undefined') return;
-      const cols = 3, targetRatio = cols / rows;
-      let sw = socImg.width, sh = socImg.height, sx = 0, sy = 0;
-      if (sw / sh > targetRatio) { sw = Math.round(sh * targetRatio); sx = Math.round((socImg.width - sw) / 2); }
-      else { sh = Math.round(sw / targetRatio); sy = Math.round((socImg.height - sh) / 2); }
-      const cw = Math.floor(sw / cols), ch = Math.floor(sh / rows);
-      const zip = new JSZip(), tile = document.createElement('canvas');
-      tile.width = cw; tile.height = ch;
+    function runInstaGrid(rows) {
+      if (!socImg) return;
+      const cols = 3, minS = Math.min(socImg.width, socImg.height);
+      const sx = Math.round((socImg.width - minS) / 2), sy = Math.round((socImg.height - minS) / 2);
+      const cw = Math.floor(minS / cols), ch = Math.floor(minS / rows);
+      const box = document.getElementById('grid-out'); box.innerHTML = '';
+      const tile = document.createElement('canvas'); tile.width = cw; tile.height = ch;
       const tctx = tile.getContext('2d');
       let idx = 1;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           tctx.drawImage(socImg, sx + c * cw, sy + r * ch, cw, ch, 0, 0, cw, ch);
-          const blob = await new Promise(res => tile.toBlob(res, 'image/jpeg', 0.94));
-          zip.file(`grid_${idx}_r${r+1}c${c+1}.jpg`, blob); idx++;
+          const url = tile.toDataURL('image/jpeg', 0.94);
+          const wrap = document.createElement('div'); wrap.style.width = '30%';
+          wrap.innerHTML = `<img src="${url}" style="border-radius:6px;border:1px solid #334155"/><div style="font-size:11px;text-align:center;color:#94a3b8">#${idx}</div>`;
+          box.appendChild(wrap); idx++;
         }
       }
-      const zblob = await zip.generateAsync({ type: 'blob' });
-      saveBlob(zblob, `insta_grid_${cols}x${rows}.zip`);
+      document.getElementById('soc-stat').textContent = '✅ 9 Grid Tiles Ready! Kisi bhi tile par tap/hold karke save karein:';
     }
     function runQrScan() {
-      if (!socImg || typeof jsQR === 'undefined') return;
-      const c = document.createElement('canvas'), s = Math.min(1, 1000 / Math.max(socImg.width, socImg.height));
-      c.width = Math.round(socImg.width * s); c.height = Math.round(socImg.height * s);
-      const ctx = c.getContext('2d'); ctx.drawImage(socImg, 0, 0, c.width, c.height);
-      const imgData = ctx.getImageData(0, 0, c.width, c.height);
-      const code = jsQR(imgData.data, imgData.width, imgData.height);
-      document.getElementById('soc-stat').textContent = code ? `✅ QR Data: ${code.data}` : '❌ QR code nahi mila — clear photo chunein.';
+      if (!socImg) return;
+      if ('BarcodeDetector' in window) {
+        new BarcodeDetector({ formats: ['qr_code'] }).detect(socImg).then(codes => {
+          document.getElementById('soc-stat').textContent = codes.length ? `✅ QR Data: ${codes[0].rawValue}` : '❌ QR code nahi mila.';
+        }).catch(() => { document.getElementById('soc-stat').textContent = '❌ QR scan failed.'; });
+      } else {
+        document.getElementById('soc-stat').textContent = '⚠️ Is browser mein direct QR scan available nahi hai — Bot ka Scan QR tool use karein.';
+      }
     }
   </script>
 </body>
