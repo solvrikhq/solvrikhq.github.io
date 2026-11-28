@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Solvrik Store — One Hub, All Smart Tools</title>
-  <meta name="description" content="Solvrik Store: 100% Faceless, Zero-Knowledge Tech Ecosystem — 165+ Student Utility Tools, Pro Studio, Media Studio, All-India Notes Library, and Custom AI Bots." />
+  <meta name="description" content="Solvrik Store: 100% Faceless, Zero-Knowledge Tech Ecosystem — 180+ Student Utility Tools, Pro Web Apps, Media Studio, All-India Notes Library, and Custom AI Bots." />
   <meta name="keywords" content="Solvrik, Solvrik Store, Solvrik HQ, SolvrikToolsBot, SolvrikMediaBot, SolvrikNotesBot, PDF Ink Saver, 20 KB Photo Compressor, Free Student Tools, Telegram Utility Bots" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://solvrikhq.github.io/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Solvrik Store — One Hub, All Smart Tools" />
-  <meta property="og:description" content="180+ Free Student & Creator Tools, Pro Studio, Media Studio, and All-India Notes Library — Zero-Knowledge Privacy." />
+  <meta property="og:description" content="180+ Free Student & Creator Tools, Pro Web Apps, Media Studio, and All-India Notes Library — Zero-Knowledge Privacy." />
   <meta property="og:url" content="https://solvrikhq.github.io/" />
   <meta name="theme-color" content="#050811" />
   <link rel="manifest" href="/manifest.json" />
@@ -36,8 +36,8 @@
     :root {
       --bg: #050811;
       --bg-2: #0b1120;
-      --card: rgba(17, 25, 44, 0.78);
-      --card-hover: rgba(24, 36, 62, 0.95);
+      --card: rgba(17, 25, 44, 0.80);
+      --card-hover: rgba(24, 36, 62, 0.96);
       --border: rgba(148, 163, 184, 0.15);
       --border-glow: rgba(59, 130, 246, 0.45);
       --blue: #3b82f6;
@@ -88,50 +88,64 @@
 
     .app-shell {
       position: relative; z-index: 1;
-      max-width: 1100px; margin: 0 auto;
-      padding: 14px 18px 98px;
+      max-width: 1120px; margin: 0 auto;
+      padding: 16px 20px 64px;
     }
 
-    /* Sticky Glass Navbar */
+    /* Sleek Single-Line Glass Header */
     .topbar {
-      position: sticky; top: 10px; z-index: 40;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 10px 14px;
-      background: rgba(10, 16, 30, 0.84);
-      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      position: sticky; top: 12px; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 10px 16px;
+      background: rgba(9, 15, 28, 0.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     }
-    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: inherit; flex-shrink: 0;
+    }
     .brand-icon {
-      width: 38px; height: 38px; border-radius: 11px;
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
       background: linear-gradient(135deg, #2563eb, #10b981);
       display: grid; place-items: center;
-      font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 20px; color: #fff;
-      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+      font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 19px; color: #fff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
     }
-    .brand-txt h1 { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-    .brand-txt span { display: block; font-size: 11px; color: #34d399; font-weight: 600; }
+    .brand-txt { white-space: nowrap; }
+    .brand-txt h1 { font-family: 'Space Grotesk', sans-serif; font-size: 16.5px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.15; }
+    .brand-txt span { display: block; font-size: 10.5px; color: #34d399; font-weight: 600; }
 
-    .nav-links { display: flex; align-items: center; gap: 20px; font-size: 13.5px; color: var(--muted); font-weight: 500; }
-    .nav-links a { text-decoration: none; color: inherit; transition: color 0.15s; }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 4px; border-radius: 12px;
+    }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 13px; font-weight: 600; white-space: nowrap;
+      padding: 6px 12px; border-radius: 9px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover { background: rgba(59, 130, 246, 0.14); color: var(--text); }
 
-    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .privacy-pill {
-      display: flex; align-items: center; gap: 5px;
-      padding: 6px 10px; border-radius: 20px;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+      padding: 7px 12px; border-radius: 11px;
       background: rgba(16, 185, 129, 0.12);
       border: 1px solid rgba(16, 185, 129, 0.35);
-      color: #34d399; font-size: 11px; font-weight: 600; cursor: pointer;
+      color: #34d399; font-size: 12px; font-weight: 600; cursor: pointer;
     }
     .install-btn {
-      padding: 8px 14px; border: none; border-radius: 12px;
+      padding: 8px 14px; border: none; border-radius: 11px; white-space: nowrap;
       background: linear-gradient(135deg, #2563eb, #3b82f6);
       color: #fff; font-weight: 700; font-size: 12.5px; cursor: pointer;
       box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-      display: flex; align-items: center; gap: 6px;
+      display: inline-flex; align-items: center; gap: 6px;
     }
     .install-btn:active { transform: scale(0.96); }
 
@@ -141,7 +155,7 @@
       width: 100%; padding: 13px 16px 13px 44px;
       background: rgba(15, 23, 42, 0.88);
       border: 1px solid var(--border);
-      border-radius: 15px;
+      border-radius: 14px;
       color: #fff; font-size: 14px; outline: none;
     }
     .search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
@@ -149,10 +163,10 @@
 
     /* Hero Banner */
     .hero-banner {
-      margin-top: 16px; padding: 24px; border-radius: 22px;
+      margin-top: 16px; padding: 26px; border-radius: 22px;
       background: linear-gradient(135deg, rgba(30, 58, 138, 0.52) 0%, rgba(15, 23, 42, 0.94) 55%, rgba(6, 78, 59, 0.42) 100%);
       border: 1px solid rgba(96, 165, 250, 0.28);
-      display: grid; grid-template-columns: 1.35fr 1fr; gap: 22px; align-items: center;
+      display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; align-items: center;
     }
     .hero-tag {
       display: inline-flex; align-items: center; gap: 6px;
@@ -162,10 +176,10 @@
     }
     .hero-banner h2 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(22px, 3.2vw, 33px); line-height: 1.16; margin-top: 10px;
+      font-size: clamp(23px, 3.2vw, 34px); line-height: 1.16; margin-top: 10px;
     }
-    .hero-banner p { color: #cbd5e1; font-size: 13.8px; line-height: 1.56; margin-top: 8px; max-width: 54ch; }
-    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .hero-banner p { color: #cbd5e1; font-size: 14px; line-height: 1.56; margin-top: 9px; max-width: 54ch; }
+    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
     .btn-primary {
       padding: 11px 18px; border-radius: 12px; border: none;
       background: linear-gradient(135deg, #10b981, #059669);
@@ -179,10 +193,11 @@
       color: #f8fafc; font-weight: 600; font-size: 13.5px; text-decoration: none;
       display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
     }
+    .btn-ghost:hover { border-color: var(--border-glow); }
 
     .hero-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .stat-box { background: rgba(5, 8, 17, 0.65); border: 1px solid var(--border); border-radius: 14px; padding: 13px; }
-    .stat-box b { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 20px; color: #38bdf8; }
+    .stat-box { background: rgba(5, 8, 17, 0.65); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+    .stat-box b { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 21px; color: #38bdf8; }
     .stat-box span { font-size: 11.5px; color: var(--muted); }
 
     /* Category Filter Chips */
@@ -278,15 +293,38 @@
     .pv-item b { display: block; font-size: 13.5px; color: #f8fafc; margin-bottom: 4px; }
     .pv-item span { font-size: 12px; color: var(--muted); line-height: 1.45; }
 
-    /* Support Banner */
-    .support-banner {
-      margin-top: 26px;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(17, 24, 39, 0.9));
-      border: 1px solid var(--border); border-radius: 18px; padding: 22px;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+    /* Dedicated Support & Query Desk */
+    .support-desk {
+      margin-top: 28px;
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.38), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      border-radius: 20px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: center;
     }
-    .support-banner h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; margin-bottom: 4px; }
-    .support-banner p { font-size: 13.5px; color: var(--muted); max-width: 56ch; }
+    .support-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399; font-size: 11px; font-weight: 700; margin-bottom: 8px;
+    }
+    .support-desk h3 { font-family: 'Space Grotesk', sans-serif; font-size: 21px; margin-bottom: 6px; }
+    .support-desk p { font-size: 13.5px; color: #cbd5e1; line-height: 1.55; }
+    .query-box {
+      background: rgba(5, 8, 17, 0.68);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .query-box select, .query-box input {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      background: #0b1222; border: 1px solid var(--border);
+      color: #fff; font-size: 13px; margin-bottom: 9px; outline: none;
+    }
+    .query-box select:focus, .query-box input:focus { border-color: var(--blue); }
 
     footer {
       margin-top: 38px; padding-top: 18px; border-top: 1px solid var(--border);
@@ -294,24 +332,8 @@
       font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Bottom Navigation Bar */
-    .bottom-nav {
-      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 50;
-      width: min(520px, calc(100% - 24px));
-      background: rgba(11, 17, 32, 0.92);
-      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 20px;
-      padding: 7px 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
-    }
-    .bnav-btn {
-      background: none; border: none; color: var(--muted);
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      padding: 6px 4px; border-radius: 13px; cursor: pointer;
-      font-size: 10.5px; font-weight: 600; text-decoration: none;
-    }
-    .bnav-btn span.ico { font-size: 18px; }
-    .bnav-btn.active { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
+    /* Mobile-Only Bottom App Bar (Hidden on Desktop) */
+    .bottom-nav { display: none; }
 
     /* App Inspector Modal */
     .modal-bg {
@@ -335,11 +357,30 @@
     }
     .maint-box { max-width: 460px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 32px 24px; }
 
-    @media (max-width: 820px) {
+    @media (max-width: 860px) {
       .nav-links { display: none; }
-      .hero-banner, .store-grid, .grid-2, .pv-grid { grid-template-columns: 1fr; }
+      .hero-banner, .store-grid, .grid-2, .pv-grid, .support-desk { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .privacy-pill span.hide-sm { display: none; }
+      .app-shell { padding-bottom: 92px; }
+      .bottom-nav {
+        display: grid;
+        position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 50;
+        width: min(520px, calc(100% - 24px));
+        background: rgba(11, 17, 32, 0.94);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 20px;
+        padding: 7px 10px; grid-template-columns: repeat(4, 1fr); gap: 4px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
+      }
+      .bnav-btn {
+        background: none; border: none; color: var(--muted);
+        display: flex; flex-direction: column; align-items: center; gap: 3px;
+        padding: 6px 4px; border-radius: 13px; cursor: pointer;
+        font-size: 10.5px; font-weight: 600; text-decoration: none;
+      }
+      .bnav-btn span.ico { font-size: 18px; }
+      .bnav-btn.active { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
     }
   </style>
 </head>
@@ -357,31 +398,32 @@
       <div style="font-size:38px;margin-bottom:10px">🛠️</div>
       <h2 style="font-family:'Space Grotesk',sans-serif;margin-bottom:8px">Solvrik Store Upgrading</h2>
       <p id="maint-msg" style="color:var(--muted);font-size:14px;margin-bottom:18px"></p>
-      <button onclick="openTelegramDirect('SolvrikHQ')" class="btn-primary">📢 Open @SolvrikHQ Updates</button>
+      <button onclick="openTelegramDirect('SolvrikHQ')" class="btn-primary">📢 Open Official Channel</button>
     </div>
   </div>
 
   <div id="app-main" class="app-shell">
-    <!-- TOP GLASS HEADER -->
+    <!-- SLEEK SINGLE-LINE GLASS HEADER -->
     <header class="topbar">
       <a href="#" class="brand">
         <div class="brand-icon">S</div>
         <div class="brand-txt">
           <h1>Solvrik Store</h1>
-          <span>Zero-Knowledge Ecosystem</span>
+          <span>Zero-Knowledge Hub</span>
         </div>
       </a>
       <nav class="nav-links">
-        <a href="#store-sec">Store Apps</a>
+        <a href="#store-sec">Store</a>
         <a href="#private-sec">Automation</a>
-        <a href="#services-sec">Custom Bots</a>
+        <a href="#services-sec">Build</a>
+        <a href="#support-sec">Support</a>
         <a href="#socials-sec">Socials</a>
       </nav>
       <div class="top-actions">
         <button class="privacy-pill" onclick="scrollToEl('privacy-section')">
           <span class="pulse-dot"></span>
           <span>100% Private</span>
-          <span class="hide-sm">• On-Device</span>
+          <span class="hide-sm">• Local</span>
         </button>
         <button id="pwa-install-btn" class="install-btn" onclick="triggerPwaInstall()">
           <span>📲 Install App</span>
@@ -396,22 +438,22 @@
         type="text"
         id="store-search"
         class="search-input"
-        placeholder="Search Solvrik apps, PDF Ink Saver, Passport Photo, Notes, Bots..."
+        placeholder="Search Solvrik Store: Web Apps, Bots, PDF Ink Saver, Passport Photo, Notes..."
         oninput="filterStore()"
       />
     </div>
 
-    <!-- HERO SPOTLIGHT -->
+    <!-- HERO SPOTLIGHT (ECOSYSTEM-WIDE) -->
     <section class="hero-banner">
       <div>
         <div class="hero-tag">⚡ Faceless Tech &amp; Privacy Store</div>
         <h2>Ek Jagah, Saare Smart Tools — Bina Privacy Compromise Kiye</h2>
         <p>
-          Pro Web Apps, Telegram Bots aur Offline Android Tools ek hi Solvrik Store mein. Aapki photos aur PDFs sirf aapke apne device par process hoti hain — admin ya server unhe kabhi nahi dekh sakta.
+          Web Apps, Telegram Bots aur Offline Android Tools ek hi Solvrik Store mein. Aapki photos aur PDFs sirf aapke apne device par process hoti hain — admin ya server unhe kabhi nahi dekh sakta.
         </p>
         <div class="hero-btns">
-          <a href="studio.html" class="btn-primary">🚀 Launch Pro Studio ⚡</a>
-          <button onclick="openTelegramDirect('SolvrikHQ')" class="btn-ghost">📢 Join @SolvrikHQ</button>
+          <button onclick="scrollToEl('store-sec')" class="btn-primary">⚡ Explore Solvrik Store</button>
+          <button onclick="scrollToEl('support-sec')" class="btn-ghost">💬 Help &amp; Query Desk</button>
         </div>
       </div>
       <div class="hero-stats">
@@ -430,7 +472,7 @@
       <button class="cat-chip" onclick="setCategory('apk', this)">📱 Android APK Hub</button>
     </div>
 
-    <!-- UNIFIED STORE APPS (1 Card per Product with Dual Buttons) -->
+    <!-- UNIFIED STORE APPS -->
     <div id="store-sec" class="sec-hdr">
       <h3>Solvrik Store · Apps &amp; Bots</h3>
       <span id="grid-count">4 Products</span>
@@ -450,6 +492,34 @@
       <span>BOTS · WEBSITES · AI TOOLS</span>
     </div>
     <section id="services-grid" class="grid-2"></section>
+
+    <!-- DEDICATED SUPPORT & QUICK QUERY DESK -->
+    <section id="support-sec" class="support-desk">
+      <div>
+        <div class="support-badge">💬 24×7 DIRECT SUPPORT &amp; QUERY DESK</div>
+        <h3>Koi Sawal, Bug Report ya Custom Project Query Hai?</h3>
+        <p>
+          Chahe kisi tool mein help chahiye, naya feature suggest karna ho, ya apne Coaching, YouTube Channel ya Business ke liye custom Bot/Website banwana ho — seedha apni query bhejein.
+        </p>
+        <div class="hero-btns">
+          <button onclick="openTelegramDirect('SolvrikSupportBot')" class="btn-primary">💬 Open Support Chat</button>
+          <button onclick="openTelegramDirect('SolvrikHQ')" class="btn-ghost">📢 Official Updates</button>
+        </div>
+      </div>
+      <div class="query-box">
+        <div style="font-size:12.5px;font-weight:700;color:#93c5fd;margin-bottom:8px">⚡ Quick Query Launcher</div>
+        <select id="q-topic">
+          <option value="Custom Bot / Website Order">🛠️ Custom Bot / Website / App Banwana Hai</option>
+          <option value="Tool Help / Issue Report">⚠️ Kisi Tool Mein Help / Issue Report</option>
+          <option value="Study Notes / Feature Request">📚 Study Notes / Naya Tool Request</option>
+          <option value="General Query">💬 General Question / Partnership</option>
+        </select>
+        <input type="text" id="q-text" placeholder="Apna message ya requirement likhein (optional)..." />
+        <button onclick="sendQuickQuery()" class="act-btn act-web" style="width:100%;padding:11px">
+          🚀 Send Query to Support Desk
+        </button>
+      </div>
+    </section>
 
     <!-- OFFICIAL SOCIALS & LINKS -->
     <div id="socials-sec" class="sec-hdr">
@@ -480,24 +550,13 @@
       </div>
     </section>
 
-    <!-- CUSTOM ORDER / SUPPORT BANNER -->
-    <section class="support-banner">
-      <div>
-        <h3>💼 Apna Custom Tool, Bot, Website ya App Banwana Hai?</h3>
-        <p>
-          Apni requirement (Coaching, YouTube Channel, Business ya Personal Tool) seedha <strong>@SolvrikSupportBot</strong> par bhejein — fast delivery &amp; student-friendly pricing.
-        </p>
-      </div>
-      <button onclick="openTelegramDirect('SolvrikSupportBot')" class="btn-primary">💬 Order on @SolvrikSupportBot</button>
-    </section>
-
     <footer>
       <span>© 2026 Solvrik HQ · Zero-Knowledge Tech Ecosystem</span>
       <span>Built for Speed · Zero Face, Pure Utility</span>
     </footer>
   </div>
 
-  <!-- BOTTOM APP BAR -->
+  <!-- MOBILE-ONLY BOTTOM APP BAR -->
   <nav class="bottom-nav">
     <button class="bnav-btn active" onclick="scrollToEl('store-sec', this)">
       <span class="ico">🏪</span>
@@ -511,7 +570,7 @@
       <span class="ico">🎬</span>
       <span>Media</span>
     </a>
-    <button class="bnav-btn" onclick="openTelegramDirect('SolvrikSupportBot')">
+    <button class="bnav-btn" onclick="scrollToEl('support-sec', this)">
       <span class="ico">💬</span>
       <span>Support</span>
     </button>
@@ -529,16 +588,14 @@
       announcement: "SOLVRIK.SYS // ALL SYSTEMS OPERATIONAL · 100% ZERO-KNOWLEDGE PRIVACY"
     };
 
-    // Smart Telegram Link Opener (Works in India even when ISP blocks t.me in browser)
-    function openTelegramDirect(username) {
+    // Smart Telegram Deep-Link Opener (Bypasses ISP t.me browser timeout)
+    function openTelegramDirect(username, prefillText) {
       const clean = username.replace(/^@/, '');
-      const tgDeepLink = `tg://resolve?domain=${clean}`;
+      const textParam = prefillText ? `&text=${encodeURIComponent(prefillText)}` : '';
+      const tgDeepLink = `tg://resolve?domain=${clean}${textParam}`;
       const webMirror = `https://telegram.me/${clean}`;
 
-      // Try native Telegram app protocol first (instant open without ISP timeout)
       window.location.href = tgDeepLink;
-
-      // Fallback to telegram.me mirror after 900ms if desktop/mobile app didn't intercept
       setTimeout(() => {
         if (!document.hidden) {
           window.open(webMirror, '_blank', 'noopener');
@@ -546,7 +603,13 @@
       }, 900);
     }
 
-    // Unified Store Products (1 Card per Product — Clean Dual Buttons)
+    function sendQuickQuery() {
+      const topic = document.getElementById('q-topic').value;
+      const msg = (document.getElementById('q-text').value || '').trim();
+      const full = msg ? `[${topic}] ${msg}` : `[${topic}] Hi Solvrik Support, mujhe help chahiye.`;
+      openTelegramDirect('SolvrikSupportBot', full);
+    }
+
     const STORE_APPS = [
       {
         id: 'toolbox-suite',
@@ -615,7 +678,7 @@
         botBtnLabel: '🤖 Open Notes Library',
         highlights: [
           'Chapter-wise categorized notes for Board & Entrance exams',
-          'Fast keyboard navigation inside @SolvrikNotesBot',
+          'Fast keyboard navigation inside Notes Bot',
           'Pair with Pro Studio PDF Ink Saver to print dark notes cleanly'
         ]
       },
@@ -627,20 +690,20 @@
         cats: ['apk'],
         icon: '📱',
         grad: 'linear-gradient(135deg, #7c3aed, #3b82f6)',
-        desc: 'Coming Soon: Dedicated Android APK jisme built-in local yt-dlp downloader (zero server IP block) aur offline Pro Studio ek saath milega.',
+        desc: 'Coming Soon: Dedicated Android APK jisme built-in local downloader (zero server IP block) aur offline Pro Studio ek saath milega.',
         bullets: [
           '• Direct YouTube / Shorts / Reels on Phone Network',
           '• Bundled Offline Pro Studio & Media Studio',
           '• Zero Ads, Zero Trackers & SHA-256 Verified'
         ],
-        tags: ['Native yt-dlp', 'Offline Vault', 'Zero-Knowledge'],
+        tags: ['Native Engine', 'Offline Vault', 'Zero-Knowledge'],
         webUrl: null,
         tgUser: 'SolvrikHQ',
         comingSoon: true,
         highlights: [
-          'Runs yt-dlp natively on your own phone connection — zero server block',
+          'Runs natively on your own phone connection — zero server block',
           'All photo & PDF processing works 100% offline',
-          'Updates & APK release announcements live on @SolvrikHQ'
+          'Updates & APK release announcements live on Official Channel'
         ]
       }
     ];
