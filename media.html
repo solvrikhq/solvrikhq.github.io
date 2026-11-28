@@ -155,9 +155,8 @@
   </div>
   <div class="pbar-wrap"><div class="pbar-fill"></div></div>
 
-  <!-- YOUTUBE DOWNLOADER FIRST FOR INSTANT ACCESS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('yt', this)">📥 YouTube Downloader ⚡</button>
+    <button class="tab active" onclick="switchTab('yt', this)">📥 Link Downloader ⚡</button>
     <button class="tab" onclick="switchTab('aud', this)">🎵 Video → Audio ⚡</button>
     <button class="tab" onclick="switchTab('trim', this)">✂️ Trim & Compress ⚡</button>
     <button class="tab" onclick="switchTab('vcrop', this)">📐 Ratio Crop & Speed ⚡</button>
@@ -176,22 +175,27 @@
     </div>
   </div>
 
-  <!-- 1. UPGRADED CLIENT-SIDE YOUTUBE DOWNLOADER (RUNS ON USER'S OWN IP) -->
+  <!-- 1. IN-APP LINK DOWNLOADER (NO BLOCKED SITES — DIRECT STREAM PLAYER & DOWNLOADER) -->
   <div id="tab-yt" class="card">
-    <div style="font-size:13.5px;color:#e2e8f0;font-weight:600">🔗 YouTube Video / Shorts / Live Link Paste Karein:</div>
+    <div style="font-size:13.5px;color:#e2e8f0;font-weight:600">🔗 YouTube Video / Shorts Link Paste Karein:</div>
     <div class="row" style="margin-top:6px">
       <input type="text" id="yt-url" style="flex:1;margin-top:0" placeholder="https://youtu.be/... ya https://youtube.com/shorts/..." oninput="onYtInput()" />
       <button class="btn sec sm" onclick="pasteYtUrl()">📋 Paste</button>
     </div>
-    <button class="btn" style="width:100%;margin-top:10px" onclick="fetchYtStreams()">⚡ Fetch Video & Audio Links</button>
+    <button class="btn" style="width:100%;margin-top:10px" onclick="fetchYtStreams()">⚡ Extract Direct Video & Audio</button>
     <div id="yt-stat" class="info"></div>
 
     <div id="yt-result" class="yt-card hidden">
       <img id="yt-thumb-prev" style="width:100%;border-radius:9px;margin-bottom:8px" />
       <div id="yt-meta-title" style="font-size:13.5px;font-weight:700;color:#f8fafc;margin-bottom:8px"></div>
+      <div id="yt-player-wrap" class="hidden" style="margin-bottom:10px">
+        <video id="yt-direct-player" controls playsinline style="width:100%;border-radius:9px"></video>
+        <div style="font-size:11.5px;color:#34d399;margin-top:5px;text-align:center">💡 Video ke niche <b>3-dots (⋮) → Download</b> dabayein ya niche button use karein!</div>
+      </div>
       <div id="yt-stream-btns" class="col-stack"></div>
-      <div style="font-size:11.5px;color:#94a3b8;margin-top:10px;text-align:center">👇 Instant Web Extractors (1-Click MP4 / MP3):</div>
-      <div id="yt-ext-btns" class="col-stack"></div>
+      <div class="col-stack">
+        <button class="btn sec" onclick="grabYtThumb(currentYtId)">🖼️ Download 1080p HD Thumbnail</button>
+      </div>
     </div>
   </div>
 
@@ -308,13 +312,12 @@
   </div>
 
   <script>
-    let lastBlob = null, lastFilename = 'solvrik_media.bin', lastObjUrl = '';
+    let lastBlob = null, lastFilename = 'solvrik_media.bin', lastObjUrl = '', currentYtId = '';
 
     window.addEventListener('DOMContentLoaded', () => {
       if (window.Telegram?.WebApp) {
         try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
       }
-      // Auto-load link if passed via ?url=...
       const qp = new URLSearchParams(window.location.search).get('url');
       if (qp) {
         document.getElementById('yt-url').value = qp;
@@ -368,7 +371,7 @@
       window.open(lastObjUrl || URL.createObjectURL(lastBlob), '_blank');
     }
 
-    // ================= 1. CLIENT-SIDE YOUTUBE STREAM FETCHER =================
+    // ================= 1. MULTI-INSTANCE INVIDIOUS + PIPED IN-APP STREAM FETCHER =================
     function extractYtId(url) {
       const m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
       return m ? m[1] : null;
@@ -393,45 +396,42 @@
       const vid = extractYtId(rawUrl);
       const stat = document.getElementById('yt-stat');
       const resCard = document.getElementById('yt-result');
+      const playerWrap = document.getElementById('yt-player-wrap');
+      const player = document.getElementById('yt-direct-player');
+
       if (!vid) {
         stat.textContent = '❌ Sahi YouTube Video ya Shorts link paste karein!';
         resCard.classList.add('hidden');
         return;
       }
 
+      currentYtId = vid;
       const cleanYt = `https://www.youtube.com/watch?v=${vid}`;
-      stat.textContent = '⏳ Video streams aur HD formats fetch ho rahe hain...';
+      stat.textContent = '⏳ Direct video & audio streams extract ho rahe hain...';
       resCard.classList.remove('hidden');
+      playerWrap.classList.add('hidden');
       document.getElementById('yt-thumb-prev').src = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
       document.getElementById('yt-meta-title').textContent = `YouTube Video (${vid})`;
 
-      // Fetch title via oEmbed
       fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(cleanYt)}&format=json`)
         .then(r => r.json())
         .then(d => { if (d.title) document.getElementById('yt-meta-title').textContent = d.title; })
         .catch(() => {});
 
       const streamBox = document.getElementById('yt-stream-btns');
-      const extBox = document.getElementById('yt-ext-btns');
       streamBox.innerHTML = '';
 
-      // Always render instant Thumbnail + Multi-Mirror Extractors
-      extBox.innerHTML = `
-        <button class="btn sec" onclick="grabYtThumb('${vid}')">🖼️ Download 1080p HD Thumbnail</button>
-        <a class="btn green" href="https://y2mate.nu/en-01/?url=${encodeURIComponent(cleanYt)}" target="_blank" rel="noopener">⚡ Fast MP4 / MP3 (Mirror 1)</a>
-        <a class="btn" href="https://en.savefrom.net/1-youtube-video-downloader-394/?url=${encodeURIComponent(cleanYt)}" target="_blank" rel="noopener">⬇️ Direct MP4 Downloader (Mirror 2)</a>
-        <a class="btn sec" href="https://cnvmp3.com/v23?url=${encodeURIComponent(cleanYt)}" target="_blank" rel="noopener">🎵 Direct MP3 Audio Converter</a>
-      `;
+      let foundStreams = [];
 
-      // Try client-side Piped & Invidious APIs from user's own IP
-      const apis = [
+      // 1. Try Piped Public APIs
+      const pipedApis = [
         'https://pipedapi.kavin.rocks',
         'https://pipedapi.adminforge.de',
         'https://api.piped.yt',
         'https://pipedapi.drgns.space'
       ];
-      let foundDirect = false;
-      for (const api of apis) {
+      for (const api of pipedApis) {
+        if (foundStreams.length) break;
         try {
           const ctrl = new AbortController();
           const tid = setTimeout(() => ctrl.abort(), 4500);
@@ -440,42 +440,69 @@
           if (!resp.ok) continue;
           const data = await resp.json();
           if (data.title) document.getElementById('yt-meta-title').textContent = data.title;
-
-          const muxed = (data.videoStreams || []).filter(s => !s.videoOnly && s.url);
-          const audios = (data.audioStreams || []).filter(s => s.url);
-
-          muxed.slice(0, 3).forEach(s => {
-            const btn = document.createElement('a');
-            btn.className = 'btn green';
-            btn.href = s.url;
-            btn.target = '_blank';
-            btn.rel = 'noopener';
-            btn.textContent = `🎬 Direct ${s.quality || 'MP4'} (${s.format || 'Video'})`;
-            streamBox.appendChild(btn);
-            foundDirect = true;
+          (data.videoStreams || []).filter(s => !s.videoOnly && s.url).forEach(s => {
+            foundStreams.push({ label: `🎬 Direct ${s.quality || 'MP4'} Video`, url: s.url, isVideo: true });
           });
-
+          const audios = (data.audioStreams || []).filter(s => s.url).sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
           if (audios.length) {
-            audios.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
-            const abtn = document.createElement('a');
-            abtn.className = 'btn';
-            abtn.href = audios[0].url;
-            abtn.target = '_blank';
-            abtn.rel = 'noopener';
-            abtn.textContent = `🎵 Direct Audio (${Math.round((audios[0].bitrate || 128000) / 1000)} kbps)`;
-            streamBox.appendChild(abtn);
-            foundDirect = true;
+            foundStreams.push({ label: `🎵 Direct Audio (${Math.round((audios[0].bitrate || 128000) / 1000)} kbps)`, url: audios[0].url, isVideo: false });
           }
-          if (foundDirect) break;
         } catch (e) {}
       }
 
-      stat.textContent = foundDirect
-        ? '✅ Direct Video & Audio Streams Ready! Niche green button dabayein:'
-        : '✅ Ready! Niche Mirror 1 ya Mirror 2 dabakar 1-click mein MP4/MP3 save karein:';
+      // 2. Try Invidious Public APIs if Piped didn't respond
+      if (!foundStreams.length) {
+        const invApis = [
+          'https://inv.nadeko.net',
+          'https://invidious.nerdvpn.de',
+          'https://yt.artemislena.eu',
+          'https://invidious.privacyredirect.com'
+        ];
+        for (const inv of invApis) {
+          if (foundStreams.length) break;
+          try {
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), 4500);
+            const resp = await fetch(`${inv}/api/v1/videos/${vid}`, { signal: ctrl.signal });
+            clearTimeout(tid);
+            if (!resp.ok) continue;
+            const data = await resp.json();
+            if (data.title) document.getElementById('yt-meta-title').textContent = data.title;
+            (data.formatStreams || []).filter(s => s.url).forEach(s => {
+              foundStreams.push({ label: `🎬 Direct ${s.qualityLabel || 'MP4'} Video`, url: s.url, isVideo: true });
+            });
+            const af = (data.adaptiveFormats || []).filter(s => s.url && (s.type || '').startsWith('audio/'));
+            if (af.length) {
+              foundStreams.push({ label: `🎵 Direct Audio Stream`, url: af[0].url, isVideo: false });
+            }
+          } catch (e) {}
+        }
+      }
+
+      if (foundStreams.length) {
+        const firstVid = foundStreams.find(x => x.isVideo);
+        if (firstVid) {
+          player.src = firstVid.url;
+          playerWrap.classList.remove('hidden');
+        }
+        foundStreams.slice(0, 4).forEach(item => {
+          const btn = document.createElement('a');
+          btn.className = item.isVideo ? 'btn green' : 'btn';
+          btn.href = item.url;
+          btn.target = '_blank';
+          btn.rel = 'noopener';
+          btn.download = `solvrik_${vid}.${item.isVideo ? 'mp4' : 'm4a'}`;
+          btn.textContent = item.label;
+          streamBox.appendChild(btn);
+        });
+        stat.textContent = '✅ Direct Streams Ready! Niche video play/save karein ya button dabayein:';
+      } else {
+        stat.textContent = '⚠️ Is video par public stream API busy hai — HD Thumbnail niche se download kar sakte hain, ya Bot mein YT_COOKIES_B64 lagayein.';
+      }
     }
 
     async function grabYtThumb(vidId) {
+      if (!vidId) return;
       const stat = document.getElementById('yt-stat');
       stat.textContent = '⏳ 1080p Thumbnail fetch ho raha hai...';
       try {
