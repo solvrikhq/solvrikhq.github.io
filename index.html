@@ -1,695 +1,690 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solvrik — Developer Tools &amp; AI Automation Hub</title>
-<meta name="description" content="Solvrik: Faceless tech &amp; automation hub — 165+ Student Utility Tools, Media Studio, All-India Study Notes, and Custom AI Bots.">
-<meta name="keywords" content="Solvrik, Solvrik HQ, SolvrikToolsBot, SolvrikMediaBot, SolvrikNotesBot, PDF Ink Saver, 20 KB Photo Compressor, Free Student Tools, Telegram Utility Bots">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://solvrikhq.github.io/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Solvrik HQ — One Hub, All Smart Tools">
-<meta property="og:description" content="165+ Free Student &amp; Creator Tools, Media Studio, and All-India Notes Library — 0 MB Install.">
-<meta property="og:url" content="https://solvrikhq.github.io/">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Solvrik HQ",
-  "alternateName": "Solvrik",
-  "url": "https://solvrikhq.github.io/",
-  "sameAs": [
-    "https://t.me/SolvrikHQ",
-    "https://www.youtube.com/@SolvrikHQ",
-    "https://www.instagram.com/solvrik.hq/",
-    "https://github.com/solvrikhq"
-  ]
-}
-</script>
-<meta name="description" content="Solvrik: Faceless tech &amp; automation hub — 165+ Student Utility Tools, Media Studio, All-India Notes Library, and Custom AI Bots.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #070B14;
-    --bg2: #0D1322;
-    --card: rgba(17, 24, 39, 0.72);
-    --card-hover: rgba(23, 33, 54, 0.92);
-    --border: rgba(148, 163, 184, 0.14);
-    --border-bright: rgba(56, 189, 248, 0.38);
-    --text: #F8FAFC;
-    --muted: #94A3B8;
-    --accent: #2563EB;
-    --cyan: #38BDF8;
-    --green: #10B981;
-    --amber: #F59E0B;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37, 99, 235, 0.20), transparent),
-      linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
-    background-size: 100% 100%, 42px 42px, 42px 42px;
-  }
-  a { color: inherit; text-decoration: none; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Solvrik Store — One Hub, All Smart Tools</title>
+  <meta name="description" content="Solvrik Store: 100% Faceless, Zero-Knowledge Tech Ecosystem — Pro Web Apps, Media Studio, All-India Notes & Telegram Bots." />
+  <meta name="theme-color" content="#050811" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050811;
+      --bg-2: #0b1120;
+      --card: rgba(17, 25, 44, 0.78);
+      --card-hover: rgba(24, 36, 62, 0.95);
+      --border: rgba(148, 163, 184, 0.14);
+      --border-glow: rgba(59, 130, 246, 0.45);
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --purple: #8b5cf6;
+      --amber: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
 
-  .wrap {
-    max-width: 1060px;
-    margin: 0 auto;
-    padding: 20px 22px 84px;
-  }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-  /* Top Announcement Strip */
-  .top-strip {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 8px 14px;
-    background: rgba(37, 99, 235, 0.12);
-    border-bottom: 1px solid var(--border);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: #BAE6FD;
-  }
-  .pulse {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-  }
+    /* Ambient Mesh Background */
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.18) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(16, 185, 129, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 50% 92%, rgba(139, 92, 246, 0.12) 0%, transparent 45%);
+    }
 
-  /* Desktop Navbar */
-  .nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .brand-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--cyan);
-    background: rgba(56, 189, 248, 0.1);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    padding: 2px 7px;
-    border-radius: 5px;
-  }
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    font-size: 14px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-  .nav-links a:hover { color: var(--text); }
-  .nav-cta {
-    background: var(--accent);
-    color: #fff;
-    padding: 9px 15px;
-    border-radius: 9px;
-    font-size: 13.5px;
-    font-weight: 600;
-  }
-  .nav-cta:hover { opacity: 0.9; }
+    .app-shell {
+      position: relative; z-index: 1;
+      max-width: 1140px; margin: 0 auto;
+      padding: 14px 16px 96px;
+    }
 
-  /* Desktop Split Hero */
-  .hero {
-    padding: 44px 0 32px;
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 32px;
-    align-items: center;
-  }
-  .hero-kicker {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--cyan);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(30px, 4.3vw, 46px);
-    line-height: 1.1;
-    letter-spacing: -0.025em;
-  }
-  .hero-desc {
-    margin-top: 14px;
-    color: var(--muted);
-    font-size: 15.5px;
-    max-width: 52ch;
-  }
-  .hero-actions {
-    margin-top: 24px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-    padding: 11px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14.5px;
-  }
-  .btn-ghost {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 11px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14.5px;
-  }
-  .btn-primary:hover, .btn-ghost:hover { border-color: var(--border-bright); opacity: 0.94; }
+    /* Top Glass Header */
+    .topbar {
+      position: sticky; top: 10px; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 14px;
+      background: rgba(10, 16, 30, 0.82);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .brand-icon {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      display: grid; place-items: center;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 20px; color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+    }
+    .brand-txt h1 { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .brand-txt span { display: block; font-size: 11px; color: #34d399; font-weight: 600; }
 
-  /* Developer Terminal Card (Desktop Hero Right) */
-  .terminal {
-    background: #060911;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-  }
-  .term-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: #0D1424;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 11.5px;
-  }
-  .dots { display: flex; gap: 6px; }
-  .dots i { width: 9px; height: 9px; border-radius: 50%; display: block; }
-  .term-body {
-    padding: 16px;
-    color: #CBD5E1;
-    line-height: 1.75;
-  }
-  .c-blue { color: #60A5FA; }
-  .c-green { color: #34D399; }
-  .c-amber { color: #FBBF24; }
-  .c-mute { color: #64748B; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .privacy-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 6px 10px; border-radius: 20px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399; font-size: 11px; font-weight: 600;
+      cursor: pointer;
+    }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }
+    .install-btn {
+      padding: 8px 14px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff; font-weight: 700; font-size: 12.5px; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .install-btn:active { transform: scale(0.96); }
 
-  /* Section Header */
-  .sec-head {
-    margin-top: 44px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 10px;
-  }
-  .sec-head h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 20px;
-    letter-spacing: -0.015em;
-  }
-  .sec-head span {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
+    /* Search & Command Bar */
+    .search-wrap {
+      margin-top: 16px; position: relative;
+    }
+    .search-input {
+      width: 100%; padding: 14px 16px 14px 44px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: #fff; font-size: 14.5px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .search-icon {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 17px; pointer-events: none;
+    }
 
-  /* Compact Grids */
-  .grid-3 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-  }
-  .grid-2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-  .grid-4 {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-  }
+    /* Featured Spotlight Banner */
+    .hero-banner {
+      margin-top: 16px;
+      padding: 22px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.55) 0%, rgba(15, 23, 42, 0.92) 55%, rgba(6, 78, 59, 0.45) 100%);
+      border: 1px solid rgba(96, 165, 250, 0.28);
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(96, 165, 250, 0.35);
+      color: #93c5fd; font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+    }
+    .hero-banner h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(22px, 3.2vw, 32px); line-height: 1.18; margin-top: 10px;
+    }
+    .hero-banner p { color: #cbd5e1; font-size: 13.5px; line-height: 1.55; margin-top: 8px; max-width: 52ch; }
+    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .btn-primary {
+      padding: 11px 18px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff; font-weight: 700; font-size: 13.5px; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+    .btn-ghost {
+      padding: 11px 16px; border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border);
+      color: #f8fafc; font-weight: 600; font-size: 13.5px; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+    }
 
-  .card {
-    background: var(--card);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: border-color 0.16s ease, transform 0.16s ease, background 0.16s ease;
-  }
-  .card:hover {
-    border-color: var(--border-bright);
-    background: var(--card-hover);
-    transform: translateY(-2px);
-  }
-  .card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .card-ico { font-size: 22px; }
-  .pill {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    padding: 3px 8px;
-    border-radius: 5px;
-    background: rgba(16, 185, 129, 0.12);
-    color: #34D399;
-  }
-  .pill.priv {
-    background: rgba(245, 158, 11, 0.12);
-    color: #FBBF24;
-  }
-  .card h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 17.5px;
-    margin-bottom: 5px;
-  }
-  .card p {
-    font-size: 13.5px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-  .card ul {
-    list-style: none;
-    font-size: 12.8px;
-    color: #CBD5E1;
-    margin-bottom: 16px;
-  }
-  .card ul li { padding: 2px 0; }
-  .card-btn {
-    display: block;
-    text-align: center;
-    padding: 9px 12px;
-    border-radius: 8px;
-    background: rgba(37, 99, 235, 0.16);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    color: #93C5FD;
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .card-btn:hover {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-  .priv-foot {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    color: var(--muted);
-    border-top: 1px solid var(--border);
-    padding-top: 9px;
-  }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    .stat-box {
+      background: rgba(5, 8, 17, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 13px;
+    }
+    .stat-box b {
+      display: block; font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px; color: #38bdf8;
+    }
+    .stat-box span { font-size: 11.5px; color: var(--muted); }
 
-  /* Social Tiles */
-  .soc-tile {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: border-color 0.15s ease;
-  }
-  .soc-tile:hover { border-color: var(--border-bright); }
-  .soc-left { display: flex; flex-direction: column; }
-  .soc-left strong { font-size: 14px; font-weight: 600; }
-  .soc-left span {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
-  .soc-arrow { color: var(--cyan); font-weight: 700; }
+    /* Category Filter Chips */
+    .cats {
+      display: flex; gap: 8px; overflow-x: auto; padding: 16px 0 6px;
+      scrollbar-width: none;
+    }
+    .cats::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      flex: 0 0 auto;
+      padding: 9px 15px; border-radius: 22px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.18s;
+    }
+    .cat-chip.active {
+      background: #f8fafc; color: #050811; border-color: #f8fafc;
+    }
 
-  /* Support Banner */
-  .support-banner {
-    margin-top: 32px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(17, 24, 39, 0.85));
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 22px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .support-banner h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18.5px; margin-bottom: 4px; }
-  .support-banner p { font-size: 13.5px; color: var(--muted); max-width: 56ch; }
+    /* Section Title */
+    .sec-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      margin: 22px 0 12px;
+    }
+    .sec-hdr h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; }
+    .sec-hdr span { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
 
-  footer {
-    margin-top: 48px;
-    padding-top: 18px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 12.5px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-  }
+    /* Store App Cards Grid */
+    .store-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px;
+    }
+    .app-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      transition: transform 0.18s, border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .app-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-glow);
+      background: var(--card-hover);
+    }
+    .app-top { display: flex; gap: 13px; align-items: flex-start; }
+    .app-ico {
+      width: 54px; height: 54px; border-radius: 15px; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 26px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+    .app-meta { flex: 1; min-width: 0; }
+    .app-title-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .app-title-row h4 { font-size: 15.5px; font-weight: 700; color: #f8fafc; }
+    .v-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      padding: 2px 6px; border-radius: 6px;
+      background: rgba(59, 130, 246, 0.18); color: #60a5fa; font-weight: 600;
+    }
+    .app-sub { font-size: 12px; color: #34d399; font-weight: 600; margin-top: 2px; }
+    .app-desc { font-size: 13px; color: var(--muted); line-height: 1.48; margin-top: 10px; }
 
-  /* Mobile Sticky Bottom App Bar (Hidden on Desktop) */
-  .mobile-dock {
-    display: none;
-  }
+    .app-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 11px; }
+    .mini-tag {
+      font-size: 11px; padding: 3px 8px; border-radius: 7px;
+      background: rgba(255, 255, 255, 0.05); color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
 
-  /* Maintenance Screen */
-  #maint-screen {
-    display: none;
-    min-height: 85vh;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 24px;
-  }
-  .maint-box {
-    max-width: 460px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px 24px;
-  }
-
-  /* Mobile-Specific Compact App UI */
-  @media (max-width: 820px) {
-    .nav-links { display: none; }
-    .hero { grid-template-columns: 1fr; padding: 24px 0 18px; gap: 18px; }
-    .terminal { display: none; } /* Compact mobile keeps focus on instant tool taps */
-    .grid-3, .grid-2 { grid-template-columns: 1fr; }
-    .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .wrap { padding: 14px 16px 92px; }
-    .mobile-dock {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(7, 11, 20, 0.94);
-      backdrop-filter: blur(14px);
+    .app-actions {
+      display: flex; gap: 8px; margin-top: 14px; padding-top: 12px;
       border-top: 1px solid var(--border);
-      padding: 8px 6px;
+    }
+    .act-btn {
+      flex: 1; padding: 9px 10px; border-radius: 10px; border: none;
+      font-size: 12.5px; font-weight: 700; text-align: center; text-decoration: none;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .act-web { background: #2563eb; color: #fff; }
+    .act-bot { background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .act-soon { background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+
+    /* Zero-Knowledge Privacy Vault Section */
+    .privacy-vault {
+      margin-top: 28px;
+      padding: 20px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.32), rgba(15, 23, 42, 0.9));
+      border: 1px solid rgba(16, 185, 129, 0.32);
+    }
+    .privacy-vault h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; color: #34d399; }
+    .pv-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px; margin-top: 14px;
+    }
+    .pv-item {
+      background: rgba(5, 8, 17, 0.55); border: 1px solid var(--border);
+      border-radius: 13px; padding: 12px;
+    }
+    .pv-item b { display: block; font-size: 13.5px; color: #f8fafc; margin-bottom: 4px; }
+    .pv-item span { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    /* Bottom Navigation Bar (Mobile App Feel) */
+    .bottom-nav {
+      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
       z-index: 50;
+      width: min(520px, calc(100% - 24px));
+      background: rgba(11, 17, 32, 0.9);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 20px;
+      padding: 7px 10px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
     }
-    .dock-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      gap: 2px;
+    .bnav-btn {
+      background: none; border: none; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 6px 4px; border-radius: 13px; cursor: pointer;
+      font-size: 10.5px; font-weight: 600; text-decoration: none;
     }
-    .dock-item span:first-child { font-size: 17px; }
-    .dock-item:active { color: var(--cyan); }
-  }
-</style>
+    .bnav-btn span.ico { font-size: 18px; }
+    .bnav-btn.active { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
+
+    /* App Inspector Modal */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 80;
+      background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
+      display: none; align-items: flex-end; justify-content: center; padding: 14px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal-sheet {
+      width: 100%; max-width: 540px;
+      background: #0f172a; border: 1px solid rgba(96, 165, 250, 0.35);
+      border-radius: 22px; padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+      animation: slideUp 0.2s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (max-width: 720px) {
+      .hero-banner { grid-template-columns: 1fr; }
+      .privacy-pill span.hide-sm { display: none; }
+    }
+  </style>
 </head>
 <body>
+  <div class="bg-mesh"></div>
 
-<div class="top-strip">
-  <span class="pulse"></span>
-  <span id="strip-text">SOLVRIK.SYS // ALL 5 SYSTEMS OPERATIONAL · 0 MB INSTALL</span>
-</div>
+  <div class="app-shell">
+    <!-- TOP GLASS HEADER -->
+    <header class="topbar">
+      <a href="#top" class="brand">
+        <div class="brand-icon">S</div>
+        <div class="brand-txt">
+          <h1>Solvrik Store</h1>
+          <span>Zero-Knowledge Ecosystem</span>
+        </div>
+      </a>
+      <div class="top-actions">
+        <button class="privacy-pill" onclick="scrollToPrivacy()">
+          <span class="pulse-dot"></span>
+          <span>100% Private</span>
+          <span class="hide-sm">• On-Device</span>
+        </button>
+        <button id="pwa-install-btn" class="install-btn" onclick="triggerPwaInstall()">
+          <span>📲 Install App</span>
+        </button>
+      </div>
+    </header>
 
-<!-- Maintenance Mode Screen (Shown only when SITE_CONFIG.maintenance = true) -->
-<div id="maint-screen">
-  <div class="maint-box">
-    <div style="font-size:36px; margin-bottom:10px;">🛠️</div>
-    <h2 style="font-family:'Space Grotesk',sans-serif; margin-bottom:8px;">Solvrik Hub Upgrading</h2>
-    <p id="maint-msg" style="color:var(--muted); font-size:14px; margin-bottom:18px;"></p>
-    <a href="https://t.me/SolvrikHQ" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block;">Join @SolvrikHQ Updates</a>
-  </div>
-</div>
-
-<main id="app-main" class="wrap">
-  <nav class="nav">
-    <a href="#" class="brand">
-      <svg width="30" height="30" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <rect width="64" height="64" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="2"/>
-        <path d="M44 16H24L16 26L34 34L20 48H40L48 38L30 30L44 16Z" fill="#2563EB"/>
-        <path d="M34 34L48 38L40 48H20L34 34Z" fill="#38BDF8"/>
-      </svg>
-      <span>Solvrik</span>
-      <span class="brand-tag">HQ</span>
-    </a>
-    <div class="nav-links">
-      <a href="#tools">Tools</a>
-      <a href="#private">Automation</a>
-      <a href="#socials">Socials</a>
-      <a href="#custom">Custom Bot</a>
+    <!-- SEARCH BAR -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        id="store-search"
+        class="search-input"
+        placeholder="Search Solvrik apps, PDF Ink Saver, Passport Photo, Notes, Bots..."
+        oninput="filterStore()"
+      />
     </div>
-    <a href="https://t.me/SolvrikHQ" target="_blank" rel="noopener" class="nav-cta">📢 @SolvrikHQ</a>
+
+    <!-- HERO SPOTLIGHT -->
+    <section class="hero-banner">
+      <div>
+        <div class="hero-tag">⚡ Faceless Tech &amp; Privacy Store</div>
+        <h2>Ek Jagah, Saare Smart Tools — Bina Privacy Compromise Kiye</h2>
+        <p>
+          Web Apps, Telegram Bots aur Offline Android Tools ek hi Solvrik Store mein. Aapki photos aur PDFs sirf aapke apne phone par process hoti hain — admin ya server unhe kabhi nahi dekh sakta.
+        </p>
+        <div class="hero-btns">
+          <a href="studio.html" class="btn-primary">🚀 Launch Pro Studio ⚡</a>
+          <a href="https://t.me/SolvrikHQ" target="_blank" rel="noopener" class="btn-ghost">📢 Join @SolvrikHQ</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-box">
+          <b>180+</b>
+          <span>Live Smart Utilities</span>
+        </div>
+        <div class="stat-box">
+          <b>0 Bytes</b>
+          <span>User Files Stored on Server</span>
+        </div>
+        <div class="stat-box">
+          <b>3 Modes</b>
+          <span>Web App • Bot • Offline PWA</span>
+        </div>
+        <div class="stat-box">
+          <b>₹0</b>
+          <span>Free Core Access</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORY CHIPS -->
+    <div class="cats" id="cat-bar">
+      <button class="cat-chip active" onclick="setCategory('all', this)">✨ All Store Apps</button>
+      <button class="cat-chip" onclick="setCategory('webapp', this)">🌐 Pro Web Apps ⚡</button>
+      <button class="cat-chip" onclick="setCategory('bot', this)">🤖 Telegram Bots</button>
+      <button class="cat-chip" onclick="setCategory('student', this)">📚 Student &amp; Exam</button>
+      <button class="cat-chip" onclick="setCategory('apk', this)">📱 Android APK Hub</button>
+    </div>
+
+    <!-- STORE GRID -->
+    <div class="sec-hdr">
+      <h3 id="grid-title">Featured in Solvrik Store</h3>
+      <span id="grid-count">6 Apps</span>
+    </div>
+
+    <div class="store-grid" id="store-grid"></div>
+
+    <!-- ZERO-KNOWLEDGE PRIVACY ARCHITECTURE SECTION -->
+    <section class="privacy-vault" id="privacy-section">
+      <h3>🔒 Solvrik Zero-Knowledge Privacy Guarantee</h3>
+      <p style="font-size:13px;color:#cbd5e1;margin-top:6px">
+        Humara system is tarah design kiya gaya hai ki Solvrik team ya admin khud bhi aapki files, photos ya documents ko access ya dekh nahi sakte:
+      </p>
+      <div class="pv-grid">
+        <div class="pv-item">
+          <b>1. 100% Client-Side Web Engine</b>
+          <span>Pro Studio aur Media Studio aapke browser ki local memory mein chalte hain — aapki file internet par upload hi nahi hoti.</span>
+        </div>
+        <div class="pv-item">
+          <b>2. Auto-Purge Bot Workers</b>
+          <span>Telegram bots mein bheji gayi files process hote hi 0.1 second mein temporary RAM se permanently wipe ho jaati hain.</span>
+        </div>
+        <div class="pv-item">
+          <b>3. Zero Trackers &amp; Zero Ads</b>
+          <span>Na third-party ad SDKs, na personal data harvesting, aur na koi unnecessary phone permissions.</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- BOTTOM APP BAR -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" onclick="setCategory('all', null, this)">
+      <span class="ico">🏪</span>
+      <span>Store</span>
+    </button>
+    <a class="bnav-btn" href="studio.html">
+      <span class="ico">🎨</span>
+      <span>Pro Studio</span>
+    </a>
+    <a class="bnav-btn" href="media.html">
+      <span class="ico">🎬</span>
+      <span>Media</span>
+    </a>
+    <a class="bnav-btn" href="https://t.me/SolvrikSupportBot" target="_blank" rel="noopener">
+      <span class="ico">💬</span>
+      <span>Support</span>
+    </a>
   </nav>
 
-  <section class="hero">
-    <div>
-      <div class="hero-kicker">// FACELESS TECH &amp; AUTOMATION LAB</div>
-      <h1>One Unified Hub. Zero Bloat. Pure Speed.</h1>
-      <p class="hero-desc">
-        Built for students, creators, and power users — 165+ utility tools, media studio, All-India notes library, and private AI automation systems under one roof.
-      </p>
-      <div class="hero-actions">
-        <a href="#tools" class="btn-primary">⚡ Explore All Tools</a>
-        <a href="https://t.me/SolvrikHQ" target="_blank" rel="noopener" class="btn-ghost">📢 Join Telegram Hub</a>
-      </div>
-    </div>
+  <!-- APP INSPECTOR MODAL -->
+  <div class="modal-bg" id="app-modal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-sheet" id="modal-content"></div>
+  </div>
 
-    <div class="terminal" aria-label="Solvrik System Status">
-      <div class="term-bar">
-        <div class="dots">
-          <i style="background:#EF4444;"></i>
-          <i style="background:#F59E0B;"></i>
-          <i style="background:#10B981;"></i>
+  <script>
+    const STORE_APPS = [
+      {
+        id: 'pro-studio',
+        name: 'Solvrik Pro Studio ⚡',
+        sub: 'Photo, ID Card & High-DPI PDF Suite',
+        version: 'v3.2 HD',
+        cats: ['webapp', 'student'],
+        icon: '🎨',
+        grad: 'linear-gradient(135deg, #2563eb, #06b6d4)',
+        desc: 'Auto-Crop + Movable 4-Corner ID Card Crop, −1°/+1° Rotate, Exact 10KB–5MB Exam Compressor, 300 DPI Passport/A4 Sheet & High-DPI PDF Ink Saver.',
+        tags: ['Zero-Upload Local', 'PDF Ink Saver', 'SSC/UPSC/JEE'],
+        webUrl: 'studio.html',
+        botUrl: 'https://t.me/SolvrikToolsBot',
+        botLabel: '🤖 Bot Version',
+        highlights: [
+          'Auto-Detect + Movable 4-corner perspective crop with sub-pixel clarity',
+          'High-DPI PDF Ink Saver removes dark/yellow shadows for clean printing',
+          'Exact KB/MB target compressor & 300 DPI Passport A4 print sheets',
+          '100% browser-local — zero server upload'
+        ]
+      },
+      {
+        id: 'media-studio',
+        name: 'Solvrik Media Studio ⚡',
+        sub: '500MB+ Audio Extractor, Trim & Speed',
+        version: 'v2.4 Fast',
+        cats: ['webapp'],
+        icon: '🎬',
+        grad: 'linear-gradient(135deg, #059669, #10b981)',
+        desc: '500 MB tak ki videos se instant HD Audio extraction, Video Trimmer & Compressor, 9:16 Reels Ratio Crop, Slowed Lo-Fi & +250% Volume Booster.',
+        tags: ['No 20MB Limit', 'Audio Boost', '1080p Thumb'],
+        webUrl: 'media.html',
+        botUrl: 'https://t.me/SolvrikMediaBot',
+        botLabel: '🤖 Media Bot',
+        highlights: [
+          'Extract lossless WAV audio from 500MB+ videos directly on device',
+          'Trim exact start/end seconds & compress for WhatsApp/Telegram',
+          'Slowed Lo-Fi speed adjuster & +250% audio volume booster',
+          '1080p YouTube thumbnail grabber & HD frame capture'
+        ]
+      },
+      {
+        id: 'toolbox-bot',
+        name: 'Solvrik ToolBox Bot',
+        sub: '165+ All-in-One Telegram Utilities',
+        version: 'v4.0 Live',
+        cats: ['bot', 'student'],
+        icon: '🧰',
+        grad: 'linear-gradient(135deg, #7c3aed, #3b82f6)',
+        desc: 'Seedha Telegram chat mein PDF Merge/Split/Compress, OCR Text Extractor, QR Generator, Developer Tools, Calculators aur Pro Studio Mini App.',
+        tags: ['165+ Tools', '24×7 Uptime', 'Instant Reply'],
+        webUrl: 'studio.html',
+        botUrl: 'https://t.me/SolvrikToolsBot',
+        botLabel: '🤖 Open @SolvrikToolsBot',
+        highlights: [
+          '165+ PDF, Image, Text, QR, Unit & Developer tools inside Telegram',
+          'Seamless 1-tap launch into Pro Studio ⚡ for heavy visual tasks',
+          'Automatic zero-retention temporary file cleanup'
+        ]
+      },
+      {
+        id: 'notes-hub',
+        name: 'Solvrik All-India Notes',
+        sub: 'CBSE, 6 State Boards, JEE, NEET & SSC',
+        version: 'v2.1 Library',
+        cats: ['bot', 'student'],
+        icon: '📚',
+        grad: 'linear-gradient(135deg, #d97706, #f59e0b)',
+        desc: 'Class 9–12 NCERT/CBSE, UP/Bihar/MP/Rajasthan/Haryana/Maharashtra Boards, JEE, NEET, CUET, NDA aur SSC ke chapter-wise notes & PYQs.',
+        tags: ['All-India Syllabus', 'Free PDFs', 'Exam Ready'],
+        webUrl: null,
+        botUrl: 'https://t.me/SolvrikNotesBot',
+        botLabel: '🤖 Open @SolvrikNotesBot',
+        highlights: [
+          'Structured chapter-wise notes for Board & Competitive exams',
+          'Fast category navigation directly inside Telegram',
+          'Pair with PDF Ink Saver to print dark notes cleanly'
+        ]
+      },
+      {
+        id: 'media-bot',
+        name: 'Solvrik Media Bot',
+        sub: 'Social Link Downloader & FFmpeg Studio',
+        version: 'v5.1 Hybrid',
+        cats: ['bot'],
+        icon: '📥',
+        grad: 'linear-gradient(135deg, #0284c7, #10b981)',
+        desc: 'Public Reels/Videos download, Video-to-MP3, Voice Note Converter, Slowed+Reverb, Add Song to Video aur Media Studio ⚡ integration.',
+        tags: ['FFmpeg Engine', 'Audio Studio', 'Fast Queue'],
+        webUrl: 'media.html',
+        botUrl: 'https://t.me/SolvrikMediaBot',
+        botLabel: '🤖 Open @SolvrikMediaBot',
+        highlights: [
+          'Audio & Video format converter, rotation, speed & song mixer',
+          'Voice note to MP3 & Slowed + Reverb lo-fi processor',
+          'Direct integration with Media Studio ⚡ Mini App'
+        ]
+      },
+      {
+        id: 'solvrik-apk',
+        name: 'Solvrik Offline Android App',
+        sub: 'Native Downloader + Local Studio Vault',
+        version: 'v1.0 Building',
+        cats: ['apk'],
+        icon: '📱',
+        grad: 'linear-gradient(135deg, #10b981, #047857)',
+        desc: 'Coming Soon: Dedicated Android APK with built-in local yt-dlp downloader (zero server IP block), offline Pro Studio, and SHA-256 verified build.',
+        tags: ['Native yt-dlp', 'Offline Vault', 'SHA-256 Verified'],
+        webUrl: null,
+        botUrl: 'https://t.me/SolvrikHQ',
+        botLabel: '🔔 Notify on @SolvrikHQ',
+        comingSoon: true,
+        highlights: [
+          'Runs yt-dlp natively on your phone network — zero server blocks',
+          'Bundles Pro Studio & Media Studio for 100% offline use',
+          'Zero ads, zero trackers, zero unnecessary Android permissions'
+        ]
+      }
+    ];
+
+    let activeCat = 'all';
+
+    function setCategory(cat, chipEl, navEl) {
+      activeCat = cat;
+      if (chipEl) {
+        document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+        chipEl.classList.add('active');
+      }
+      if (navEl) {
+        document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+        navEl.classList.add('active');
+      }
+      filterStore();
+    }
+
+    function filterStore() {
+      const q = (document.getElementById('store-search').value || '').trim().toLowerCase();
+      const filtered = STORE_APPS.filter(app => {
+        const catOk = activeCat === 'all' || app.cats.includes(activeCat);
+        const qOk = !q ||
+          app.name.toLowerCase().includes(q) ||
+          app.sub.toLowerCase().includes(q) ||
+          app.desc.toLowerCase().includes(q) ||
+          app.tags.some(t => t.toLowerCase().includes(q));
+        return catOk && qOk;
+      });
+
+      document.getElementById('grid-count').textContent = `${filtered.length} App${filtered.length === 1 ? '' : 's'}`;
+      const grid = document.getElementById('store-grid');
+      grid.innerHTML = filtered.map(app => `
+        <article class="app-card" onclick="openAppModal('${app.id}')">
+          <div>
+            <div class="app-top">
+              <div class="app-ico" style="background:${app.grad}">${app.icon}</div>
+              <div class="app-meta">
+                <div class="app-title-row">
+                  <h4>${app.name}</h4>
+                  <span class="v-badge">${app.version}</span>
+                </div>
+                <div class="app-sub">${app.sub}</div>
+              </div>
+            </div>
+            <p class="app-desc">${app.desc}</p>
+            <div class="app-tags">
+              ${app.tags.map(t => `<span class="mini-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+          <div class="app-actions" onclick="event.stopPropagation()">
+            ${app.webUrl ? `<a class="act-btn act-web" href="${app.webUrl}">🌐 Open Web App</a>` : ''}
+            ${app.comingSoon
+              ? `<a class="act-btn act-soon" href="${app.botUrl}" target="_blank" rel="noopener">${app.botLabel}</a>`
+              : `<a class="act-btn act-bot" href="${app.botUrl}" target="_blank" rel="noopener">${app.botLabel}</a>`
+            }
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function openAppModal(id) {
+      const app = STORE_APPS.find(a => a.id === id);
+      if (!app) return;
+      document.getElementById('modal-content').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="app-ico" style="background:${app.grad}">${app.icon}</div>
+            <div>
+              <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px">${app.name}</h3>
+              <div style="font-size:12px;color:#34d399;font-weight:600">${app.sub} • ${app.version}</div>
+            </div>
+          </div>
+          <button onclick="closeModal()" style="background:#1e293b;border:none;color:#fff;width:32px;height:32px;border-radius:10px;cursor:pointer;font-weight:700">✕</button>
         </div>
-        <span>solvrik-ecosystem.sh</span>
-      </div>
-      <div class="term-body">
-        <div><span class="c-mute">$</span> solvrik status --all</div>
-        <div><span class="c-green">✔</span> <span class="c-blue">@SolvrikToolsBot</span> · 165+ tools [ONLINE]</div>
-        <div><span class="c-green">✔</span> <span class="c-blue">@SolvrikMediaBot</span> · ffmpeg studio [ONLINE]</div>
-        <div><span class="c-green">✔</span> <span class="c-blue">@SolvrikNotesBot</span> · all-india db [ONLINE]</div>
-        <div><span class="c-amber">🔒</span> ai-laptop-ctrl · multi-ai [PRIVATE]</div>
-        <div><span class="c-amber">🔒</span> login-alert-sys · security [PRIVATE]</div>
-        <div><span class="c-mute">$</span> support <span class="c-blue">@SolvrikSupportBot</span></div>
-      </div>
-    </div>
-  </section>
-
-  <div id="tools" class="sec-head">
-    <h2>Public Solvrik Bots</h2>
-    <span>3 LIVE · FREE TO USE</span>
-  </div>
-  <section id="public-grid" class="grid-3"></section>
-
-  <div id="private" class="sec-head">
-    <h2>Private AI &amp; Automation Showcase</h2>
-    <span>2 IN-HOUSE · PIN LOCKED</span>
-  </div>
-  <section id="private-grid" class="grid-2"></section>
-
-  <div id="socials" class="sec-head">
-    <h2>Official Socials &amp; Links</h2>
-    <span>CONNECT WITH SOLVRIK</span>
-  </div>
-  <section id="social-grid" class="grid-4"></section>
-
-  <div id="custom" class="sec-head">
-    <h2>Build With Solvrik · Custom Services</h2>
-    <span>BOTS · WEBSITES · AI TOOLS</span>
-  </div>
-  <section id="services-grid" class="grid-2"></section>
-
-  <section class="support-banner">
-    <div>
-      <h3>💼 Apna Custom Tool, Bot, Website ya App Banwana Hai?</h3>
-      <p>
-        Apni requirement (Coaching, YouTube Channel, Business ya Personal Tool) seedha <strong>@SolvrikSupportBot</strong> par bhejein — fast delivery &amp; student-friendly pricing.
-      </p>
-    </div>
-    <a href="https://t.me/SolvrikSupportBot" target="_blank" rel="noopener" class="btn-primary">💬 Order on @SolvrikSupportBot</a>
-  </section>
-
-  <footer>
-    <span>© 2026 Solvrik HQ · Faceless Tech Ecosystem</span>
-    <span>Built for Speed · Zero Face, Pure Utility</span>
-  </footer>
-</main>
-
-<!-- Mobile App-Style Bottom Dock -->
-<nav class="mobile-dock" aria-label="Quick Mobile Navigation">
-  <a href="https://t.me/SolvrikToolsBot" target="_blank" rel="noopener" class="dock-item"><span>🛠️</span><span>ToolBox</span></a>
-  <a href="https://t.me/SolvrikMediaBot" target="_blank" rel="noopener" class="dock-item"><span>🎬</span><span>Media</span></a>
-  <a href="https://t.me/SolvrikNotesBot" target="_blank" rel="noopener" class="dock-item"><span>📚</span><span>Notes</span></a>
-  <a href="https://t.me/SolvrikHQ" target="_blank" rel="noopener" class="dock-item"><span>📢</span><span>Channel</span></a>
-</nav>
-
-<script>
-// ============================================================
-// SOLVRIK SITE CONFIG — Yahan se 5 second mein Edit / Add /
-// Remove / Maintenance Mode ON-OFF kar sakte ho!
-// ============================================================
-const SITE_CONFIG = {
-  maintenance: false, // true karne par poori site Maintenance Mode mein chali jayegi
-  maintenanceMessage: "Naye tools aur speed upgrades deploy ho rahe hain. Kuch minutes baad wapas check karein!",
-  announcement: "SOLVRIK.SYS // ALL 5 SYSTEMS OPERATIONAL · 0 MB INSTALL",
-  publicBots: [
-    {
-      icon: "🛠️",
-      tag: "165+ TOOLS",
-      name: "Solvrik ToolBox",
-      desc: "Students aur exam forms ke liye fast utility engine.",
-      bullets: ["• PDF Ink Saver (Dark → White)", "• Exact 20 KB Exam Form Photo", "• A4 6-Passport Photo Sheet"],
-      url: "https://t.me/SolvrikToolsBot",
-      btn: "Launch @SolvrikToolsBot →"
-    },
-    {
-      icon: "🎬",
-      tag: "MEDIA STUDIO",
-      name: "Solvrik Media",
-      desc: "High-speed downloader aur 12 local ffmpeg studio tools.",
-      bullets: ["• 1080p / 720p / MP3 320k", "• Cut, Merge, Compress & Mute", "• Fast Direct Download Links"],
-      url: "https://t.me/SolvrikMediaBot",
-      btn: "Launch @SolvrikMediaBot →"
-    },
-    {
-      icon: "📚",
-      tag: "ALL-INDIA",
-      name: "Solvrik Notes",
-      desc: "Boards aur competitive exams ki structured notes library.",
-      bullets: ["• CBSE Class 10, 11 & 12", "• 6 State Boards + PYQs", "• JEE, NEET, CUET, NDA & SSC"],
-      url: "https://t.me/SolvrikNotesBot",
-      btn: "Launch @SolvrikNotesBot →"
+        <p style="font-size:13.5px;color:#cbd5e1;line-height:1.55;margin-top:14px">${app.desc}</p>
+        <div style="margin-top:14px;background:#090f1d;border:1px solid var(--border);border-radius:14px;padding:12px">
+          <div style="font-size:12px;font-weight:700;color:#60a5fa;margin-bottom:6px">⚡ Key Capabilities &amp; Privacy</div>
+          <ul style="padding-left:18px;font-size:12.5px;color:#94a3b8;line-height:1.6">
+            ${app.highlights.map(h => `<li>${h}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="app-actions" style="border-top:none;padding-top:4px">
+          ${app.webUrl ? `<a class="act-btn act-web" style="padding:12px" href="${app.webUrl}">🌐 Launch Web App</a>` : ''}
+          <a class="act-btn act-bot" style="padding:12px" href="${app.botUrl}" target="_blank" rel="noopener">${app.botLabel}</a>
+        </div>
+      `;
+      document.getElementById('app-modal').classList.add('open');
     }
-  ],
-  privateSystems: [
-    {
-      icon: "🤖",
-      tag: "PRIVATE · PIN LOCKED",
-      name: "AI Laptop Controller",
-      desc: "Multi-AI voice & Telegram remote workstation controller with built-in privacy guard.",
-      bullets: ["• Multi-AI Engine (Groq + Gemini Fallback)", "• Hotkey Voice Assistant, RAM Doctor & Auto-Clean", "• Remote Screenshot, Cam Check, Screen Off & Sleep"],
-      foot: "🔒 Private personal system — custom builds on request"
-    },
-    {
-      icon: "🛡️",
-      tag: "PRIVATE · SECURITY",
-      name: "Laptop Unlock Alert",
-      desc: "Real-time Telegram security alert system triggered instantly on every login or unlock.",
-      bullets: ["• Instant Unlock & Login Timestamp Alerts", "• Lightweight Background Windows Integration", "• Zero External Server Exposure"],
-      foot: "🔒 Private personal system — custom builds on request"
+
+    function closeModal() {
+      document.getElementById('app-modal').classList.remove('open');
     }
-  ],
-  services: [
-    {
-      icon: "🤖",
-      tag: "FROM ₹799",
-      name: "Custom Telegram Bots",
-      desc: "Paid/VIP bots, Notes library, Force Join, Broadcast, Auto-Downloaders &amp; Admin Panels.",
-      bullets: ["• 24×7 Cloud Deployment Ready", "• Built-in UPI / VIP &amp; Key System", "• Complete Admin Control"],
-      url: "https://t.me/SolvrikSupportBot",
-      btn: "Order Bot →"
-    },
-    {
-      icon: "🌐",
-      tag: "FROM ₹999",
-      name: "Websites, Web Apps &amp; AI Tools",
-      desc: "Fast dark-tech websites, coaching portals, Telegram Mini Apps &amp; AI automation scripts.",
-      bullets: ["• Desktop + Mobile App-Style UI", "• Zero Bloat &amp; Fast Loading", "• Custom Calculators &amp; Dashboards"],
-      url: "https://t.me/SolvrikSupportBot",
-      btn: "Order Website / App →"
+
+    function scrollToPrivacy() {
+      document.getElementById('privacy-section').scrollIntoView({ behavior: 'smooth' });
     }
-  ],
-  socials: [
-    { name: "Telegram Hub", handle: "@SolvrikHQ", url: "https://t.me/SolvrikHQ" },
-    { name: "Support Desk", handle: "@SolvrikSupportBot", url: "https://t.me/SolvrikSupportBot" },
-    { name: "Instagram", handle: "@solvrik.hq", url: "https://www.instagram.com/solvrik.hq/" },
-    { name: "YouTube Shorts", handle: "@SolvrikHQ", url: "https://www.youtube.com/@SolvrikHQ" }
-  ]
-};
 
-(function renderSite() {
-  document.getElementById("strip-text").textContent = SITE_CONFIG.announcement;
-  if (SITE_CONFIG.maintenance) {
-    document.getElementById("app-main").style.display = "none";
-    document.getElementById("maint-screen").style.display = "flex";
-    document.getElementById("maint-msg").textContent = SITE_CONFIG.maintenanceMessage;
-    return;
-  }
-  document.getElementById("public-grid").innerHTML = SITE_CONFIG.publicBots.map(b => `
-    <article class="card">
-      <div>
-        <div class="card-top"><span class="card-ico">${b.icon}</span><span class="pill">${b.tag}</span></div>
-        <h3>${b.name}</h3>
-        <p>${b.desc}</p>
-        <ul>${b.bullets.map(x => `<li>${x}</li>`).join("")}</ul>
-      </div>
-      <a href="${b.url}" target="_blank" rel="noopener" class="card-btn">${b.btn}</a>
-    </article>
-  `).join("");
+    // PWA Install Prompt Handling
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('pwa-install-btn');
+      btn.innerHTML = '<span>📲 Install Store App</span>';
+    });
 
-  document.getElementById("private-grid").innerHTML = SITE_CONFIG.privateSystems.map(p => `
-    <article class="card">
-      <div>
-        <div class="card-top"><span class="card-ico">${p.icon}</span><span class="pill priv">${p.tag}</span></div>
-        <h3>${p.name}</h3>
-        <p>${p.desc}</p>
-        <ul>${p.bullets.map(x => `<li>${x}</li>`).join("")}</ul>
-      </div>
-      <div class="priv-foot">${p.foot}</div>
-    </article>
-  `).join("");
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        alert('📲 Solvrik Store ko App ki tarah install karne ke liye:\n\n• Android Chrome: Upar 3-dots (⋮) dabayein → "Install app" ya "Add to Home screen" chunein.\n• iPhone Safari: Share icon (↑) dabayein → "Add to Home Screen" chunein.\n\n(100% Safe — Zero APK Warning!)');
+      }
+    }
 
-  document.getElementById("services-grid").innerHTML = SITE_CONFIG.services.map(sv => `
-    <article class="card">
-      <div>
-        <div class="card-top"><span class="card-ico">${sv.icon}</span><span class="pill">${sv.tag}</span></div>
-        <h3>${sv.name}</h3>
-        <p>${sv.desc}</p>
-        <ul>${sv.bullets.map(x => `<li>${x}</li>`).join("")}</ul>
-      </div>
-      <a href="${sv.url}" target="_blank" rel="noopener" class="card-btn">${sv.btn}</a>
-    </article>
-  `).join("");
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
 
-  document.getElementById("social-grid").innerHTML = SITE_CONFIG.socials.map(s => `
-    <a href="${s.url}" target="_blank" rel="noopener" class="soc-tile">
-      <div class="soc-left"><strong>${s.name}</strong><span>${s.handle}</span></div>
-      <span class="soc-arrow">↗</span>
-    </a>
-  `).join("");
-})();
-</script>
+    filterStore();
+  </script>
 </body>
 </html>
