@@ -1,369 +1,588 @@
-import base64
-import json
-import os
-import re
-import shutil
-import urllib.request
-import uuid
-import yt_dlp
-from config import TEMP_DIR, MAX_TG_MB
-
-_DRM_DOMAINS = (
-    "netflix.com", "primevideo.com", "hotstar.com", "jiocinema.com",
-    "sonyliv.com", "zee5.com", "open.spotify.com", "music.apple.com",
-)
-
-_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
-
-_YT_PROFILES = [
-    (["mweb"], False),
-    (["tv_embedded"], False),
-    (["web"], False),
-    (["mweb", "web"], True),
-    (["default"], True),
-]
-
-_COBALT_ENDPOINTS = [
-    "https://api.cobalt.tools",
-    "https://cobalt-api.kwiatekmiki.com",
-    "https://cobalt.api.timelessnesses.me",
-]
-
-
-class DownloadCancelled(Exception):
-    pass
-
-
-def _clean_text(val):
-    return _ANSI_RE.sub("", str(val or ""))
-
-
-def _fmt_size(num_bytes):
-    if not num_bytes or num_bytes <= 0:
-        return "--"
-    gb = num_bytes / (1024 ** 3)
-    if gb >= 1:
-        return f"{gb:.2f} GB"
-    mb = num_bytes / (1024 ** 2)
-    if mb >= 1:
-        return f"{mb:.1f} MB"
-    return f"{num_bytes / 1024:.0f} KB"
-
-
-def _fmt_eta(sec):
-    if sec is None:
-        return "--:--"
-    sec = max(0, int(sec))
-    m, s = divmod(sec, 60)
-    h, m = divmod(m, 60)
-    return f"{h}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
-
-
-def _fmt_speed(bps):
-    if not bps:
-        return "--"
-    mb_s = bps / (1024 * 1024)
-    if mb_s >= 1:
-        return f"{mb_s:.1f} MB/s"
-    return f"{bps / 1024:.0f} KB/s"
-
-
-def is_url(text):
-    return bool(re.match(r"^https?://\S+", (text or "").strip(), re.I))
-
-
-def is_drm_url(url):
-    low = (url or "").lower()
-    return any(d in low for d in _DRM_DOMAINS)
-
-
-def _is_youtube(url):
-    low = (url or "").lower()
-    return ("youtube.com" in low) or ("youtu.be" in low)
-
-
-def _extract_yt_id(url):
-    m = re.search(r"(?:youtu\.be/|youtube\.com/(?:watch\?v=|shorts/|embed/))([a-zA-Z0-9_-]{11})", url or "")
-    return m.group(1) if m else ""
-
-
-def _resolve_cookiefile():
-    b64 = os.getenv("YT_COOKIES_B64", "").strip()
-    if b64:
-        try:
-            ck_path = os.path.join(TEMP_DIR, "cookies.txt")
-            with open(ck_path, "wb") as f:
-                f.write(base64.b64decode(b64))
-            return ck_path
-        except Exception:
-            pass
-    ck = os.getenv("YT_COOKIES", "").strip()
-    if ck:
-        if os.path.isfile(ck):
-            return ck
-        ck_path = os.path.join(TEMP_DIR, "cookies.txt")
-        with open(ck_path, "w", encoding="utf-8") as f:
-            f.write(ck)
-        return ck_path
-    return None
-
-
-def _base_opts(yt_clients=None, use_cookies=True):
-    opts = {
-        "quiet": True,
-        "no_warnings": True,
-        "nocolor": True,
-        "noplaylist": True,
-        "geo_bypass": True,
-        "nocheckcertificate": True,
-        "socket_timeout": 22,
-        "retries": 2,
-        "fragment_retries": 2,
-        "http_headers": {
-            "User-Agent": (
-                "Mozilla/5.0 (Linux; Android 13; Pixel 7) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/131.0.0.0 Mobile Safari/537.36"
-            ),
-            "Accept-Language": "en-US,en;q=0.9",
-        },
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Solvrik Media Studio ⚡</title>
+  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+  <style>
+    :root {
+      --bg: #070d19;
+      --surface: #11192c;
+      --surface-2: #18233c;
+      --border: rgba(148, 163, 184, 0.18);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --green: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
     }
-    if yt_clients:
-        opts["extractor_args"] = {"youtube": {"player_client": yt_clients}}
-    if use_cookies:
-        ck_file = _resolve_cookiefile()
-        if ck_file:
-            opts["cookiefile"] = ck_file
-    proxy = os.getenv("PROXY_URL", "").strip()
-    if proxy:
-        opts["proxy"] = proxy
-    return opts
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #132240 0%, var(--bg) 55%);
+      color: var(--text);
+      padding: 14px;
+      padding-bottom: 52px;
+      min-height: 100vh;
+    }
 
+    .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .hdr-title { display: flex; align-items: center; gap: 8px; }
+    .hdr-logo {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      display: grid; place-items: center; font-weight: 800; font-size: 16px; color: #fff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+    .hdr h2 { margin: 0; font-size: 16.5px; letter-spacing: -0.2px; }
+    .badge {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700;
+    }
 
-def _multi_cobalt_fallback(url, audio_only=False, quality="720"):
-    custom = os.getenv("COBALT_API_URL", "").strip().rstrip("/")
-    endpoints = ([custom] if custom else []) + _COBALT_ENDPOINTS
-    payload = json.dumps({
-        "url": url,
-        "downloadMode": "audio" if audio_only else "auto",
-        "videoQuality": str(quality),
-    }).encode("utf-8")
+    .pbar-wrap { width: 100%; height: 4px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .pbar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); }
 
-    for base in endpoints:
-        try:
-            req = urllib.request.Request(
-                f"{base}/",
-                data=payload,
-                headers={
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "User-Agent": "Mozilla/5.0",
-                },
-                method="POST",
-            )
-            with urllib.request.urlopen(req, timeout=12) as resp:
-                data = json.loads(resp.read().decode("utf-8", errors="ignore"))
-                if data.get("url"):
-                    return data["url"]
-        except Exception:
-            continue
-    return ""
+    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+    .tab {
+      padding: 11px 8px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff;
+      border-color: #60a5fa;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
 
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+    .upload-box {
+      border: 2px dashed rgba(59, 130, 246, 0.55);
+      border-radius: 14px;
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      display: block;
+      background: rgba(15, 23, 42, 0.72);
+    }
+    .upload-box:active { background: rgba(59, 130, 246, 0.12); border-color: #60a5fa; }
+    .upload-box b { font-size: 14px; color: #f1f5f9; }
+    .upload-box span { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; }
+    input[type="file"] { display: none; }
 
-def _extract_with_fallback(url, base_modifier, download=False):
-    profiles = _YT_PROFILES if _is_youtube(url) else [(None, True)]
-    last_err = None
-    for clients, use_ck in profiles:
-        opts = _base_opts(yt_clients=clients, use_cookies=use_ck)
-        base_modifier(opts)
-        try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                return ydl.extract_info(url, download=download)
-        except DownloadCancelled:
-            raise
-        except Exception as exc:
-            last_err = exc
-            msg = _clean_text(exc).lower()
-            if _is_youtube(url) and any(
-                k in msg for k in (
-                    "sign in", "bot", "unavailable", "format", "403",
-                    "forbidden", "player response", "unable to extract", "requested format",
-                )
-            ):
-                continue
-            break
-    raise RuntimeError(_clean_text(last_err)) from last_err
+    .media-box {
+      margin-top: 12px;
+      background: #040812;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    video, img, audio { max-width: 100%; max-height: 300px; display: block; border-radius: 8px; }
 
+    .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+    .col-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .btn {
+      flex: 1; min-width: 110px; padding: 12px 12px;
+      border: none; border-radius: 11px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff; font-weight: 600; font-size: 13.5px;
+      cursor: pointer; text-align: center;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.28);
+    }
+    .btn.sec { background: var(--surface-2); box-shadow: none; border: 1px solid var(--border); color: #e2e8f0; }
+    .btn.green { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28); }
+    .btn.sm { flex: 0 0 auto; min-width: 46px; padding: 8px 12px; font-size: 14px; font-weight: 700; }
+    .btn:active { transform: scale(0.97); }
 
-def probe_link(url):
-    try:
-        info = _extract_with_fallback(url, lambda o: o.update({"skip_download": True}), download=False)
-        if not info:
-            raise ValueError("Link se media info nahi mili.")
-        if "entries" in info and info["entries"]:
-            info = info["entries"][0]
-        dur = int(info.get("duration") or 0)
-        m, s = divmod(dur, 60)
-        h, m = divmod(m, 60)
-        dur_str = f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
-        return {
-            "title": _clean_text(info.get("title") or "Media")[:90],
-            "uploader": _clean_text(info.get("uploader") or info.get("channel") or "-")[:40],
-            "duration": dur_str,
-            "thumbnail": info.get("thumbnail") or "",
-            "direct_url": info.get("url") or "",
-            "webpage_url": info.get("webpage_url") or url,
+    input[type="number"], input[type="text"], select {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #0b1222;
+      color: #fff; font-size: 13.5px; margin-top: 8px; outline: none;
+    }
+    input[type="range"] { width: 100%; margin-top: 6px; accent-color: #3b82f6; }
+    .slider-lbl { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+
+    .pill {
+      padding: 7px 12px; border-radius: 20px;
+      border: 1px solid var(--border); background: #0b1222;
+      color: #cbd5e1; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .pill.on { background: var(--accent); border-color: #60a5fa; color: #fff; }
+    .info { font-size: 13px; color: #38bdf8; margin-top: 8px; font-weight: 600; word-break: break-word; line-height: 1.45; }
+    .hidden { display: none !important; }
+
+    #out-box {
+      margin-bottom: 14px;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.14), var(--surface));
+      border: 1.5px solid #10b981;
+      border-radius: 14px;
+      padding: 13px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="hdr">
+    <div class="hdr-title">
+      <div class="hdr-logo">M</div>
+      <h2>Solvrik Media Studio ⚡</h2>
+    </div>
+    <span class="badge">500MB+ Zero-Lag</span>
+  </div>
+  <div class="pbar-wrap"><div class="pbar-fill"></div></div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('aud', this)">🎵 Video → Audio ⚡</button>
+    <button class="tab" onclick="switchTab('trim', this)">✂️ Trim & Compress ⚡</button>
+    <button class="tab" onclick="switchTab('vcrop', this)">📐 Ratio Crop & Speed ⚡</button>
+    <button class="tab" onclick="switchTab('afx', this)">🎧 Audio Speed & Boost ⚡</button>
+    <button class="tab" onclick="switchTab('yt', this)">🖼️ YT Thumb & Shortcut ⚡</button>
+    <button class="tab" onclick="switchTab('info', this)">📸 HD Frame & Info ⚡</button>
+  </div>
+
+  <div id="out-box" class="hidden">
+    <div id="out-title" style="font-size:13.5px;font-weight:700;color:#34d399;margin-bottom:8px">✅ File Ready!</div>
+    <div id="out-preview"></div>
+    <div class="row">
+      <button class="btn green" onclick="smartSaveAction()">⬇️ Direct Save / Share</button>
+      <button class="btn" onclick="openFileTab()">🖼️ Open Full File</button>
+      <button class="btn sec sm" onclick="document.getElementById('out-box').classList.add('hidden')">✖️</button>
+    </div>
+  </div>
+
+  <div id="tab-aud" class="card">
+    <label class="upload-box">
+      🎥 <b>Video chunein (500 MB tak — No Bot Limit)</b>
+      <span>High-Quality Stereo Audio Extraction directly on your device</span>
+      <input type="file" accept="video/*" onchange="loadAudVid(event)" />
+    </label>
+    <div id="aud-ui" class="hidden">
+      <div class="media-box"><video id="aud-vid" controls playsinline></video></div>
+      <div id="aud-stat" class="info"></div>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="extractAudioNow()">🎵 Extract HD Audio (WAV)</button>
+    </div>
+  </div>
+
+  <div id="tab-trim" class="card hidden">
+    <label class="upload-box">
+      🎞️ <b>Video chunein (Trim / Compress / Mute)</b>
+      <span>Exact Start–End Seconds + Resolution & Audio Control</span>
+      <input type="file" accept="video/*" onchange="loadTrimVid(event)" />
+    </label>
+    <div id="trim-ui" class="hidden">
+      <div class="media-box"><video id="trim-vid" controls playsinline></video></div>
+      <div class="row">
+        <input type="number" id="t-start" value="0" min="0" step="1" placeholder="Start sec" style="flex:1;margin-top:0" />
+        <input type="number" id="t-end" value="15" min="1" step="1" placeholder="End sec" style="flex:1;margin-top:0" />
+      </div>
+      <select id="trim-q">
+        <option value="0.40">360p Ultra-Light (Minimum MB)</option>
+        <option value="0.55">480p Fast Share (WhatsApp/TG)</option>
+        <option value="0.75" selected>720p Balanced HD</option>
+        <option value="1.0">Original HD Resolution</option>
+      </select>
+      <select id="trim-mute">
+        <option value="keep" selected>🔊 Keep Original Audio</option>
+        <option value="mute">🔇 Mute Audio (No Sound)</option>
+      </select>
+      <button class="btn" style="width:100%;margin-top:10px" onclick="processTrimCompress()">⚡ Process & Export Video</button>
+      <div id="trim-stat" class="info"></div>
+    </div>
+  </div>
+
+  <div id="tab-vcrop" class="card hidden">
+    <label class="upload-box">
+      📐 <b>Video chunein (Reels 9:16 • 1:1 • Speed)</b>
+      <span>Crop Video to Social Ratio + 0.5x to 2.0x Playback Speed</span>
+      <input type="file" accept="video/*" onchange="loadCropVid(event)" />
+    </label>
+    <div id="vcrop-ui" class="hidden">
+      <div class="media-box"><video id="vcrop-vid" controls playsinline></video></div>
+      <div class="row">
+        <button class="pill on" onclick="setVidRatio('orig', this)">Original</button>
+        <button class="pill" onclick="setVidRatio('9:16', this)">9:16 Reels</button>
+        <button class="pill" onclick="setVidRatio('1:1', this)">1:1 Square</button>
+        <button class="pill" onclick="setVidRatio('4:5', this)">4:5 Insta</button>
+        <button class="pill" onclick="setVidRatio('16:9', this)">16:9 YT</button>
+      </div>
+      <div class="slider-lbl">
+        <span>⚡ Video Speed</span>
+        <b id="vspd-val" style="color:#38bdf8">1.0x</b>
+      </div>
+      <input type="range" id="vspd-slider" min="0.5" max="2.0" step="0.25" value="1.0" oninput="document.getElementById('vspd-val').textContent=this.value+'x'" />
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="exportRatioSpeedVideo()">🎬 Export Ratio / Speed Video</button>
+      <div id="vcrop-stat" class="info"></div>
+    </div>
+  </div>
+
+  <div id="tab-afx" class="card hidden">
+    <label class="upload-box">
+      🎧 <b>Audio / MP3 / Song chunein</b>
+      <span>Slowed + Reverb Lo-Fi, Speed Changer & +200% Volume Booster</span>
+      <input type="file" accept="audio/*,video/*" onchange="loadAudioFx(event)" />
+    </label>
+    <div id="afx-ui" class="hidden">
+      <div id="afx-name" class="info"></div>
+      <div class="slider-lbl">
+        <span>🎚️ Playback Speed / Pitch</span>
+        <b id="aspd-val" style="color:#38bdf8">1.00x</b>
+      </div>
+      <input type="range" id="aspd-slider" min="0.65" max="1.75" step="0.05" value="1.0" oninput="document.getElementById('aspd-val').textContent=parseFloat(this.value).toFixed(2)+'x'" />
+
+      <div class="slider-lbl">
+        <span>🔊 Volume Gain Boost</span>
+        <b id="avol-val" style="color:#38bdf8">100%</b>
+      </div>
+      <input type="range" id="avol-slider" min="50" max="250" step="10" value="100" oninput="document.getElementById('avol-val').textContent=this.value+'%'" />
+
+      <div class="row">
+        <button class="btn sec" onclick="presetLofi()">🌙 Slowed Lo-Fi (0.85x)</button>
+        <button class="btn sec" onclick="presetNightcore()">⚡ Fast 1.25x</button>
+      </div>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="renderProcessedAudio()">🎧 Render & Export HD Audio</button>
+      <div id="afx-stat" class="info"></div>
+    </div>
+  </div>
+
+  <div id="tab-yt" class="card hidden">
+    <div style="font-size:13.5px;color:#e2e8f0;font-weight:600">🔗 YouTube Video / Shorts Link Paste Karein:</div>
+    <input type="text" id="yt-url" placeholder="https://youtu.be/... ya https://youtube.com/shorts/..." />
+    <div class="col-stack">
+      <button class="btn" onclick="grabYtThumb('maxresdefault')">🖼️ Download HD Thumbnail (1080p)</button>
+      <button class="btn sec" onclick="grabYtThumb('hqdefault')">🖼️ Download Standard Thumbnail</button>
+      <button class="btn green" onclick="openDirectShortcut()">⚡ 1-Click Direct MP4 / MP3 Shortcut</button>
+    </div>
+    <div id="yt-stat" class="info"></div>
+  </div>
+
+  <div id="tab-info" class="card hidden">
+    <label class="upload-box">
+      📸 <b>Video / Audio File chunein</b>
+      <span>Capture Full-HD Photo Frame at any second + Media Resolution Info</span>
+      <input type="file" accept="video/*,audio/*" onchange="inspectMedia(event)" />
+    </label>
+    <div id="info-ui" class="hidden">
+      <div class="media-box"><video id="info-vid" controls playsinline></video></div>
+      <div id="info-text" class="info"></div>
+      <button class="btn green" style="width:100%;margin-top:10px" onclick="grabVideoFrame()">📸 Capture Full-HD Photo Frame</button>
+    </div>
+  </div>
+
+  <script>
+    let lastBlob = null, lastFilename = 'solvrik_media.bin', lastObjUrl = '';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.Telegram?.WebApp) {
+        try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
+      }
+    });
+
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      ['aud', 'trim', 'vcrop', 'afx', 'yt', 'info'].forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== id));
+    }
+
+    function setOutput(blob, filename, htmlPreview) {
+      if (!blob) return;
+      lastBlob = blob;
+      lastFilename = filename;
+      lastObjUrl = URL.createObjectURL(blob);
+      const szTxt = blob.size >= 1024 * 1024
+        ? (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
+        : (blob.size / 1024).toFixed(1) + ' KB';
+      document.getElementById('out-title').textContent = `✅ Ready: ${filename} (${szTxt})`;
+      document.getElementById('out-preview').innerHTML = htmlPreview || '';
+      const box = document.getElementById('out-box');
+      box.classList.remove('hidden');
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function smartSaveAction() {
+      if (!lastBlob) return;
+      try {
+        const f = new File([lastBlob], lastFilename, { type: lastBlob.type || 'application/octet-stream' });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) {
+          await navigator.share({ files: [f], title: lastFilename });
+          return;
         }
-    except Exception:
-        if _is_youtube(url):
-            vid = _extract_yt_id(url)
-            if vid:
-                title = f"YouTube Video ({vid})"
-                uploader = "YouTube"
-                try:
-                    oembed = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={vid}&format=json"
-                    with urllib.request.urlopen(oembed, timeout=8) as r:
-                        meta = json.loads(r.read().decode("utf-8", errors="ignore"))
-                        title = meta.get("title") or title
-                        uploader = meta.get("author_name") or uploader
-                except Exception:
-                    pass
-                return {
-                    "title": title[:90],
-                    "uploader": uploader[:40],
-                    "duration": "Ready",
-                    "thumbnail": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
-                    "direct_url": "",
-                    "webpage_url": url,
-                }
-        raise
+      } catch (e) {}
+      try {
+        const a = document.createElement('a');
+        a.href = lastObjUrl || URL.createObjectURL(lastBlob);
+        a.download = lastFilename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 250);
+      } catch (e) {}
+      openFileTab();
+    }
 
+    function openFileTab() {
+      if (!lastBlob) return;
+      window.open(lastObjUrl || URL.createObjectURL(lastBlob), '_blank');
+    }
 
-def download_media(url, mode="v_auto", progress_cb=None, cancel_event=None):
-    job_dir = os.path.join(TEMP_DIR, uuid.uuid4().hex[:10])
-    os.makedirs(job_dir, exist_ok=True)
+    function audioBufferToWav(buffer) {
+      const numCh = Math.min(2, buffer.numberOfChannels), rate = buffer.sampleRate;
+      const len = buffer.length * numCh * 2 + 44;
+      const out = new ArrayBuffer(len), view = new DataView(out);
+      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+      writeStr(0, 'RIFF'); view.setUint32(4, len - 8, true); writeStr(8, 'WAVE');
+      writeStr(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+      writeStr(22, numCh, true); view.setUint32(24, rate, true);
+      writeStr(28, rate * numCh * 2, true); view.setUint16(32, numCh * 2, true);
+      writeStr(34, 16, true); writeStr(36, 'data'); view.setUint32(40, len - 44, true);
+      let offset = 44;
+      for (let i = 0; i < buffer.length; i++) {
+        for (let ch = 0; ch < numCh; ch++) {
+          let s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+          offset += 2;
+        }
+      }
+      return new Blob([out], { type: 'audio/wav' });
+    }
 
-    def _hook(d):
-        if cancel_event and cancel_event.is_set():
-            raise DownloadCancelled("Download cancel kar diya gaya.")
-        if not progress_cb:
-            return
-        st = d.get("status")
-        if st == "downloading":
-            total = d.get("total_bytes") or d.get("total_bytes_estimate") or 0
-            done = d.get("downloaded_bytes") or 0
-            pct = (
-                f"{(done * 100 / total):.1f}%"
-                if total
-                else (_clean_text(d.get("_percent_str", "")).strip() or "...")
-            )
-            progress_cb(
-                f"⏳ <b>Downloading...</b> {pct}\n"
-                f"📦 Size: <code>{_fmt_size(done)} / {_fmt_size(total)}</code>\n"
-                f"🚀 Speed: <code>{_fmt_speed(d.get('speed'))}</code> | ⏱️ ETA: <code>{_fmt_eta(d.get('eta'))}</code>"
-            )
-        elif st == "finished":
-            total = d.get("total_bytes") or d.get("downloaded_bytes") or 0
-            tot_txt = f" ({_fmt_size(total)})" if total else ""
-            progress_cb(f"⚙️ <b>Download poora{tot_txt}, file process/merge ho rahi hai...</b>")
+    let audFile = null;
+    function loadAudVid(e) {
+      const f = e.target.files[0]; if (!f) return;
+      audFile = f;
+      document.getElementById('aud-vid').src = URL.createObjectURL(f);
+      document.getElementById('aud-ui').classList.remove('hidden');
+      document.getElementById('aud-stat').textContent = `📁 ${f.name} (${(f.size / (1024 * 1024)).toFixed(2)} MB)`;
+    }
+    async function extractAudioNow() {
+      if (!audFile) return;
+      const stat = document.getElementById('aud-stat');
+      stat.textContent = '⏳ High-Quality Audio decode ho raha hai...';
+      try {
+        const arrBuf = await audFile.arrayBuffer();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const decoded = await audioCtx.decodeAudioData(arrBuf);
+        const wavBlob = audioBufferToWav(decoded);
+        stat.textContent = '✅ Audio extract ho gaya!';
+        setOutput(wavBlob, 'solvrik_extracted_audio.wav', `<audio controls src="${URL.createObjectURL(wavBlob)}" style="width:100%"></audio>`);
+      } catch (err) {
+        stat.textContent = '❌ Is codec ka direct decode supported nahi hai — Bot ka Video → MP3 tool use karein.';
+      }
+    }
 
-    kind = "video"
+    function loadTrimVid(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const v = document.getElementById('trim-vid');
+      v.src = URL.createObjectURL(f);
+      v.onloadedmetadata = () => {
+        document.getElementById('t-start').value = 0;
+        document.getElementById('t-end').value = Math.min(30, Math.floor(v.duration || 15));
+      };
+      document.getElementById('trim-ui').classList.remove('hidden');
+    }
+    async function processTrimCompress() {
+      const v = document.getElementById('trim-vid');
+      if (!v.src) return;
+      const start = Math.max(0, parseFloat(document.getElementById('t-start').value) || 0);
+      const end = Math.min(v.duration || 30, Math.max(start + 1, parseFloat(document.getElementById('t-end').value) || 15));
+      const scale = parseFloat(document.getElementById('trim-q').value) || 0.75;
+      const mute = document.getElementById('trim-mute').value === 'mute';
+      const stat = document.getElementById('trim-stat');
 
-    def _apply_opts(opts):
-        opts["outtmpl"] = os.path.join(job_dir, "%(title).60s.%(ext)s")
-        opts["max_filesize"] = 250 * 1024 * 1024
-        if progress_cb or cancel_event:
-            opts["progress_hooks"] = [_hook]
+      const c = document.createElement('canvas');
+      c.width = Math.max(240, Math.round(v.videoWidth * scale));
+      c.height = Math.max(240, Math.round(v.videoHeight * scale));
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
 
-        if mode == "subs":
-            opts.update({
-                "skip_download": True,
-                "writesubtitles": True,
-                "writeautomaticsub": True,
-                "subtitleslangs": ["en", "hi"],
-                "subtitlesformat": "srt/vtt/best",
-            })
-        elif mode.startswith("a_"):
-            if mode == "a_m4a":
-                opts["format"] = "bestaudio[ext=m4a]/bestaudio/best"
-            else:
-                br = mode.split("_")[1]
-                opts["format"] = "bestaudio/best"
-                opts["postprocessors"] = [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": br,
-                }]
-        else:
-            if mode == "v_auto":
-                opts["format"] = (
-                    f"bestvideo[ext=mp4][filesize<{MAX_TG_MB}M]+bestaudio[ext=m4a]/"
-                    f"best[ext=mp4][filesize<{MAX_TG_MB}M]/best[height<=480]/best"
-                )
-            else:
-                h = mode.split("_")[1]
-                opts["format"] = (
-                    f"bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/"
-                    f"bestvideo[height<={h}]+bestaudio/"
-                    f"best[height<={h}]/best"
-                )
-            opts["merge_output_format"] = "mp4"
+      const stream = c.captureStream(25);
+      if (!mute) {
+        try {
+          const vs = v.captureStream ? v.captureStream() : (v.mozCaptureStream ? v.mozCaptureStream() : null);
+          if (vs) vs.getAudioTracks().forEach(t => stream.addTrack(t));
+        } catch (e) {}
+      }
 
-    if mode == "subs":
-        kind = "document"
-    elif mode.startswith("a_"):
-        kind = "audio"
+      const chunks = [];
+      const rec = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8' });
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        stat.textContent = '✅ Video Trim & Compress Ready!';
+        setOutput(blob, 'solvrik_trimmed.webm', `<video controls src="${URL.createObjectURL(blob)}" style="max-height:220px"></video>`);
+      };
 
-    try:
-        info = _extract_with_fallback(url, _apply_opts, download=True)
-    except DownloadCancelled:
-        cleanup(job_dir)
-        raise
-    except Exception:
-        if _is_youtube(url) and mode != "subs":
-            q = mode.split("_")[1] if (mode.startswith("v_") and mode != "v_auto") else "720"
-            fb_url = _multi_cobalt_fallback(url, audio_only=mode.startswith("a_"), quality=q)
-            cleanup(job_dir)
-            if fb_url:
-                return {
-                    "status": "too_big",
-                    "direct_url": fb_url,
-                    "size_mb": 0,
-                    "title": "YouTube Direct Stream",
-                }
-            # Ultimate browser fallback link so user is never stuck on error
-            return {
-                "status": "too_big",
-                "direct_url": f"https://cobalt.tools/?u={url}",
-                "size_mb": 0,
-                "title": "Open in Direct Downloader",
-            }
-        cleanup(job_dir)
-        raise
+      v.currentTime = start;
+      await new Promise(r => { v.onseeked = r; });
+      stat.textContent = `⏳ Processing clip (${start}s → ${end}s)...`;
+      rec.start(); v.play();
+      const loop = () => {
+        if (v.currentTime >= end || v.paused || v.ended) { v.pause(); if (rec.state !== 'inactive') rec.stop(); return; }
+        ctx.drawImage(v, 0, 0, c.width, c.height);
+        requestAnimationFrame(loop);
+      };
+      loop();
+    }
 
-    if "entries" in info and info["entries"]:
-        info = info["entries"][0]
-    title = _clean_text(info.get("title") or "Media")[:80]
-    direct_url = info.get("url") or ""
-    if not direct_url and info.get("requested_formats"):
-        direct_url = info["requested_formats"][0].get("url", "")
+    let selectedVidRatio = 'orig';
+    function loadCropVid(e) {
+      const f = e.target.files[0]; if (!f) return;
+      document.getElementById('vcrop-vid').src = URL.createObjectURL(f);
+      document.getElementById('vcrop-ui').classList.remove('hidden');
+    }
+    function setVidRatio(r, el) {
+      selectedVidRatio = r;
+      document.querySelectorAll('#tab-vcrop .pill').forEach(p => p.classList.remove('on'));
+      el.classList.add('on');
+    }
+    async function exportRatioSpeedVideo() {
+      const v = document.getElementById('vcrop-vid');
+      if (!v.src || !v.videoWidth) return;
+      const spd = parseFloat(document.getElementById('vspd-slider').value) || 1.0;
+      const stat = document.getElementById('vcrop-stat');
 
-    files = [os.path.join(job_dir, f) for f in os.listdir(job_dir) if not f.endswith(".part")]
-    if not files:
-        cleanup(job_dir)
-        if mode == "subs":
-            raise ValueError("Is video ke liye koi subtitles available nahi hain.")
-        raise ValueError("Download complete nahi ho paya.")
+      let sx = 0, sy = 0, sw = v.videoWidth, sh = v.videoHeight;
+      if (selectedVidRatio !== 'orig') {
+        const [rw, rh] = selectedVidRatio.split(':').map(Number);
+        const tr = rw / rh, cr = sw / sh;
+        if (cr > tr) { sw = Math.round(sh * tr); sx = Math.round((v.videoWidth - sw) / 2); }
+        else { sh = Math.round(sw / tr); sy = Math.round((v.videoHeight - sh) / 2); }
+      }
+      const scale = Math.min(1, 720 / Math.max(sw, sh));
+      const c = document.createElement('canvas');
+      c.width = Math.round(sw * scale); c.height = Math.round(sh * scale);
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
 
-    fpath = max(files, key=os.path.getsize)
-    size_mb = os.path.getsize(fpath) / (1024 * 1024)
-    if mode != "subs" and size_mb > MAX_TG_MB:
-        cleanup(job_dir)
-        return {"status": "too_big", "direct_url": direct_url, "size_mb": size_mb, "title": title}
+      const stream = c.captureStream(25);
+      const chunks = [];
+      const rec = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8' });
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = () => {
+        v.playbackRate = 1.0;
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        stat.textContent = '✅ Ratio & Speed Video Ready!';
+        setOutput(blob, 'solvrik_ratio_speed.webm', `<video controls src="${URL.createObjectURL(blob)}" style="max-height:220px"></video>`);
+      };
 
-    return {"status": "ok", "path": fpath, "kind": kind, "title": title, "size_mb": size_mb, "job_dir": job_dir}
+      v.currentTime = 0;
+      await new Promise(r => { v.onseeked = r; });
+      v.playbackRate = spd;
+      stat.textContent = `⏳ Rendering (${selectedVidRatio}, ${spd}x)...`;
+      rec.start(); v.play();
+      const loop = () => {
+        if (v.paused || v.ended) { if (rec.state !== 'inactive') rec.stop(); return; }
+        ctx.drawImage(v, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        requestAnimationFrame(loop);
+      };
+      loop();
+    }
 
+    let afxFile = null;
+    function loadAudioFx(e) {
+      const f = e.target.files[0]; if (!f) return;
+      afxFile = f;
+      document.getElementById('afx-ui').classList.remove('hidden');
+      document.getElementById('afx-name').textContent = `🎵 Loaded: ${f.name}`;
+    }
+    function presetLofi() {
+      document.getElementById('aspd-slider').value = 0.85;
+      document.getElementById('aspd-val').textContent = '0.85x';
+    }
+    function presetNightcore() {
+      document.getElementById('aspd-slider').value = 1.25;
+      document.getElementById('aspd-val').textContent = '1.25x';
+    }
+    async function renderProcessedAudio() {
+      if (!afxFile) return;
+      const spd = parseFloat(document.getElementById('aspd-slider').value) || 1.0;
+      const vol = (parseFloat(document.getElementById('avol-slider').value) || 100) / 100.0;
+      const stat = document.getElementById('afx-stat');
+      stat.textContent = '⏳ Rendering HD Audio...';
+      try {
+        const arrBuf = await afxFile.arrayBuffer();
+        const actx = new (window.AudioContext || window.webkitAudioContext)();
+        const decoded = await actx.decodeAudioData(arrBuf);
+        const outLen = Math.ceil(decoded.length / spd);
+        const offline = new OfflineAudioContext(decoded.numberOfChannels, outLen, decoded.sampleRate);
+        const src = offline.createBufferSource();
+        src.buffer = decoded;
+        src.playbackRate.value = spd;
+        const gain = offline.createGain();
+        gain.gain.value = vol;
+        src.connect(gain);
+        gain.connect(offline.destination);
+        src.start(0);
+        const rendered = await offline.startRendering();
+        const wavBlob = audioBufferToWav(rendered);
+        stat.textContent = `✅ Ready (${spd}x, ${Math.round(vol * 100)}% vol)!`;
+        setOutput(wavBlob, `solvrik_audio_${spd}x.wav`, `<audio controls src="${URL.createObjectURL(wavBlob)}" style="width:100%"></audio>`);
+      } catch (err) {
+        stat.textContent = '❌ Audio decode error — MP3 ya WAV file chunein.';
+      }
+    }
 
-def cleanup(job_dir):
-    if job_dir and os.path.isdir(job_dir):
-        shutil.rmtree(job_dir, ignore_errors=True)
+    function extractYtId(url) {
+      const m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+    async function grabYtThumb(quality) {
+      const url = document.getElementById('yt-url').value.trim();
+      const vidId = extractYtId(url);
+      const stat = document.getElementById('yt-stat');
+      if (!vidId) { stat.textContent = '❌ Sahi YouTube link paste karein!'; return; }
+      stat.textContent = '⏳ Thumbnail fetch ho raha hai...';
+      try {
+        const resp = await fetch(`https://i.ytimg.com/vi/${vidId}/${quality}.jpg`);
+        const blob = await resp.blob();
+        stat.textContent = `✅ Thumbnail Ready (${vidId})`;
+        setOutput(blob, `yt_thumb_${vidId}.jpg`, `<img src="${URL.createObjectURL(blob)}" style="max-height:220px"/>`);
+      } catch (e) { stat.textContent = '❌ Thumbnail fetch nahi ho saka.'; }
+    }
+    function openDirectShortcut() {
+      const url = document.getElementById('yt-url').value.trim();
+      const vidId = extractYtId(url);
+      if (!vidId) { document.getElementById('yt-stat').textContent = '❌ Sahi YouTube link paste karein!'; return; }
+      window.open(`https://www.ssyoutube.com/watch?v=${vidId}`, '_blank');
+    }
+
+    function inspectMedia(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const v = document.getElementById('info-vid');
+      v.src = URL.createObjectURL(f);
+      document.getElementById('info-ui').classList.remove('hidden');
+      v.onloadedmetadata = () => {
+        const mb = (f.size / (1024 * 1024)).toFixed(2);
+        document.getElementById('info-text').innerHTML =
+          `📁 File: ${f.name}<br>📐 Resolution: ${v.videoWidth || '-'} × ${v.videoHeight || '-'} px<br>⏱️ Duration: ${(v.duration || 0).toFixed(1)} sec | 📦 Size: ${mb} MB`;
+      };
+    }
+    function grabVideoFrame() {
+      const v = document.getElementById('info-vid');
+      if (!v.videoWidth) return;
+      const c = document.createElement('canvas');
+      c.width = v.videoWidth; c.height = v.videoHeight;
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+      c.toBlob(b => setOutput(b, 'video_frame_hd.jpg', `<img src="${URL.createObjectURL(b)}" style="max-height:220px"/>`), 'image/jpeg', 0.97);
+    }
+  </script>
+</body>
+</html>
